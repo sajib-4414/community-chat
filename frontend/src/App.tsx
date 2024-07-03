@@ -1,5 +1,5 @@
 import './App.css';
-import { ChatHome } from './ChatHome';
+import { ChatHome } from './pages/ChatHome';
 import Container from './common/Container';
 import { Routes, Route } from "react-router-dom";
 

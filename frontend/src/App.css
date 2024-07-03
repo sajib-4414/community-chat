@@ -20,8 +20,8 @@ header{
   height:4rem;
   width:100%;
   background: darkolivegreen;
-  position:fixed;
-  top:0px;
+  position: sticky;
+  top: 0;
   left:0px;
   right:0px;
 }
@@ -43,4 +43,5 @@ header nav ul {
   max-width: 960px;
   margin-left:auto;
   margin-right: auto;
+  height:100%;
 }
