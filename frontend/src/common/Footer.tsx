@@ -2,7 +2,7 @@ import { FC } from "react";
 
 const Footer:FC = ()=>{
     return<footer>
-        this is footer
+        <p>Copyright Chatapp</p>
     </footer>
 }
 export default Footer

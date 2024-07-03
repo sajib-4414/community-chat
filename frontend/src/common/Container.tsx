@@ -4,7 +4,7 @@ import { Header } from "./Header";
 import Footer from "./Footer";
 const Container: React.FC<ContainerProps>= ({children})=>{
     return(
-        <div>
+        <body>
             <Header/>
             <div 
             // className="container"
@@ -12,7 +12,7 @@ const Container: React.FC<ContainerProps>= ({children})=>{
                 {children}
             </div>
             <Footer/>
-        </div>
+        </body>
     )
 }
 export default Container
