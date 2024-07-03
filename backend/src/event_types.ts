@@ -1,0 +1,1 @@
+export const USER_JOINED_ROOM = 'user_joined_room'

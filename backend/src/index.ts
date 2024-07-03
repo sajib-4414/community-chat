@@ -1,6 +1,7 @@
 import express from 'express'
 import { createServer } from "http";
 import { Server,Socket } from "socket.io";
+import { USER_JOINED_ROOM } from './event_types';
 
 //initializaing a socket and express server
 const expressServer = express()
@@ -11,6 +12,9 @@ const io = new Server(server,{})
 //or when a new client connects
 io.on("connection", (socket: Socket) => {
     console.log('new socket client just joined')
+    socket.on(USER_JOINED_ROOM,()=>{
+        console.log('Client joined')
+    })
 });
 
 expressServer.get('/',(req,res)=>{
