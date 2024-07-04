@@ -3,15 +3,18 @@ import Container from './common/Container';
 import { Routes, Route } from "react-router-dom";
 import { ChatHome } from './pages/ChatHome';
 import { Login } from './pages/Login';
-
+import { Provider } from 'react-redux';
+import { store } from './store/store';
 function App() {
   return (
-    <Container>
-      <Routes>
-        <Route path="/" element={<ChatHome />} />
-        <Route path="/login" element={<Login />} />
-      </Routes>
-    </Container>
+    <Provider store={store}>
+      <Container>
+        <Routes>
+          <Route path="/" element={<Login />} />
+          <Route path="/chat" element={<ChatHome />} />
+        </Routes>
+      </Container>
+    </Provider>
   );
 }
 

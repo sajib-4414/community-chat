@@ -1,6 +1,9 @@
 import { FC } from "react";
+import { useSelector } from "react-redux";
+import { IRootState } from "../store/store";
 
 const Header:FC = ()=>{
+    const userStore = useSelector((state:IRootState)=>state.userSlice)
     return(
         <header>
             <nav className="container">
@@ -8,7 +11,7 @@ const Header:FC = ()=>{
                 <ul>
                     <li>Option1</li>
                     <li>Option2</li>
-                    <li>Signup</li>
+                    <li>{userStore.user.username===''?'Signup':userStore.user.username}</li>
                 </ul>
             </nav>
         </header>

@@ -2,6 +2,8 @@ import { FC, useEffect } from "react";
 import './chathome.css'
 import { socket } from "../socket";
 import avatarImage from './../assets/test_avatar_image.jpg';
+import { useSelector } from "react-redux";
+import { IRootState } from "../store/store";
 export const ChatHome:FC = ()=>{
     useEffect(()=>{
         function onConnect() {
@@ -12,11 +14,18 @@ export const ChatHome:FC = ()=>{
         socket.on('foo', (value) => {
             console.log('on foo event value',value)
           });
-
+        
+        //this return function works as a cleanup method
         return()=>{
             socket.off('foo');
         }
     },[])
+
+    const userStore = useSelector((state:IRootState)=>state.userSlice)
+    const handleRecentChatItemClick = ()=>{
+        console.log('clicked')
+    }
+
     return <div className="full container">
              {/* left side container  */}
             <div className="contacts-container">
@@ -30,7 +39,20 @@ export const ChatHome:FC = ()=>{
                 <div className="recent-messages">
                     <h4>Recent</h4>
                     <ul>
-                        <li >
+                        <li key="1" onClick={()=>handleRecentChatItemClick()}>
+                            <div className="chat-row">
+                                <img 
+                                className="chat-avatar-small"
+                                src={avatarImage}/>
+                                <div>
+                                    <strong><span>{userStore.user.username}</span></strong>
+                                    <p>THis theme is awesome</p>
+                                </div>
+                            </div>
+                            
+                        </li>
+                        
+                        <li key="2">
                             <div className="chat-row">
                                 <img 
                                 className="chat-avatar-small"
@@ -43,20 +65,7 @@ export const ChatHome:FC = ()=>{
                             
                         </li>
                         
-                        <li >
-                            <div className="chat-row">
-                                <img 
-                                className="chat-avatar-small"
-                                src={avatarImage}/>
-                                <div>
-                                    <strong><span>Patrick Hendricks</span></strong>
-                                    <p>THis theme is awesome</p>
-                                </div>
-                            </div>
-                            
-                        </li>
-                        
-                        <li >
+                        <li key="3">
                             <div className="chat-row chat-row-selected">
                                 <img 
                                 className="chat-avatar-small"
@@ -68,7 +77,7 @@ export const ChatHome:FC = ()=>{
                             </div>
                             
                         </li>
-                        <li >
+                        <li key="4">
                             <div className="chat-row chat-row-selected">
                                 <img 
                                 className="chat-avatar-small"
@@ -80,7 +89,7 @@ export const ChatHome:FC = ()=>{
                             </div>
                             
                         </li>
-                        <li >
+                        <li key="5">
                             <div className="chat-row chat-row-selected">
                                 <img 
                                 className="chat-avatar-small"
@@ -92,7 +101,7 @@ export const ChatHome:FC = ()=>{
                             </div>
                             
                         </li>
-                        <li >
+                        <li key="8">
                             <div className="chat-row chat-row-selected">
                                 <img 
                                 className="chat-avatar-small"

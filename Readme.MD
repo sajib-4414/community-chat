@@ -19,3 +19,12 @@ server.listen(3001, ()=>{
     console.log('http server is running at 3001 port')
 })
 ```
+
+Library to add
+* express validator
+* mongoose aggregate pagination
+* mongo migrate
+* express async error
+* bcrypt
+* something for jwt
+* route creating library
