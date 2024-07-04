@@ -6,7 +6,11 @@ import { USER_JOINED_ROOM } from './event_types';
 //initializaing a socket and express server
 const expressServer = express()
 const server = createServer(expressServer)
-const io = new Server(server,{})
+const io = new Server(server,{
+    cors: {
+      origin: "http://localhost:5173"
+    }
+  })
 
 //when a new socket joins to the server
 //or when a new client connects

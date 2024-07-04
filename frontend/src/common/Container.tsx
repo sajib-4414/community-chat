@@ -6,11 +6,9 @@ const Container: React.FC<ContainerProps>= ({children})=>{
     return(
         <>
             <Header/>
-            <div 
-            className="container"
-            >
+            
                 {children}
-            </div>
+          
             <Footer/>
         </>
     )

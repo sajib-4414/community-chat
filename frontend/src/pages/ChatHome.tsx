@@ -1,8 +1,23 @@
-import { FC } from "react";
+import { FC, useEffect } from "react";
 import './chathome.css'
+import { socket } from "../socket";
 import avatarImage from './../assets/test_avatar_image.jpg';
 export const ChatHome:FC = ()=>{
-    return <div className="full">
+    useEffect(()=>{
+        function onConnect() {
+            console.log('socket connected')
+          }
+          socket.on('connect',onConnect)
+
+        socket.on('foo', (value) => {
+            console.log('on foo event value',value)
+          });
+
+        return()=>{
+            socket.off('foo');
+        }
+    },[])
+    return <div className="full container">
              {/* left side container  */}
             <div className="contacts-container">
                 <div className="chat-contact-search-div">
@@ -27,18 +42,7 @@ export const ChatHome:FC = ()=>{
                             </div>
                             
                         </li>
-                        <li >
-                            <div className="chat-row">
-                                <img 
-                                className="chat-avatar-small"
-                                src={avatarImage}/>
-                                <div>
-                                    <strong><span>Patrick Hendricks</span></strong>
-                                    <p>THis theme is awesome</p>
-                                </div>
-                            </div>
-                            
-                        </li>
+                        
                         <li >
                             <div className="chat-row">
                                 <img 
@@ -52,6 +56,66 @@ export const ChatHome:FC = ()=>{
                             
                         </li>
                         
+                        <li >
+                            <div className="chat-row chat-row-selected">
+                                <img 
+                                className="chat-avatar-small"
+                                src={avatarImage}/>
+                                <div>
+                                    <strong><span>Patrick Hendricks</span></strong>
+                                    <p>THis theme is awesome</p>
+                                </div>
+                            </div>
+                            
+                        </li>
+                        <li >
+                            <div className="chat-row chat-row-selected">
+                                <img 
+                                className="chat-avatar-small"
+                                src={avatarImage}/>
+                                <div>
+                                    <strong><span>Patrick Hendricks</span></strong>
+                                    <p>THis theme is awesome</p>
+                                </div>
+                            </div>
+                            
+                        </li>
+                        <li >
+                            <div className="chat-row chat-row-selected">
+                                <img 
+                                className="chat-avatar-small"
+                                src={avatarImage}/>
+                                <div>
+                                    <strong><span>Patrick Hendricks</span></strong>
+                                    <p>THis theme is awesome</p>
+                                </div>
+                            </div>
+                            
+                        </li>
+                        <li >
+                            <div className="chat-row chat-row-selected">
+                                <img 
+                                className="chat-avatar-small"
+                                src={avatarImage}/>
+                                <div>
+                                    <strong><span>Patrick Hendricks</span></strong>
+                                    <p>THis theme is awesome</p>
+                                </div>
+                            </div>
+                            
+                        </li>
+                        <li >
+                            <div className="chat-row chat-row-selected">
+                                <img 
+                                className="chat-avatar-small"
+                                src={avatarImage}/>
+                                <div>
+                                    <strong><span>Patrick Hendricks</span></strong>
+                                    <p>THis theme is awesome</p>
+                                </div>
+                            </div>
+                            
+                        </li>
                         <li >
                             <div className="chat-row chat-row-selected">
                                 <img 

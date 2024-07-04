@@ -3,11 +3,16 @@
 }
 .full{
     display: flex;
-    width:100%;
-    height:100%;
+    width: 100%;
+    height: 83vh;
+    /* max-width: 960px;
+    margin-left: auto;
+    margin-right: auto; */
+    /* width:100%; */
+    /* height:100%; */
 }
 .contacts-container{
-    max-width: 28%;
+    max-width: 35%;
     flex-grow:1;
     background: #F5F7FB;
 }
@@ -101,7 +106,8 @@
     list-style-type: none;
     background: #F5F7EB;
     padding: 0;
-    
+    max-height: 60vh;
+    overflow-y: scroll;
 }
 .recent-messages ul li {
     margin-bottom: 2px;
