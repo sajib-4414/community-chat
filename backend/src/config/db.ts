@@ -13,6 +13,9 @@ const connectToMongoDB = async()=>{
             })
             console.info('Connected to mongodb atlas')
         }
+        else{
+            console.error('Cannot connect to mongodb connection string empty')
+        }
         
     }catch(error){
         console.error(error)

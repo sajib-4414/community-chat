@@ -1,9 +1,25 @@
-import { FC } from "react";
-import { useSelector } from "react-redux";
-import { IRootState } from "../store/store";
+import { FC, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Header:FC = ()=>{
-    const userStore = useSelector((state:IRootState)=>state.userSlice)
+    const [username, setUsername] = useState("")
+    const navigate = useNavigate()
+    useEffect(()=>{
+        const storedUserJson = localStorage.getItem("user")
+        if(storedUserJson){
+            const storedUser = JSON.parse(storedUserJson)
+            if(storedUser.username !== ""){
+                setUsername(storedUser.username)
+            }
+        }
+    })
+    const handleLogout = ()=>{
+        localStorage.removeItem('user');
+        navigate('/login')
+    }
+    //we will later restore the user from local storage in App.ts,
+    //that time we will fetch from just state in header
+    // const userStore = useSelector((state:IRootState)=>state.userSlice)
     return(
         <header>
             <nav className="container">
@@ -11,7 +27,10 @@ const Header:FC = ()=>{
                 <ul>
                     <li>Option1</li>
                     <li>Option2</li>
-                    <li>{userStore.user.username===''?'Signup':userStore.user.username}</li>
+                    <li>{username===''?'Signup':username}</li>
+                    {username!==''?<li style={{cursor:"pointer"}} onClick={handleLogout}>
+                        Logout
+                    </li>:''}
                 </ul>
             </nav>
         </header>

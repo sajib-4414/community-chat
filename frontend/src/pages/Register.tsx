@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 import { storeUser } from "../store/UserSlice";
 import axios from "axios";
-export const Login:FC = ()=>{
+export const Register:FC = ()=>{
 
     const [username, setUserName] = useState("");
     const [password, setPassword] = useState("");
@@ -14,10 +14,10 @@ export const Login:FC = ()=>{
     const submitForm = (event:FormEvent<HTMLFormElement>)=>{
         event.preventDefault();
         //make API call
-        axios.post('http://localhost:3001/api/auth/login',{
+        axios.post('http://localhost:3001/api/auth/register',{
             username
         }).then((response)=>{
-            console.log("response of login call is",response)
+            console.log("response of register call is",response)
             const userJSON = JSON.stringify(response.data);
             localStorage.setItem('user', userJSON);
             dispatch(storeUser({
@@ -44,7 +44,7 @@ export const Login:FC = ()=>{
             type="password"
             onChange={e=>setPassword(e.target.value)}
             placeholder="Password"/>
-            <button>Login</button>
+            <button>Register</button>
             </form>
             
         </>

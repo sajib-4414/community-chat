@@ -4,8 +4,20 @@ import { socket } from "../socket";
 import avatarImage from './../assets/test_avatar_image.jpg';
 import { useSelector } from "react-redux";
 import { IRootState } from "../store/store";
+import { useNavigate } from "react-router-dom";
 export const ChatHome:FC = ()=>{
+    const navigate = useNavigate();
     useEffect(()=>{
+        const storedUserJson = localStorage.getItem("user")
+        if(storedUserJson){
+            const storedUser = JSON.parse(storedUserJson)
+            if(storedUser.username === ""){
+                navigate('/login');
+            }
+        }
+        else{
+            navigate('/login');
+        }
         function onConnect() {
             console.log('socket connected')
           }

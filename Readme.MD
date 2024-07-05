@@ -28,3 +28,8 @@ Library to add
 * bcrypt
 * something for jwt
 * route creating library
+
+CORS:
+const cors = require('cors')
+expressServer.use(cors())//using default settings, CORS-> Allow all server
+//best approach is to configure which server to allow

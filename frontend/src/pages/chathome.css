@@ -111,6 +111,7 @@
 }
 .recent-messages ul li {
     margin-bottom: 2px;
+    cursor: pointer;
 }
 .chat-row{
     display: flex;

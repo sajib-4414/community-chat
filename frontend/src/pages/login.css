@@ -1,18 +1,21 @@
 .login-form{
     display: flex;
     flex-direction: column;
-    margin: auto;
-    margin-top: 25%;
-    min-width: 20%;
+    position: absolute;
+    top:30%;
+    transform: translateY(-50%);
+    left:50%;
+    transform: translateX(-50%);
+    min-width: 24%;
     /* max-width: 200px; */
 }
 
 .login-form input{
-    height: 3vw;
+    height: 2vw;
     margin-bottom: 5px;
 }
 .login-form button{
     background: green;
     color: white;
-    height: 3vw;
+    height: 2vw;
 }
