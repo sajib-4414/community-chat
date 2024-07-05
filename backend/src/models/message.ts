@@ -1,12 +1,15 @@
 import mongoose from "mongoose";
 import { IUser } from "./user";
+import { IRoom } from "./room";
+import { MESSAGE_TYPES } from "../types/room_message_types";
 interface IMessage extends mongoose.Document{
     message:string,
-    created_at:Date,
-    updated_at:Date,
+    createdAt:Date,
+    updatedAt:Date,
     sender:string|IUser,
-    room:string,
-    one_to_one:boolean
+    room:string|IRoom,
+    oneToOne:boolean,
+    messageType:MESSAGE_TYPES
 }
 
 const messsageSchema = new mongoose.Schema<IMessage>({
@@ -14,20 +17,25 @@ const messsageSchema = new mongoose.Schema<IMessage>({
         type:String,
         required:true
     },
-    created_at:Date,
-    updated_at:Date,
+    createdAt:Date,
+    updatedAt:Date,
     sender:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
         required:true
     },
     room:{
-        type:String,
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"Room",
         required:true
     },
-    one_to_one:{
+    oneToOne:{
         type:Boolean,
-        required:true
+        default:false
+    },
+    messageType:{
+        type:String,
+        enum:MESSAGE_TYPES
     }
 })
 

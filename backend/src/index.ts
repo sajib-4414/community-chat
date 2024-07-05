@@ -1,7 +1,7 @@
 import express from 'express'
 import { createServer } from "http";
 import { Server,Socket } from "socket.io";
-import { USER_JOINED_ROOM } from './event_types';
+import { USER_JOINED_ROOM } from './types/event_types';
 import { connectToMongoDB } from './config/db';
 import { authRouter } from './routes/auth_user_routes';
 
