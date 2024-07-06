@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { MESSAGE, USER_ROOM_JOIN_REQUEST } from "../constants";
 export  const ChatHome = ()=>{
+    const [currentUser, setCurrentUser] = useState<any>({});
     const navigate = useNavigate();
     const [contacts, setContacts] = useState<any>([])
     const [currentlyChattingWith, setCurrentlyChattingWith] = useState<any>(null)
@@ -105,6 +106,7 @@ export  const ChatHome = ()=>{
         console.log("inside chatting with", currentlyChattingWith)
         console.log("inside chat messages", currentChatMessages)
         setCurrentChatMessages([...currentChatMessages, dbMessage])
+        
     });
     useEffect(()=>{
         const storedUserJson = localStorage.getItem("user")
@@ -113,6 +115,7 @@ export  const ChatHome = ()=>{
             if(storedUser.username === ""){
                 navigate('/login');
             }
+            setCurrentUser(storedUser)
         }
         else{
             navigate('/login');
@@ -260,11 +263,35 @@ export  const ChatHome = ()=>{
                     className="chat-message-class-demo"
                     >
                         {currentChatMessages.map((message:any,index:number)=>{
-                            return(<li key={index}>
-                                {message.message}
-                                <br/>
-                                Sent by - {message.sender.username}
-                            </li>)
+                            if(message.sender.username === currentUser.username){
+                                return(<li key={index} className="own-message">
+                                    <img 
+                                        className="chat-avatar"
+                                        src={avatarImage}/>
+                                    <div className="talk-bubble tri-right left-in">
+                                        <div className="talktext">
+                                            <p>{message.message}</p>
+                                            <small>Sent by - {message.sender.username}</small>
+                                        </div>
+                                    </div>
+                                    
+                                </li>)
+                            }
+                            else{
+                                return(<li key={index} className="arrived-message">
+                                    <div className="talk-bubble tri-right btm-right">
+                                        <div className="talktext">
+                                        <p>{message.message}</p>
+                                        <small>Sent by - {message.sender.username}</small>
+                                        </div>
+                                    </div>
+                                    <img 
+                                        className="chat-avatar"
+                                        src={avatarImage}/>
+                                    
+                                </li>)
+                            }
+                            
                         })}
                     </ul>
                 </div>

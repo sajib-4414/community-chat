@@ -1,12 +1,13 @@
 
 footer{
   width:100%;
-  height:10%;
+  height:8%;
   background: #000000;
   color: white;
   display:flex;
-  position: fixed;
-  bottom: 0;
+  position: relative;
+  top: 9px; /* a hotfix as i cannot make the footer to extreme bottom, withjout making it absolute */
+  
 }
 footer p {
   align-self:center;
@@ -48,4 +49,6 @@ header nav ul {
   display: flex;
   flex-direction: column;
   justify-content: space-around;
+  height: 100vh;
+
 }
