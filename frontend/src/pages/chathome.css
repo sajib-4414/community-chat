@@ -109,6 +109,11 @@
     max-height: 60vh;
     overflow-y: scroll;
 }
+
+.chat-message-class-demo{
+    max-height: 60vh;
+    overflow-y: scroll;
+}
 .recent-messages ul li {
     margin-bottom: 2px;
     cursor: pointer;

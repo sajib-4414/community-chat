@@ -1,5 +1,9 @@
 import { Server,Socket } from "socket.io";
 import { MESSAGE, USER_JOINED_ROOM, USER_ROOM_JOIN_REQUEST } from "../types/event_types";
+import { Message } from "../models/message";
+import { MESSAGE_TYPES } from "../types/room_message_types";
+import { Room } from "../models/room";
+import { User } from "../models/user";
 
 let io:any = null;
 
@@ -20,13 +24,22 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
             socket.join(roomName);
             console.log('CLient want to join a room')
         })
-        socket.on(MESSAGE,(payload)=>{
-            socket.join(payload.roomName);
+        socket.on(MESSAGE,async (payload)=>{
+            socket.join(payload.room);
             
-            console.log('CLient sent a message', payload)
-            //this message will be sent back to all clients in the room
-            io.to(payload.roomName).emit(MESSAGE,payload.message)
+            console.log('Client sent a message', payload)
+            
 
+            const dbMessage = await Message.create({
+                message:payload.message,
+                sender:  await User.findOne({username:payload.sender})  ,
+                room:await Room.findOne({ name:payload.room}) ,
+                oneToOne:true,
+                messageType:MESSAGE_TYPES.USER_MSG
+            })
+
+            //this message will be sent back to all clients in the room
+            io.to(payload.room).emit(MESSAGE,dbMessage)
         })
     });
 }

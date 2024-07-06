@@ -1,4 +1,4 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import './chathome.css'
 import { socket } from "../socket";
 import avatarImage from './../assets/test_avatar_image.jpg';
@@ -7,10 +7,11 @@ import { IRootState } from "../store/store";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { MESSAGE, USER_ROOM_JOIN_REQUEST } from "../constants";
-export const ChatHome:FC = ()=>{
+export  const ChatHome = ()=>{
     const navigate = useNavigate();
     const [contacts, setContacts] = useState<any>([])
     const [currentlyChattingWith, setCurrentlyChattingWith] = useState<any>(null)
+    var currentMesssagesStore:any = []
     const [currentChatMessages, setCurrentChatMessages] = useState<any>([])
     const [currentMessage, setCurrentMessage] = useState("")
     function onConnect() {
@@ -66,6 +67,7 @@ export const ChatHome:FC = ()=>{
 
             //then emit the mesasge
             socket.emit(MESSAGE, {
+                sender:storedUser.username,//todo this will come from authentiation
                 room:roomName,
                 message: currentMessage
             } )
@@ -88,13 +90,22 @@ export const ChatHome:FC = ()=>{
             currentChatter:storedUser.username
         })
         setCurrentChatMessages(response.data)
-        console.log(response.data)
+        currentMesssagesStore = response.data
+        console.log("news store is",currentMesssagesStore)
     }
     const handleContactClick = (contact:any)=>{
         console.log("start chatting with",contact)
         setCurrentlyChattingWith(contact)
         fetchChatMessages(contact)
     }
+    socket.on(MESSAGE, (dbMessage) => {
+        console.log('on message event value',dbMessage)
+        console.log('current chat messages=',currentMesssagesStore)
+        console.log("inside printing contacts",contacts)
+        console.log("inside chatting with", currentlyChattingWith)
+        console.log("inside chat messages", currentChatMessages)
+        setCurrentChatMessages([...currentChatMessages, dbMessage])
+    });
     useEffect(()=>{
         const storedUserJson = localStorage.getItem("user")
         if(storedUserJson){
@@ -112,15 +123,15 @@ export const ChatHome:FC = ()=>{
         socket.on('foo', (value) => {
             console.log('on foo event value',value)
         });
-        socket.on(MESSAGE, (value) => {
-            console.log('on message event value',value)
-        });
         
+
+
         //this return function works as a cleanup method
         return()=>{
             socket.off('foo');
             socket.off(MESSAGE);
         }
+
     },[])
 
     const userStore = useSelector((state:IRootState)=>state.userSlice)
@@ -245,7 +256,17 @@ export const ChatHome:FC = ()=>{
                     </div>
                 </div>
                 <div className="message-container-main">
-
+                    <ul 
+                    className="chat-message-class-demo"
+                    >
+                        {currentChatMessages.map((message:any,index:number)=>{
+                            return(<li key={index}>
+                                {message.message}
+                                <br/>
+                                Sent by - {message.sender.username}
+                            </li>)
+                        })}
+                    </ul>
                 </div>
                 
                 <div className="message-container-footer">
@@ -253,13 +274,18 @@ export const ChatHome:FC = ()=>{
                     value={currentMessage}
                     onChange={(e)=> setCurrentMessage(e.target.value)}
                     className="message-input" 
-                    placeholder="Enter Message"/>
+                    placeholder="Enter Message"
+                    onKeyDown={(e)=> e.key === 'Enter' ? sendCurrentMessage(): ''}
+                    />
                     <div className="message-button-container">
                         <i className="fa fa-image"></i>
+                        
                         <i 
                         className="fa fa-paper-plane" aria-hidden="true"
                         onClick={sendCurrentMessage}
                         ></i>
+                        
+                        
                     </div>
                 </div>
             </div>

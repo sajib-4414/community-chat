@@ -99,7 +99,7 @@ export const getChatMessagesOfRoom = async (requestPayload:any)=>{
 
     const messages = await Message.find({
         room
-    })
+    }).populate('sender')
     return messages;
 
 }
