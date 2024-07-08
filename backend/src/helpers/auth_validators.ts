@@ -18,7 +18,7 @@ export const registrationValidators:ValidationChain[] = [
 ]
 
 export const loginValidators:ValidationChain[] = [
-    body('email').isEmail().withMessage('Email must be valid'),
+    body('username').notEmpty().withMessage('username must be valid'),
     body('password')
     .trim()
     .notEmpty()
