@@ -19,6 +19,10 @@ server.listen(3001, ()=>{
     console.log('http server is running at 3001 port')
 })
 ```
+**
+Vite has by default support for .env files.
+How to use: https://stackoverflow.com/a/77102955
+
 
 Library to add
 * express validator

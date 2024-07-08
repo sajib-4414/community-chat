@@ -105,6 +105,14 @@
     padding-right:0.8vw;
 }
 
+.chat-contacts ul{
+    max-height: 15vh;
+    overflow-y: scroll;
+    padding: 0;
+    list-style-type: none;
+    background: #F5F7EB;
+}
+
 .recent-messages ul{
     list-style-type: none;
     background: #F5F7EB;

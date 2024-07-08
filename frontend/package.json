@@ -11,8 +11,10 @@
   },
   "dependencies": {
     "@reduxjs/toolkit": "^2.2.6",
+    "@types/dotenv": "^8.2.0",
     "@types/react-redux": "^7.1.33",
     "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
     "i": "^0.3.7",
     "npm": "^10.8.1",
     "react": "^18.3.1",
@@ -22,6 +24,7 @@
     "socket.io-client": "^4.7.5"
   },
   "devDependencies": {
+    "@types/node": "^20.14.10",
     "@types/react": "^18.3.3",
     "@types/react-dom": "^18.3.0",
     "@typescript-eslint/eslint-plugin": "^7.13.1",

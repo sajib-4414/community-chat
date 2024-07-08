@@ -19,3 +19,7 @@
     color: white;
     height: 2vw;
 }
+.form-error{
+    background: yellow;
+    color:red;
+}

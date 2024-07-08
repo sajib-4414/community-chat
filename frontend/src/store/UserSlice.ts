@@ -1,9 +1,11 @@
-import {  createSlice } from "@reduxjs/toolkit";
+import {  createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { LoggedInUser } from "../models/usermodels";
 
-const initialState = {
-    user:{
-        username: '',
-    }
+export interface LoggedInUserState {
+    loggedInUser: LoggedInUser | null;
+}
+const initialState:LoggedInUserState = {
+    loggedInUser:null
 }
 
 export const UserSlice = createSlice({
@@ -14,12 +16,12 @@ export const UserSlice = createSlice({
         //state here means the slice. Within the slice, state means this entire slice, NOT full react state
 
         //this is a userslice action
-        storeUser:(state, action)=>{
-            const {user} = action.payload
-            state.user = user
+        storeUser:(state, action:PayloadAction<LoggedInUser>)=>{
+            state.loggedInUser = action.payload
         },
         resetUser:(state)=>{
-            state = initialState
+            state.loggedInUser = null; //=initialState does not work
+            localStorage.removeItem("user");
         }
     }
 

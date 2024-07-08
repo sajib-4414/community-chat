@@ -1,20 +1,17 @@
-import { FC, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { FC } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { LoggedInUser } from "../models/usermodels";
+import { useAppDispatch, useAppSelector } from "../store/store";
+import { resetUser } from "../store/UserSlice";
 
 const Header:FC = ()=>{
-    const [username, setUsername] = useState("")
+    const loggedinUser:LoggedInUser|null = useAppSelector(
+        (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
+    )
     const navigate = useNavigate()
-    useEffect(()=>{
-        const storedUserJson = localStorage.getItem("user")
-        if(storedUserJson){
-            const storedUser = JSON.parse(storedUserJson)
-            if(storedUser.username !== ""){
-                setUsername(storedUser.username)
-            }
-        }
-    })
+    const dispatch = useAppDispatch();
     const handleLogout = ()=>{
-        localStorage.removeItem('user');
+        dispatch(resetUser())
         navigate('/login')
     }
     //we will later restore the user from local storage in App.ts,
@@ -23,14 +20,18 @@ const Header:FC = ()=>{
     return(
         <header>
             <nav className="container">
-                <h2>Dev chat application</h2>
+                <h2><Link className="header-link-styles" to="/">Dev chat application</Link></h2>
                 <ul>
                     <li>Option1</li>
                     <li>Option2</li>
-                    <li>{username===''?'Signup':username}</li>
-                    {username!==''?<li style={{cursor:"pointer"}} onClick={handleLogout}>
-                        Logout
-                    </li>:''}
+                    {loggedinUser && loggedinUser?.user ?
+                        <>
+                            <li><strong>{loggedinUser?.user?.name}</strong></li>
+                            <li style={{cursor:"pointer"}} onClick={handleLogout}>Logout</li>
+                        </>
+                        :
+                        <li> <Link to="/register" className="header-link-styles" >Signup</Link></li>
+                    }
                 </ul>
             </nav>
         </header>

@@ -3,12 +3,15 @@ import './chathome.css'
 import { socket } from "../socket";
 import avatarImage from './../assets/test_avatar_image.jpg';
 import { useSelector } from "react-redux";
-import { IRootState } from "../store/store";
+import { IRootState, useAppSelector } from "../store/store";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { MESSAGE, USER_ROOM_JOIN_REQUEST } from "../constants";
+import { LoggedInUser } from "../models/usermodels";
 export  const ChatHome = ()=>{
-    const [currentUser, setCurrentUser] = useState<any>({});
+    const loggedinUser:LoggedInUser|null = useAppSelector(
+        (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
+    )
     const navigate = useNavigate();
     const [contacts, setContacts] = useState<any>([])
     const [currentlyChattingWith, setCurrentlyChattingWith] = useState<any>(null)
@@ -109,17 +112,6 @@ export  const ChatHome = ()=>{
         
     });
     useEffect(()=>{
-        const storedUserJson = localStorage.getItem("user")
-        if(storedUserJson){
-            const storedUser = JSON.parse(storedUserJson)
-            if(storedUser.username === ""){
-                navigate('/login');
-            }
-            setCurrentUser(storedUser)
-        }
-        else{
-            navigate('/login');
-        }
         fetchContacts();
         socket.on('connect',onConnect)
 
@@ -137,7 +129,6 @@ export  const ChatHome = ()=>{
 
     },[])
 
-    const userStore = useSelector((state:IRootState)=>state.userSlice)
     const handleRecentChatItemClick = ()=>{
         console.log('clicked')
     }
@@ -151,7 +142,7 @@ export  const ChatHome = ()=>{
                     className="chat-contact-search"
                     placeholder="Search messages or users"/>
                 </div>
-                <div className="recent-messages">
+                <div className="chat-contacts">
                     <h4> Contacts</h4>
                     <ul>
 
@@ -176,7 +167,7 @@ export  const ChatHome = ()=>{
                                 className="chat-avatar-small"
                                 src={avatarImage}/>
                                 <div>
-                                    <strong><span>{userStore.user.username}</span></strong>
+                                    <strong><span>{loggedinUser?.user?.name}</span></strong>
                                     <p>THis theme is awesome</p>
                                 </div>
                             </div>
@@ -244,7 +235,9 @@ export  const ChatHome = ()=>{
             </div>
              {/* right side message container  */}
             <div className="message-container">
-                <div className="message-container-header">
+                {currentlyChattingWith?
+                <>
+                    <div className="message-container-header">
                     <div className="message-image-container">
                         <img 
                         className="chat-avatar"
@@ -259,11 +252,12 @@ export  const ChatHome = ()=>{
                     </div>
                 </div>
                 <div className="message-container-main">
+                    
                     <ul 
                     className="chat-message-class-demo"
                     >
                         {currentChatMessages.map((message:any,index:number)=>{
-                            if(message.sender.username === currentUser.username){
+                            if(message.sender.username === loggedinUser?.user.username){
                                 return(<li key={index} className="own-message">
                                     <img 
                                         className="chat-avatar"
@@ -294,27 +288,39 @@ export  const ChatHome = ()=>{
                             
                         })}
                     </ul>
+                    
+                    
+                    
                 </div>
                 
                 <div className="message-container-footer">
-                    <input 
-                    value={currentMessage}
-                    onChange={(e)=> setCurrentMessage(e.target.value)}
-                    className="message-input" 
-                    placeholder="Enter Message"
-                    onKeyDown={(e)=> e.key === 'Enter' ? sendCurrentMessage(): ''}
+                    {currentlyChattingWith?
+                    <>
+                     <input 
+                        value={currentMessage}
+                        onChange={(e)=> setCurrentMessage(e.target.value)}
+                        className="message-input" 
+                        placeholder="Enter Message"
+                        onKeyDown={(e)=> e.key === 'Enter' ? sendCurrentMessage(): ''}
                     />
                     <div className="message-button-container">
                         <i className="fa fa-image"></i>
                         
                         <i 
                         className="fa fa-paper-plane" aria-hidden="true"
-                        onClick={sendCurrentMessage}
-                        ></i>
-                        
-                        
+                        onClick={sendCurrentMessage}></i>
                     </div>
+                    </>
+                    : ''}
+                   
+                        
+                        
+                    
                 </div>
+                </>
+                :
+                    <h3 style={{textAlign:"center"}}>Select a contact to start chatting</h3>}
+                
             </div>
         </div>
     
