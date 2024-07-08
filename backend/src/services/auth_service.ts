@@ -16,18 +16,26 @@ export const login = async(payload:IRegisterPayload)=>{
     //throw error if login fails
     return user
 }
+//is invoked in both login and register
+const generateToken = (user:IUser)=>{
+    //create Token
+    const token:string = user.getSignedToken()
+    return token
+
+}
 export const register = async (payload:IRegisterPayload)=>{
     //validate payload
     //todo add express validator library here
 
-    //extract
-    const { username } = payload; // Destructure username
-
-
     const user:IUser = await User.create({
-        username
+        ...payload
     })
     //throw error if user creation fails
 
-    return user;
+    const token = generateToken(user)
+
+    return {
+        user,
+        token
+    };
 }

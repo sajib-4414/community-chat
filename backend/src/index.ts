@@ -1,15 +1,26 @@
-import express, { Application } from 'express'
+//this will catch any errors(that are explicityl thrown or not handled by try catch), and handle them apprpriately 
+//like sending a response to the user without crashing the server, MUST be the first line in the code
+require("express-async-errors");
+
+import express from 'express'
 import { createServer } from "http";
-import { Server,Socket } from "socket.io";
-import { USER_JOINED_ROOM } from './types/event_types';
+import cookieParser from 'cookie-parser';
 import { connectToMongoDB } from './config/db';
 import { authRouter } from './routes/auth_user_routes';
 import { messageRouter } from './routes/message_routes';
 import { initializeSocketIoServer } from './config/socketInstance';
-
 //initializaing a socket and express server
 const app = express()
+
+//parse JSON request body
 app.use(express.json())
+
+
+
+
+//cookie parser
+app.use(cookieParser())
+
 connectToMongoDB()
 const cors = require('cors')
 app.use(cors())//using default settings, CORS-> Allow all server
