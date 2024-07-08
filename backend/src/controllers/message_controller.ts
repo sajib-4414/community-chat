@@ -1,11 +1,14 @@
 import { Request, Response } from "express";
-import { createMessage, getChatMessagesOfRoom } from "../services/message_service";
+import { createFirstMessage, getChatMessagesOfRoom } from "../services/message_service";
+import { IUser } from "../models/user";
+import { HTTP_200_OK } from "../types/http_constants";
 
-export const sendFirstMessage = async(req:Request, res:Response)=>{
+export const sendFirstMessage = async(req:any, res:Response)=>{
     const messagePayload = req.body
 
-    //todo sender should not be in payload, it should be detected via authentication
-    await createMessage(messagePayload)
+    const sender:IUser = req.user
+    await createFirstMessage(sender, messagePayload)
+    res.status(HTTP_200_OK).json({})
 }
 
 //get all messages of a channel, right now of a one to one channel

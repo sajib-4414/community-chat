@@ -29,17 +29,18 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
             
             console.log('Client sent a message', payload)
             
-
+            console.log(payload)
             const dbMessage = await Message.create({
                 message:payload.message,
-                sender:  await User.findOne({username:payload.sender})  ,
+                sender:  payload.sender._id  ,
                 room:await Room.findOne({ name:payload.room}) ,
                 oneToOne:true,
                 messageType:MESSAGE_TYPES.USER_MSG
             })
+            const storedMessage = await Message.findById(dbMessage._id).populate('sender')
 
             //this message will be sent back to all clients in the room
-            io.to(payload.room).emit(MESSAGE,dbMessage)
+            io.to(payload.room).emit(MESSAGE,storedMessage)
         })
     });
 }

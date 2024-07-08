@@ -117,7 +117,7 @@
     list-style-type: none;
     background: #F5F7EB;
     padding: 0;
-    max-height: 80vh;
+    max-height:38vh;
     overflow-y: scroll;
 }
 

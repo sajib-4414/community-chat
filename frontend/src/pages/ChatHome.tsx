@@ -1,65 +1,54 @@
-import { FC, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import './chathome.css'
 import { socket } from "../socket";
 import avatarImage from './../assets/test_avatar_image.jpg';
-import { useSelector } from "react-redux";
-import { IRootState, useAppSelector } from "../store/store";
-import { useNavigate } from "react-router-dom";
-import axios from "axios";
-import { MESSAGE, USER_ROOM_JOIN_REQUEST } from "../constants";
+import { useAppSelector } from "../store/store";
+import { MESSAGE } from "../constants";
 import { LoggedInUser } from "../models/usermodels";
+import { axiosInstance } from "../axiosInstance";
 export  const ChatHome = ()=>{
     const loggedinUser:LoggedInUser|null = useAppSelector(
         (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
     )
-    const navigate = useNavigate();
+    const authHeader = {
+        headers: { Authorization: `Bearer ${loggedinUser?.token}` }
+    };
     const [contacts, setContacts] = useState<any>([])
     const [currentlyChattingWith, setCurrentlyChattingWith] = useState<any>(null)
-    var currentMesssagesStore:any = []
     const [currentChatMessages, setCurrentChatMessages] = useState<any>([])
     const [currentMessage, setCurrentMessage] = useState("")
     function onConnect() {
         console.log('socket connected')
     }
     const fetchContacts = async()=>{
-        const response = await axios.get('http://localhost:3001/api/auth/users/all')
+        const response = await axiosInstance.get('/auth/users/all')
         const allUsers = response.data
-        const storedUserJson = localStorage.getItem("user")
-        const storedUser = JSON.parse(storedUserJson!)
-        const usersExceptLoggedInUser = allUsers.filter((user:any)=> user.username!=storedUser.username)
+        const usersExceptLoggedInUser = allUsers.filter((user:any)=> user.username!=loggedinUser?.user?.username)
         setContacts(usersExceptLoggedInUser)
-        console.log('contacts are',usersExceptLoggedInUser)
     }
 
     const sendCurrentMessage = async()=>{
         
         //send the first message with api
         if(currentChatMessages.length==0){
-            console.log("here")
-            const storedUserJson = localStorage.getItem("user")
-            const storedUser = JSON.parse(storedUserJson!)
-            const users = [storedUser.username, currentlyChattingWith.username]
+            const users = [loggedinUser?.user.username, currentlyChattingWith.username]
             users.sort()
             const roomName = "pvt-"+users.join("-")
 
             
-            const response = await axios.post('http://localhost:3001/api/messages/message',{
-                sender:storedUser.username,
-                receiver:currentlyChattingWith.username, 
+            await axiosInstance.post('/messages/message',{
+                receiver:currentlyChattingWith, 
                 messageRoomName:roomName,
                 message:currentMessage,
                 socketId:socket.id
-            })
-            console.log("first message sent, reponse=",response)
+            }, authHeader)
             setCurrentMessage("")
         }
         else{
             //if there is message already then send via socket
 
             //request to server via socket event to join the room
-            const storedUserJson = localStorage.getItem("user")
-            const storedUser = JSON.parse(storedUserJson!)
-            const users = [storedUser.username, currentlyChattingWith.username]
+            const users = [loggedinUser?.user.username, currentlyChattingWith.username]
             users.sort()
             const roomName = "pvt-"+users.join("-")
 
@@ -71,43 +60,30 @@ export  const ChatHome = ()=>{
 
             //then emit the mesasge
             socket.emit(MESSAGE, {
-                sender:storedUser.username,//todo this will come from authentiation
+                sender:loggedinUser?.user,//todo this will come from authentiation
                 room:roomName,
                 message: currentMessage
             } )
-            
-            console.log("here2")
-            console.log(currentChatMessages)
             setCurrentMessage("")
         }
     }
     //todo current chatter wont be needed with authentication
     const fetchChatMessages = async (targetUser:any)=>{
-        console.log("getting previous messages in this room")
-        const storedUserJson = localStorage.getItem("user")
-        const storedUser = JSON.parse(storedUserJson!)
-        const users = [storedUser.username, targetUser.username]
+        const users = [loggedinUser?.user.username, targetUser.username]
         users.sort()
         const roomName = "pvt-"+users.join("-")
-        const response = await axios.post('http://localhost:3001/api/messages/all-messages',{
+        const response = await axiosInstance.post('/messages/all-messages',{
             roomName,
-            currentChatter:storedUser.username
-        })
+            currentChatter:loggedinUser?.user.username
+        },authHeader)
         setCurrentChatMessages(response.data)
-        currentMesssagesStore = response.data
-        console.log("news store is",currentMesssagesStore)
+
     }
     const handleContactClick = (contact:any)=>{
-        console.log("start chatting with",contact)
         setCurrentlyChattingWith(contact)
         fetchChatMessages(contact)
     }
     socket.on(MESSAGE, (dbMessage) => {
-        console.log('on message event value',dbMessage)
-        console.log('current chat messages=',currentMesssagesStore)
-        console.log("inside printing contacts",contacts)
-        console.log("inside chatting with", currentlyChattingWith)
-        console.log("inside chat messages", currentChatMessages)
         setCurrentChatMessages([...currentChatMessages, dbMessage])
         
     });
@@ -265,7 +241,7 @@ export  const ChatHome = ()=>{
                                     <div className="talk-bubble tri-right left-in">
                                         <div className="talktext">
                                             <p>{message.message}</p>
-                                            <small>Sent by - {message.sender.username}</small>
+                                            <small>Sent by - {message.sender.name}</small>
                                         </div>
                                     </div>
                                     
@@ -287,6 +263,7 @@ export  const ChatHome = ()=>{
                             }
                             
                         })}
+                    <AlwaysScrollToBottom />
                     </ul>
                     
                     
@@ -325,3 +302,9 @@ export  const ChatHome = ()=>{
         </div>
     
 }
+
+const AlwaysScrollToBottom = () => {
+    const elementRef = useRef();
+    useEffect(() => elementRef.current!.scrollIntoView());
+    return <div ref={elementRef} />;
+};

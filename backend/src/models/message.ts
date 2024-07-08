@@ -17,8 +17,6 @@ const messsageSchema = new mongoose.Schema<IMessage>({
         type:String,
         required:true
     },
-    createdAt:Date,
-    updatedAt:Date,
     sender:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
@@ -37,7 +35,7 @@ const messsageSchema = new mongoose.Schema<IMessage>({
         type:String,
         enum:MESSAGE_TYPES
     }
-})
+}, {timestamps: true})
 
 interface IMessageMethods extends mongoose.Model<IMessage>{
     //add static methods later here

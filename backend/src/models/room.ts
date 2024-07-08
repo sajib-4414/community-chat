@@ -20,13 +20,11 @@ const roomSchema = new mongoose.Schema<IRoom>({
         enum:ROOM_TYPE,
         required:true
     },
-    createdAt:Date,
-    updatedAt:Date,
     createdBy:{
         type: mongoose.Schema.Types.ObjectId,
         ref:"User",
         required:true
     }
-})
+},{timestamps: true})
 
 export const Room = mongoose.model<IRoom>('Room', roomSchema)
