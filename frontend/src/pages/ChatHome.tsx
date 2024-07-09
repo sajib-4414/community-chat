@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import './chathome.css'
 import { socket } from "../socket";
 import avatarImage from './../assets/test_avatar_image.jpg';
@@ -7,10 +7,23 @@ import { MESSAGE } from "../constants";
 import { LoggedInUser } from "../models/usermodels";
 import { axiosInstance } from "../axiosInstance";
 import { IRoomWithLatestMessage } from "../interfaces/MessageInterfaces";
+import { ChatContainer } from "../components/ChatContainer";
+import { ChatFooterContainer } from "../components/ChatFooterContainer";
 export  const ChatHome = ()=>{
+    
+    
+
+    //All States
     const loggedinUser:LoggedInUser|null = useAppSelector(
         (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
     )
+    const [contacts, setContacts] = useState<any>([])
+    const [currentlyChattingWith, setCurrentlyChattingWith] = useState<any>(null)
+    const [currentChatMessages, setCurrentChatMessages] = useState<any>([])
+    const [currentMessage, setCurrentMessage] = useState("")
+    const [pastChats, setPastChats] = useState<IRoomWithLatestMessage[]>([])
+
+    //Functions and listeners
     const getAuthHeader = ()=>{
         let user:LoggedInUser|null = loggedinUser
         if(!user){
@@ -26,11 +39,6 @@ export  const ChatHome = ()=>{
             headers: { Authorization: `Bearer ${user?.token}` }
         }
     };
-    const [contacts, setContacts] = useState<any>([])
-    const [currentlyChattingWith, setCurrentlyChattingWith] = useState<any>(null)
-    const [currentChatMessages, setCurrentChatMessages] = useState<any>([])
-    const [currentMessage, setCurrentMessage] = useState("")
-    const [pastChats, setPastChats] = useState<IRoomWithLatestMessage[]>([])
     async function onConnect() {
         console.log('socket connected')
         console.log('on Connect auth header is',getAuthHeader())
@@ -44,7 +52,6 @@ export  const ChatHome = ()=>{
         setContacts(usersExceptLoggedInUser)
     }
     const fetchPastMessages = async()=>{
-        console.log('auth header now is',getAuthHeader())
         const response = await axiosInstance.get('/messages/past-chats', getAuthHeader())
         setPastChats(response.data)
     }
@@ -52,17 +59,13 @@ export  const ChatHome = ()=>{
         const payload = {
             socketId
         }
-        console.log('before making api call')
         console.log(payload)
         await axiosInstance.post('/messages/join-all',payload, getAuthHeader())
-        console.log('success joining all rooms')
     }
-
     const sendCurrentMessage = async()=>{
         
         //send the first message with api
         if(currentChatMessages.length==0){
-            console.log("sent by API.............")
             const users = [loggedinUser?.user.username, currentlyChattingWith.username]
             users.sort()
             const roomName = "pvt-"+users.join("-")
@@ -139,9 +142,7 @@ export  const ChatHome = ()=>{
             console.log('still printing it', socket)
         }
         
-        
-
-
+    
         //this return function works as a cleanup method
         return()=>{
             socket.off('foo');
@@ -224,73 +225,16 @@ export  const ChatHome = ()=>{
                         <i className="fa fa-ellipsis-h" style={{fontSize:"15px"}}></i>
                     </div>
                 </div>
-                <div className="message-container-main">
-                    
-                    <ul 
-                    className="chat-message-class-demo"
-                    >
-                        {currentChatMessages.map((message:any,index:number)=>{
-                            if(message.sender.username === loggedinUser?.user.username){
-                                return(<li key={index} className="own-message">
-                                    <img 
-                                        className="chat-avatar"
-                                        src={avatarImage}/>
-                                    <div className="talk-bubble tri-right left-in">
-                                        <div className="talktext">
-                                            <p>{message.message}</p>
-                                            <small>Sent by - {message.sender.name}</small>
-                                        </div>
-                                    </div>
-                                    
-                                </li>)
-                            }
-                            else{
-                                return(<li key={index} className="arrived-message">
-                                    <div className="talk-bubble tri-right btm-right">
-                                        <div className="talktext">
-                                        <p>{message.message}</p>
-                                        <small>Sent by - {message.sender.username}</small>
-                                        </div>
-                                    </div>
-                                    <img 
-                                        className="chat-avatar"
-                                        src={avatarImage}/>
-                                    
-                                </li>)
-                            }
-                            
-                        })}
-                    <AlwaysScrollToBottom />
-                    </ul>
-                    
-                    
-                    
-                </div>
+                <ChatContainer
+                currentChatMessages={currentChatMessages}
+                />
                 
-                <div className="message-container-footer">
-                    {currentlyChattingWith?
-                    <>
-                     <input 
-                        value={currentMessage}
-                        onChange={(e)=> setCurrentMessage(e.target.value)}
-                        className="message-input" 
-                        placeholder="Enter Message"
-                        onKeyDown={(e)=> e.key === 'Enter' ? sendCurrentMessage(): ''}
-                    />
-                    <div className="message-button-container">
-                        <i className="fa fa-image"></i>
-                        
-                        <i 
-                        className="fa fa-paper-plane" aria-hidden="true"
-                        onClick={sendCurrentMessage}></i>
-                    </div>
-                    </>
-                    : ''}
-                   
-                        
-                        
-                    
-                </div>
+                <ChatFooterContainer
+                currentlyChattingWith={currentlyChattingWith}
+                currentMessage={currentMessage}
+                setCurrentMessage={setCurrentMessage}
+                sendCurrentMessage={sendCurrentMessage}
+                />
                 </>
                 :
                     <h3 style={{textAlign:"center"}}>Select a contact to start chatting</h3>}
@@ -300,8 +244,3 @@ export  const ChatHome = ()=>{
     
 }
 
-const AlwaysScrollToBottom = () => {
-    const elementRef = useRef();
-    useEffect(() => elementRef.current!.scrollIntoView());
-    return <div ref={elementRef} />;
-};

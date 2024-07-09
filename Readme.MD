@@ -65,3 +65,22 @@ another approach was, as soon as someone clcks someone's name, it will create a 
 4. how to get scoket instance throughout the app?
 If I want to access the io instance from a controller to emit something, and create a new io with new Server() everytime in every controller, in that case client could be [test kor nai] connected to another controllers another socket. also we will be creating so many socket instances.
 better way, use a singleton instead of creating every time new Server(). 
+
+5. Problem:
+until both user started to chat with each other, then they are not part of a room actively(private chat mainly), and both are not connected via socket with room, so the message sent via socket to a room does not reach from one to another. 
+Mainly because i make a user socket join a room upon message, not before that.
+if both user message each other then they join a room and start to see messages instantly.
+solution is to make both users part of the room before he gets a message.
+
+Related scenario:
+1. user has not clicked, but chatted before/Joined that room before, so he is a part of the room.
+upon chatUI launch, join him to all those rooms. so he can get all messages of all the rooms he is part of with socket upon entering the chatpage
+=> it worked. created an API to join user's socket to all rooms. in client with socket on connect i called an api with the socketId to make user join all rooms.
+2. user has not clicked or chatted before, but someone new messaged him.
+for this case, he has just become part of a new room.
+i think we can do it,
+so user1 has messaged user2, they have not chatted before, no private room exists between them.
+so the user1's first message sent via API, in that API I am making the user1's socket to join the room,
+and send the message back to user1 from server via socket.
+and in the API i am also making user2 a part of the same room.
+I just need to make user2 actively join that room, for that i need user2's socket.

@@ -17,7 +17,7 @@ export enum MESSAGE_TYPES{
     USER_MSG = "user_message"
 }
 
-interface IMessage {
+export interface IMessage {
     message:string,
     createdAt:Date,
     updatedAt:Date,
