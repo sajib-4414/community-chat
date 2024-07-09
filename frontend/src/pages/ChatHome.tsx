@@ -6,6 +6,7 @@ import { useAppSelector } from "../store/store";
 import { MESSAGE } from "../constants";
 import { LoggedInUser } from "../models/usermodels";
 import { axiosInstance } from "../axiosInstance";
+import { IRoomWithLatestMessage } from "../interfaces/MessageInterfaces";
 export  const ChatHome = ()=>{
     const loggedinUser:LoggedInUser|null = useAppSelector(
         (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
@@ -17,6 +18,7 @@ export  const ChatHome = ()=>{
     const [currentlyChattingWith, setCurrentlyChattingWith] = useState<any>(null)
     const [currentChatMessages, setCurrentChatMessages] = useState<any>([])
     const [currentMessage, setCurrentMessage] = useState("")
+    const [pastChats, setPastChats] = useState<IRoomWithLatestMessage[]>([])
     function onConnect() {
         console.log('socket connected')
     }
@@ -26,11 +28,17 @@ export  const ChatHome = ()=>{
         const usersExceptLoggedInUser = allUsers.filter((user:any)=> user.username!=loggedinUser?.user?.username)
         setContacts(usersExceptLoggedInUser)
     }
+    const fetchPastMessages = async()=>{
+        console.log('auth header now is',authHeader)
+        const response = await axiosInstance.get('/messages/past-chats', authHeader)
+        setPastChats(response.data)
+    }
 
     const sendCurrentMessage = async()=>{
         
         //send the first message with api
         if(currentChatMessages.length==0){
+            console.log("sent by API.............")
             const users = [loggedinUser?.user.username, currentlyChattingWith.username]
             users.sort()
             const roomName = "pvt-"+users.join("-")
@@ -45,6 +53,7 @@ export  const ChatHome = ()=>{
             setCurrentMessage("")
         }
         else{
+            console.log("sent by socket./...........")
             //if there is message already then send via socket
 
             //request to server via socket event to join the room
@@ -84,11 +93,15 @@ export  const ChatHome = ()=>{
         fetchChatMessages(contact)
     }
     socket.on(MESSAGE, (dbMessage) => {
+        //also now check if the message should go to current chat message or past chat message.
+        console.log("new message received",dbMessage)
+
         setCurrentChatMessages([...currentChatMessages, dbMessage])
         
     });
     useEffect(()=>{
         fetchContacts();
+        fetchPastMessages();
         socket.on('connect',onConnect)
 
         socket.on('foo', (value) => {
@@ -103,10 +116,11 @@ export  const ChatHome = ()=>{
             socket.off(MESSAGE);
         }
 
-    },[])
+    },[currentChatMessages])
 
-    const handleRecentChatItemClick = ()=>{
+    const handleRecentChatItemClick = (imessage:IRoomWithLatestMessage)=>{
         console.log('clicked')
+        handleContactClick(imessage.receiver)
     }
 
     return <div className="full container">
@@ -137,74 +151,25 @@ export  const ChatHome = ()=>{
                 <div className="recent-messages">
                     <h4>Recent</h4>
                     <ul>
-                        <li key="1" onClick={()=>handleRecentChatItemClick()}>
-                            <div className="chat-row">
-                                <img 
-                                className="chat-avatar-small"
-                                src={avatarImage}/>
-                                <div>
-                                    <strong><span>{loggedinUser?.user?.name}</span></strong>
-                                    <p>THis theme is awesome</p>
+                        {
+                            pastChats.map((imessage:IRoomWithLatestMessage,index)=><li 
+                            key={index}
+                            onClick={()=>handleRecentChatItemClick(imessage)}
+                            >
+                                <div className="chat-row">
+                                    <img 
+                                    className="chat-avatar-small"
+                                    src={avatarImage}/>
+                                    <div>
+                                        <strong><span>{imessage.receiver.name && imessage.receiver.name!==""?imessage.receiver.name:imessage.receiver.username}</span></strong>
+                                        <p>{imessage.latest_message.message}</p>
+                                    </div>
                                 </div>
-                            </div>
+                            </li>)
                             
-                        </li>
+                        }
                         
-                        <li key="2">
-                            <div className="chat-row">
-                                <img 
-                                className="chat-avatar-small"
-                                src={avatarImage}/>
-                                <div>
-                                    <strong><span>Patrick Hendricks</span></strong>
-                                    <p>THis theme is awesome</p>
-                                </div>
-                            </div>
-                            
-                        </li>
-                        
-                        <li key="3">
-                            <div className="chat-row chat-row-selected">
-                                <img 
-                                className="chat-avatar-small"
-                                src={avatarImage}/>
-                                <div>
-                                    <strong><span>Patrick Hendricks</span></strong>
-                                    <p>THis theme is awesome</p>
-                                </div>
-                            </div>
-                            
-                        </li>
-                        <li key="4">
-                            <div className="chat-row chat-row-selected">
-                                <img 
-                                className="chat-avatar-small"
-                                src={avatarImage}/>
-                                <div>
-                                    <strong><span>Patrick Hendricks</span></strong>
-                                    <p>THis theme is awesome</p>
-                                </div>
-                            </div>
-                            
-                        </li>
-                        <li key="5">
-                            <div className="chat-row chat-row-selected">
-                                <img 
-                                className="chat-avatar-small"
-                                src={avatarImage}/>
-                                <div>
-                                    <strong><span>Patrick Hendricks</span></strong>
-                                    <p>THis theme is awesome</p>
-                                </div>
-                            </div>
-                            
-                        </li>
-                        
-                        
-                        
-                        
-                        
-                        
+
                     </ul>
                 </div>
                 

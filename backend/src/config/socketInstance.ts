@@ -26,6 +26,7 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
         })
         socket.on(MESSAGE,async (payload)=>{
             socket.join(payload.room);
+            console.log("my rooms are", socket.rooms)
             
             console.log('Client sent a message', payload)
             

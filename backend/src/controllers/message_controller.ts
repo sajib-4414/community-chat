@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createFirstMessage, getChatMessagesOfRoom } from "../services/message_service";
+import { createFirstMessage, getChatMessagesOfRoom, getPastOneToOneChats } from "../services/message_service";
 import { IUser } from "../models/user";
 import { HTTP_200_OK } from "../types/http_constants";
 
@@ -22,4 +22,9 @@ export const getChatMessagesInRoom = async (req:Request, res:Response)=>{
 }
 
 //to show the recent messages in the frotnennd
-// const getRecentChatMessages = 
+export const getPastChatsOfUser = async (req:any, res:Response)=>{
+    
+    const pastChats = await getPastOneToOneChats(req.user)
+    res.status(200).json(pastChats)
+    
+}

@@ -4,6 +4,7 @@ import { User } from "../models/user";
 
 export const authorizedRequest = async(req:any, res:Response, next:NextFunction)=>{
     let token:any;
+    console.log('authorization header is.............', req.headers.authorization)
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer ')){
         //set token from bearer token in header
         token = req.headers.authorization.split(' ')[1];

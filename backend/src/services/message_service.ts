@@ -1,10 +1,11 @@
+import mongoose from "mongoose"
 import { getIoInstance } from "../config/socketInstance"
 import { Message } from "../models/message"
 import { Room } from "../models/room"
 import { RoomMember } from "../models/room-member"
 import { IUser, User } from "../models/user"
 import { MESSAGE } from "../types/event_types"
-import { MESSAGE_TYPES, ROOM_TYPE } from "../types/room_message_types"
+import { MESSAGE_TYPES, ROOM_TYPE, IRoomWithLatestMessage } from "../types/room_message_types"
 
 export const createFirstMessage = async(senderUser:IUser, messagePayload:any)=>{
     //right now sender, receiver is just the username of the users, but it will be updated
@@ -96,4 +97,111 @@ export const getChatMessagesOfRoom = async (requestPayload:any)=>{
     }).populate('sender')
     return messages;
 
+}
+
+export const getPastOneToOneChats = async (user:IUser)=>{
+    const pastChatsOfUser:IRoomWithLatestMessage[] = await RoomMember.aggregate(
+        [
+            {
+              $match: {
+                member: user._id
+              }
+            },
+            {
+              $project: {
+                room:1
+              }
+            },
+            {
+              '$lookup': {
+                'from': "messages",
+                'localField':'room',
+                'foreignField':'room',
+                'pipeline':[
+                  {
+                    $sort:{
+                      "createdAt":-1
+                    },
+                  },
+                  {
+                    $limit:1
+                  }
+                ],
+                'as':'latest_message'
+              }
+            },
+            {
+              $lookup: {
+                from: "rooms",
+                localField: "room",
+                foreignField: "_id",
+                as: "roomdetails"
+              }
+            },
+            {
+              $unwind: {
+                path: "$roomdetails",
+                preserveNullAndEmptyArrays: false
+              }
+            },
+            {
+              $unwind: {
+                path: "$latest_message",
+                preserveNullAndEmptyArrays: false
+              }
+            },
+            {
+              $lookup: {
+                from: "roommembers",
+                let: {
+                    room_id: "$room" //localField
+                },
+                pipeline:[
+                  {
+                    $match:{
+                      $expr:{
+                        $and:[
+                          {
+                            $eq:["$room","$$room_id"]
+                          },
+                          {
+                            $ne:["$member", user._id]
+                          }
+                        ]
+                      }
+                    }
+                  }
+                ],
+                as: "other_party"
+              }
+            },
+            {
+              $unwind: {
+                path: "$other_party",
+                preserveNullAndEmptyArrays: false
+              }
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "other_party.member",
+                foreignField: "_id",
+                as: "receiver"
+              }
+            },
+            {
+              $project: {
+                other_party:0
+              }
+            },
+            {
+              $unwind: {
+                path: "$receiver",
+                preserveNullAndEmptyArrays: false
+              }
+            }
+            
+          ]
+    )
+      return pastChatsOfUser;
 }
