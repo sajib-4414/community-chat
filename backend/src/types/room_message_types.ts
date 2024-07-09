@@ -18,3 +18,9 @@ export interface IRoomWithLatestMessage{
     latest_message:IMessage,
     receiver:IUser
 }
+
+//used when we query to find all user's rooms
+export interface roomsListItemMongoResponse{
+    _id:string,
+    roomdetails:IRoom
+}

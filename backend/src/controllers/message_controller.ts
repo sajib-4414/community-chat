@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { createFirstMessage, getChatMessagesOfRoom, getPastOneToOneChats } from "../services/message_service";
+import { createFirstMessage, getChatMessagesOfRoom, getPastOneToOneChats, joinAllChatRooms } from "../services/message_service";
 import { IUser } from "../models/user";
-import { HTTP_200_OK } from "../types/http_constants";
+import { HTTP_200_OK, HTTP_204_NO_CONTENT } from "../types/http_constants";
 
 export const sendFirstMessage = async(req:any, res:Response)=>{
     const messagePayload = req.body
@@ -25,6 +25,15 @@ export const getChatMessagesInRoom = async (req:Request, res:Response)=>{
 export const getPastChatsOfUser = async (req:any, res:Response)=>{
     
     const pastChats = await getPastOneToOneChats(req.user)
-    res.status(200).json(pastChats)
-    
+    res.status(HTTP_200_OK).json(pastChats)
+}
+
+//make the socket join all the rooms that user is part of,
+//frotnend will call this api upon entering the chat page
+//so user is subscribed to get messages of the channels he was part of
+export const joinAllRooms = async(req:any, res:Response)=>{
+    const {socketId} = req.body
+    await joinAllChatRooms(req.user, socketId)
+    console.log('user has been joined to all rooms')
+    res.status(HTTP_204_NO_CONTENT).json({})
 }

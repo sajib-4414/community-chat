@@ -11,16 +11,31 @@ export  const ChatHome = ()=>{
     const loggedinUser:LoggedInUser|null = useAppSelector(
         (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
     )
-    const authHeader = {
-        headers: { Authorization: `Bearer ${loggedinUser?.token}` }
+    const getAuthHeader = ()=>{
+        let user:LoggedInUser|null = loggedinUser
+        if(!user){
+            const storedUserData = localStorage.getItem("user");
+            if(storedUserData){
+                user = JSON.parse(
+                    storedUserData,
+                ) as LoggedInUser;
+            }
+            
+        }
+        return {
+            headers: { Authorization: `Bearer ${user?.token}` }
+        }
     };
     const [contacts, setContacts] = useState<any>([])
     const [currentlyChattingWith, setCurrentlyChattingWith] = useState<any>(null)
     const [currentChatMessages, setCurrentChatMessages] = useState<any>([])
     const [currentMessage, setCurrentMessage] = useState("")
     const [pastChats, setPastChats] = useState<IRoomWithLatestMessage[]>([])
-    function onConnect() {
+    async function onConnect() {
         console.log('socket connected')
+        console.log('on Connect auth header is',getAuthHeader())
+        if(socket.id)
+            await joinAllRoomsOfUser(socket.id);
     }
     const fetchContacts = async()=>{
         const response = await axiosInstance.get('/auth/users/all')
@@ -29,9 +44,18 @@ export  const ChatHome = ()=>{
         setContacts(usersExceptLoggedInUser)
     }
     const fetchPastMessages = async()=>{
-        console.log('auth header now is',authHeader)
-        const response = await axiosInstance.get('/messages/past-chats', authHeader)
+        console.log('auth header now is',getAuthHeader())
+        const response = await axiosInstance.get('/messages/past-chats', getAuthHeader())
         setPastChats(response.data)
+    }
+    const joinAllRoomsOfUser = async (socketId:string)=>{
+        const payload = {
+            socketId
+        }
+        console.log('before making api call')
+        console.log(payload)
+        await axiosInstance.post('/messages/join-all',payload, getAuthHeader())
+        console.log('success joining all rooms')
     }
 
     const sendCurrentMessage = async()=>{
@@ -49,7 +73,7 @@ export  const ChatHome = ()=>{
                 messageRoomName:roomName,
                 message:currentMessage,
                 socketId:socket.id
-            }, authHeader)
+            }, getAuthHeader())
             setCurrentMessage("")
         }
         else{
@@ -84,7 +108,7 @@ export  const ChatHome = ()=>{
         const response = await axiosInstance.post('/messages/all-messages',{
             roomName,
             currentChatter:loggedinUser?.user.username
-        },authHeader)
+        },getAuthHeader())
         setCurrentChatMessages(response.data)
 
     }
@@ -102,11 +126,19 @@ export  const ChatHome = ()=>{
     useEffect(()=>{
         fetchContacts();
         fetchPastMessages();
-        socket.on('connect',onConnect)
+        
+        if(socket){
+            socket.on('connect', onConnect.bind(null));
 
-        socket.on('foo', (value) => {
-            console.log('on foo event value',value)
-        });
+            socket.on('foo', (value) => {
+                console.log('on foo event value',value)
+            });
+        }
+        else{
+            console.log('socket is maybe null')
+            console.log('still printing it', socket)
+        }
+        
         
 
 

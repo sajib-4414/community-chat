@@ -1,11 +1,11 @@
 import mongoose from "mongoose"
 import { getIoInstance } from "../config/socketInstance"
 import { Message } from "../models/message"
-import { Room } from "../models/room"
+import { IRoom, Room } from "../models/room"
 import { RoomMember } from "../models/room-member"
 import { IUser, User } from "../models/user"
 import { MESSAGE } from "../types/event_types"
-import { MESSAGE_TYPES, ROOM_TYPE, IRoomWithLatestMessage } from "../types/room_message_types"
+import { MESSAGE_TYPES, ROOM_TYPE, IRoomWithLatestMessage, roomsListItemMongoResponse } from "../types/room_message_types"
 
 export const createFirstMessage = async(senderUser:IUser, messagePayload:any)=>{
     //right now sender, receiver is just the username of the users, but it will be updated
@@ -204,4 +204,49 @@ export const getPastOneToOneChats = async (user:IUser)=>{
           ]
     )
       return pastChatsOfUser;
+}
+
+export const joinAllChatRooms = async (currentUser:IUser, socketId:string)=>{
+  const myRooms:roomsListItemMongoResponse[] = await RoomMember.aggregate([
+    {
+      $match: {
+        member:currentUser._id
+      }
+    },
+    {
+      $group: {
+        _id: "$member",
+        rooms:{
+          $push: "$room"
+        }
+      }
+    },
+    {
+      $unwind: {
+        path: "$rooms"
+      }
+    },
+    {
+      $lookup: {
+        from: "rooms",
+        localField: "rooms",
+        foreignField: "_id",
+        as: "roomdetails"
+      }
+    },
+    {
+      $unwind: {
+        path: "$roomdetails"
+      }
+    },
+    {
+      $project: {
+        rooms:0
+      }
+    }
+  ])
+  const userRooms = myRooms.map((roomItem:roomsListItemMongoResponse)=> roomItem.roomdetails)
+  const io:any = getIoInstance()
+  const socket = io.sockets.sockets.get(socketId);
+  userRooms.forEach((room:IRoom)=>socket.join(room.name))
 }
