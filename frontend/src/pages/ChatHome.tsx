@@ -3,7 +3,7 @@ import './chathome.css'
 import { socket } from "../socket";
 import avatarImage from './../assets/test_avatar_image.jpg';
 import { useAppSelector } from "../store/store";
-import { MESSAGE } from "../constants";
+import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER } from "../constants";
 import { LoggedInUser } from "../models/usermodels";
 import { axiosInstance } from "../axiosInstance";
 import { IRoomWithLatestMessage } from "../interfaces/MessageInterfaces";
@@ -39,11 +39,25 @@ export  const ChatHome = ()=>{
             headers: { Authorization: `Bearer ${user?.token}` }
         }
     };
+    async function deleteSocketFromUser(socketId:string) {
+        await axiosInstance.post('/messages/delete-socket', {
+            socketId
+        },getAuthHeader())
+    }
     async function onConnect() {
         console.log('socket connected')
         console.log('on Connect auth header is',getAuthHeader())
-        if(socket.id)
+        if(socket.id){
             await joinAllRoomsOfUser(socket.id);
+            await addSocketToUser(socket.id);
+        }     
+    }
+    async function onDisconnect() {
+        console.log('socket got disconnected')
+        console.log('on disconnect auth header is',getAuthHeader())
+        if(socket.id){
+            await deleteSocketFromUser(socket.id);
+        }  
     }
     const fetchContacts = async()=>{
         const response = await axiosInstance.get('/auth/users/all')
@@ -61,6 +75,12 @@ export  const ChatHome = ()=>{
         }
         console.log(payload)
         await axiosInstance.post('/messages/join-all',payload, getAuthHeader())
+    }
+    const addSocketToUser = async(socketId:string)=>{
+        console.log("adding my socket to user")
+        await axiosInstance.post('/messages/add-socket', {
+            socketId
+        },getAuthHeader())
     }
     const sendCurrentMessage = async()=>{
         
@@ -95,7 +115,7 @@ export  const ChatHome = ()=>{
             // } )
 
             //then emit the mesasge
-            socket.emit(MESSAGE, {
+            socket.emit(MESSAGE_TO_SERVER, {
                 sender:loggedinUser?.user,//todo this will come from authentiation
                 room:roomName,
                 message: currentMessage
@@ -119,7 +139,7 @@ export  const ChatHome = ()=>{
         setCurrentlyChattingWith(contact)
         fetchChatMessages(contact)
     }
-    socket.on(MESSAGE, (dbMessage) => {
+    socket.on(MESSAGE_FROM_SERVER, (dbMessage) => {
         //also now check if the message should go to current chat message or past chat message.
         console.log("new message received",dbMessage)
 
@@ -136,6 +156,7 @@ export  const ChatHome = ()=>{
             socket.on('foo', (value) => {
                 console.log('on foo event value',value)
             });
+            socket.on('disconnect',onDisconnect)
         }
         else{
             console.log('socket is maybe null')
@@ -146,7 +167,8 @@ export  const ChatHome = ()=>{
         //this return function works as a cleanup method
         return()=>{
             socket.off('foo');
-            socket.off(MESSAGE);
+            socket.off(MESSAGE_FROM_SERVER);
+            socket.off(MESSAGE_TO_SERVER);
         }
 
     },[currentChatMessages])

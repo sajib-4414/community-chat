@@ -84,3 +84,8 @@ so the user1's first message sent via API, in that API I am making the user1's s
 and send the message back to user1 from server via socket.
 and in the API i am also making user2 a part of the same room.
 I just need to make user2 actively join that room, for that i need user2's socket.
+Solution: will add a socket Id array for each user. so another model, UserSocket.
+it will have a new Model, UserSOcket: user, socketId[]
+there will be an API, addUserSocket [not deleting old sockets for the moment, will see if there is redudant sockets, i will store all sockets if user logs into multiple devices], deleteUserSocket[].
+whenver backend sees a message for a channel user that is new, so user is Maybe not connected, we will connect user's socket
+to the channel.

@@ -1,5 +1,5 @@
 import express from 'express'
-import { getChatMessagesInRoom, getPastChatsOfUser, joinAllRooms, sendFirstMessage } from '../controllers/message_controller'
+import { addUserSocket, deleteUserSocket, getChatMessagesInRoom, getPastChatsOfUser, joinAllRooms, sendFirstMessage } from '../controllers/message_controller'
 import { authorizedRequest } from '../middlewares/auth'
 const router = express.Router()
 
@@ -7,4 +7,6 @@ router.post('/all-messages', authorizedRequest, getChatMessagesInRoom) //it will
 router.post('/message', authorizedRequest, sendFirstMessage)
 router.get('/past-chats', authorizedRequest, getPastChatsOfUser)
 router.post('/join-all', authorizedRequest, joinAllRooms)
+router.post('/add-socket', authorizedRequest, addUserSocket)
+router.post('/delete-socket', authorizedRequest, deleteUserSocket)
 export {router as messageRouter}

@@ -3,6 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { LoggedInUser } from "../models/usermodels";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { resetUser } from "../store/UserSlice";
+import { axiosInstance } from "../axiosInstance";
+import { socket } from "../socket";
 
 const Header:FC = ()=>{
     const loggedinUser:LoggedInUser|null = useAppSelector(
@@ -10,10 +12,35 @@ const Header:FC = ()=>{
     )
     const navigate = useNavigate()
     const dispatch = useAppDispatch();
-    const handleLogout = ()=>{
+
+    const getAuthHeader = ()=>{
+        let user:LoggedInUser|null = loggedinUser
+        if(!user){
+            const storedUserData = localStorage.getItem("user");
+            if(storedUserData){
+                user = JSON.parse(
+                    storedUserData,
+                ) as LoggedInUser;
+            }
+            
+        }
+        return {
+            headers: { Authorization: `Bearer ${user?.token}` }
+        }
+    };
+
+
+    const handleLogout = async()=>{
+    console.log("deleting my socket to user")
+    if(socket.id){
+        const socketId = socket.id
+        await axiosInstance.post('/messages/delete-socket', {socketId},getAuthHeader())
+    
         dispatch(resetUser())
         navigate('/login')
+        }
     }
+    
     //we will later restore the user from local storage in App.ts,
     //that time we will fetch from just state in header
     // const userStore = useSelector((state:IRootState)=>state.userSlice)

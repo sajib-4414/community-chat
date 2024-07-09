@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
-import { createFirstMessage, getChatMessagesOfRoom, getPastOneToOneChats, joinAllChatRooms } from "../services/message_service";
-import { IUser } from "../models/user";
+import { addNewSocketIdToUser, createFirstMessage, deleteSocketIdFromUser, getChatMessagesOfRoom, getPastOneToOneChats, joinAllChatRooms } from "../services/message_service";
+import { IUser, IUserSocket, User, UserSocket } from "../models/user";
 import { HTTP_200_OK, HTTP_204_NO_CONTENT } from "../types/http_constants";
 
 export const sendFirstMessage = async(req:any, res:Response)=>{
@@ -35,5 +35,23 @@ export const joinAllRooms = async(req:any, res:Response)=>{
     const {socketId} = req.body
     await joinAllChatRooms(req.user, socketId)
     console.log('user has been joined to all rooms')
+    res.status(HTTP_204_NO_CONTENT).json({})
+}
+
+//fritnend calls this api to add the user's socket id to here.
+export const addUserSocket = async(req:any, res:Response)=>{
+    const {socketId} = req.body
+    addNewSocketIdToUser(req.user, socketId)
+    console.log('user socket connected............')
+    
+    res.status(HTTP_204_NO_CONTENT).json({})
+}
+
+//fritnend calls this api to delete the user's socket id to here.
+export const deleteUserSocket = async(req:any, res:Response)=>{
+    const {socketId} = req.body
+    deleteSocketIdFromUser(req.user, socketId)
+    console.log('user socket disconnected............')
+    
     res.status(HTTP_204_NO_CONTENT).json({})
 }

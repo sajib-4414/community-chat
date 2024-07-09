@@ -1,10 +1,9 @@
-import mongoose from "mongoose"
 import { getIoInstance } from "../config/socketInstance"
 import { Message } from "../models/message"
 import { IRoom, Room } from "../models/room"
 import { RoomMember } from "../models/room-member"
-import { IUser, User } from "../models/user"
-import { MESSAGE } from "../types/event_types"
+import { IUser, IUserSocket, UserSocket } from "../models/user"
+import { MESSAGE_FROM_SERVER } from "../types/event_types"
 import { MESSAGE_TYPES, ROOM_TYPE, IRoomWithLatestMessage, roomsListItemMongoResponse } from "../types/room_message_types"
 
 export const createFirstMessage = async(senderUser:IUser, messagePayload:any)=>{
@@ -66,10 +65,27 @@ export const createFirstMessage = async(senderUser:IUser, messagePayload:any)=>{
         // });
 
         const socket = io.sockets.sockets.get(socketId);
-        socket.join(room.name);
+        socket.join(room.name);//joining the sender
+
+        //now joining the receiver as well
+        const receiverSocket:IUserSocket|null = await UserSocket.findOne({
+          user:receiver
+        })
+        const receiverSocketIds = receiverSocket?.socketIds;
+        receiverSocketIds?.forEach((socketId:string,index:number)=>{
+          console.log("joinining a room for each socket")
+          const socket = io.sockets.sockets.get(socketId);
+          if(socket){
+            socket.join(room.name);//joining the reciver ids to this room
+          }
+          else{
+            console.log("tried to join reciver to the same room, but socket was null,index=",index)
+          }
+          
+        })
 
         //now we emit the mssage to the room
-        io.to(room.name).emit(MESSAGE,dbMessage)
+        io.to(room.name).emit(MESSAGE_FROM_SERVER,dbMessage)
     }
     else{
         console.log("io is null")
@@ -249,4 +265,35 @@ export const joinAllChatRooms = async (currentUser:IUser, socketId:string)=>{
   const io:any = getIoInstance()
   const socket = io.sockets.sockets.get(socketId);
   userRooms.forEach((room:IRoom)=>socket.join(room.name))
+}
+
+export const addNewSocketIdToUser = async (user:IUser, socketId:string)=>{
+  let userSocket:IUserSocket|null = await UserSocket.findOne({
+        user
+    })
+    if(!userSocket){
+        userSocket = await UserSocket.create({
+            user,
+            socketIds:[socketId]
+        })
+    }
+    else{
+        userSocket.socketIds = [socketId]
+        await userSocket.save()
+    }
+}
+
+export const deleteSocketIdFromUser = async (user:IUser, socketId:string)=>{
+  let userSocket:IUserSocket|null = await UserSocket.findOne({
+        user
+    })
+    if(!userSocket){
+        return;//dont do anything
+    }
+    else{
+      const index = userSocket.socketIds.indexOf(socketId)
+      if(index !==-1){
+        userSocket.socketIds.splice(index,1)
+      }
+    }
 }

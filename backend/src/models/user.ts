@@ -63,4 +63,24 @@ interface IUserMethods extends mongoose.Model<IUser>{
     //we can add static methods here for the model
 }
 const User = mongoose.model<IUser, IUserMethods>('User', userSchema)
-export {User, IUser}
+
+
+export interface IUserSocket extends mongoose.Document{
+    user:IUser|string;
+    socketIds:string[];
+}
+
+const userSocketSchema = new mongoose.Schema<IUserSocket>({
+    socketIds:{
+        type:[String],
+        required:true
+    },
+    user:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref:"User",
+        required:true
+    }
+})
+const UserSocket = mongoose.model<IUserSocket>('UserSocket', userSocketSchema)
+
+export {User, IUser, UserSocket}

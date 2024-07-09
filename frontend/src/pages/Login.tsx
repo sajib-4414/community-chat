@@ -34,6 +34,7 @@ export const Login:FC = ()=>{
             const userJSON = JSON.stringify(registedUser);
             localStorage.setItem('user', userJSON);
             dispatch(storeUser(registedUser))
+            
             navigate('/');
         }, (error)=>{
             console.log("login failed")

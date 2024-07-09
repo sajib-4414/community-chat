@@ -9,6 +9,7 @@ import { store, useAppDispatch } from "./store/store";
 import { useEffect } from 'react';
 import { LoggedInUser } from './models/usermodels';
 import { resetUser, storeUser } from './store/UserSlice';
+import { RouteGuardWrapper } from './components/RouteGuardWrapper';
 const AppWrapper = ()=>{
   return(
     //we are wrapping so that App component itself can use React redux store(dispatch command), fetch functionalities
@@ -36,7 +37,9 @@ function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="" element={<ChatHome />} />
+          <Route  element={<RouteGuardWrapper />} >
+            <Route path="" element={<ChatHome />} />
+          </Route>
         </Routes>
       </Container>
   );
