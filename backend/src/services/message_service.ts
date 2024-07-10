@@ -268,19 +268,25 @@ export const joinAllChatRooms = async (currentUser:IUser, socketId:string)=>{
 }
 
 export const addNewSocketIdToUser = async (user:IUser, socketId:string)=>{
-  let userSocket:IUserSocket|null = await UserSocket.findOne({
-        user
-    })
-    if(!userSocket){
-        userSocket = await UserSocket.create({
-            user,
-            socketIds:[socketId]
-        })
-    }
-    else{
-        userSocket.socketIds = [socketId]
-        await userSocket.save()
-    }
+  console.log("user is.............",user)
+  // let userSocket:IUserSocket|null = await UserSocket.findOne({
+  //       user
+  //   })
+  //   if(!userSocket){
+  //       userSocket = await UserSocket.create({
+  //           user,
+  //           socketIds:[socketId]
+  //       })
+  //   }
+  //   else{
+  //       userSocket.socketIds = [socketId]
+  //       await userSocket.save()
+  //   }
+  let updatedUserSocket: IUserSocket | null = await UserSocket.findOneAndUpdate(
+    { user },
+    { $set: { socketIds: [socketId] } },
+    { new: true, upsert: true } // Options: new returns updated document, upsert creates new if not found
+  );
 }
 
 export const deleteSocketIdFromUser = async (user:IUser, socketId:string)=>{

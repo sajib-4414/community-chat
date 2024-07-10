@@ -85,10 +85,11 @@ and send the message back to user1 from server via socket.
 and in the API i am also making user2 a part of the same room.
 I just need to make user2 actively join that room, for that i need user2's socket.
 Solution: will add a socket Id array for each user. so another model, UserSocket.
-it will have a new Model, UserSOcket: user, socketId[]
-there will be an API, addUserSocket [not deleting old sockets for the moment, will see if there is redudant sockets, i will store all sockets if user logs into multiple devices], deleteUserSocket[].
-whenver backend sees a message for a channel user that is new, so user is Maybe not connected, we will connect user's socket
-to the channel.
+it will have a new Model, UserSocket: user, socketId[]
+there will be an API, addUserSocket [ deleting old sockets for the moment, have to later store all socketId until deleted, right now seeing socket disconnect is not fired at all], deleteUserSocket[] upon logout.
+whenver backend sees a message(from user1) for a channel(like pvt-user1-user2),where user2 that is new, so user2's is socket is not yet connected to that room, so we will query the user2's associated socketIds in the backend, find socket with the socketId and join that socket (of User2) to the new room. Now we send message to the room. I must say, we will recieve user1's socketId in the backend call, and user1 will be also added to the room as well. so both user1, user2 will be added to the room and then server will send the message to the room.
+
+
 Also learnt about backend integration properly with frontend,
 especiaally which query to run, for which ui, which mongoose query to run, response.
 
@@ -164,5 +165,64 @@ export const axiosInstance = axios.create({
     }
   )
 
+but now we need a custom router component to use the router.navigate('/login') inside the axios
+isntead of react router dom's navigate. react router dom's navigate does not work out of component.
+create a new router.tsx file
+const HOCWithContainer = (OriginalComponent) => {
+    function NewComponent(props) {
+      return (
+        <Container>
+          <OriginalComponent {...props} />
+        </Container>
+      );
+    }
+    return NewComponent;
+};
+const WrappedRegister = HOCWithContainer(Register)
+const WrappedLogin= HOCWithContainer(Login)
+now specify the router paths like this(dont use Browser Router, Router, Routes now in the project) in the router.tsx file,
+export const router = createBrowserRouter([
+    {
+      element: <GuardedChatHome />,
+      path: ""
+    },
+    {
+        path: "/register",
+        element: <WrappedRegister/>
+      },
+      {
+        path: "/login",
+        element: <WrappedLogin/>,
+      }
+ ])
+inside app component return this,
+<RouterProvider router={router} />
 
   error boundary sikha lagbe
+
+*** proper way te routeguard, for every protected route, loggedInUser is checked first.
+const GuardedHOC = (OriginalComponent:any) => {
+  function NewComponent(props:any) {
+  //render OriginalComponent and pass on its props.
+    
+  const loggedInUser: LoggedInUser|null = useAppSelector(
+    (state) => state.userSlice.loggedInUser,
+  );
+  useEffect(()=>{
+    if (!loggedInUser) {
+        const storedUser = localStorage.getItem("user");
+        if (!storedUser) {
+        //   notificationHook.showNotification("Please login first"); will be added soon
+          router.navigate("login");
+        }
+    }
+  },[loggedInUser])
+    return loggedInUser ? <OriginalComponent {...props} /> : null;
+  }
+  return NewComponent;
+};
+export default GuardedHOC;
+
+//in destination
+const GuardedChatHome = GuardedHOC(WrappedChatHome)
+<GuardedChatHome />

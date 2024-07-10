@@ -1,13 +1,13 @@
 import { createBrowserRouter } from "react-router-dom";
 import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
-import { RouteGuardWrapper } from "./components/RouteGuardWrapper";
 import { ChatHome } from "./pages/ChatHome";
 import Container from "./common/Container";
+import GuardedHOC from "./components/GuardedComponent";
 
 
-const HOCWithContainer = (OriginalComponent) => {
-    function NewComponent(props) {
+const HOCWithContainer = (OriginalComponent:any) => {
+    function NewComponent(props:any) {
       return (
         <Container>
           <OriginalComponent {...props} />
@@ -15,22 +15,19 @@ const HOCWithContainer = (OriginalComponent) => {
       );
     }
     return NewComponent;
-  };
+};
   
+
 const WrappedChatHome = HOCWithContainer(ChatHome)
 const WrappedRegister = HOCWithContainer(Register)
 const WrappedLogin= HOCWithContainer(Login)
+const GuardedChatHome = GuardedHOC(WrappedChatHome)
 
 
 export const router = createBrowserRouter([
     {
-      element: <RouteGuardWrapper />,
-      children: [
-        {
-          path: "",
-          element: <WrappedChatHome />,
-        },
-      ]
+      element: <GuardedChatHome />,
+      path: ""
     },
     {
         path: "/register",

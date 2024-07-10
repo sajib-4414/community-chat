@@ -34,10 +34,20 @@ const Header:FC = ()=>{
     console.log("deleting my socket to user after logging out")
     if(socket.id){
         const socketId = socket.id
-        await axiosInstance.post('/messages/delete-socket', {socketId},getAuthHeader())
+        try{
+            await axiosInstance.post('/messages/delete-socket', {socketId},getAuthHeader())
+        }catch(err){
+            //this error is ok to ignore, we attempt to delete a socket from server with the existing
+            //user token, but sometime token is invalid. thats why getting a token invalid
+            //is ok, and we safely ignore that exception
+            console.log(err)
+        }finally{
+            dispatch(resetUser())
+            router.navigate('/login')
+        }
+        
     
-        dispatch(resetUser())
-        router.navigate('/login')
+        
         }
     }
     
