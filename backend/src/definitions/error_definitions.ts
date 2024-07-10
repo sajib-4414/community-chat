@@ -1,14 +1,17 @@
-import { HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR } from "../types/http_constants";
+import { HTTP_400_BAD_REQUEST, HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND, HTTP_500_INTERNAL_SERVER_ERROR } from "./http_constants";
 
-class ErrorResponse extends Error{
+abstract class CustomErrorResponse extends Error{
     statusCode: number;
     constructor(message:string, statusCode:number){
         super(message);
         this.statusCode = statusCode
     }
+    formattedErrors() {
+        return [{ message: this.message }];
+    }
 }
 
-class BadRequestError extends ErrorResponse{
+class BadRequestError extends CustomErrorResponse{
     constructor(message?:string){
         if(!message){
             super("Request cannot be fulfilled, bad data",HTTP_400_BAD_REQUEST)
@@ -20,7 +23,7 @@ class BadRequestError extends ErrorResponse{
     }
 }
 
-class NotAuthenticatedError extends ErrorResponse{
+class NotAuthenticatedError extends CustomErrorResponse{
     constructor(message?:string){
         if(!message){
             super("You are not logged in",HTTP_401_UNAUTHORIZED)
@@ -32,7 +35,7 @@ class NotAuthenticatedError extends ErrorResponse{
     }
 }
 
-class NotAuthorizedError extends ErrorResponse{
+class NotAuthorizedError extends CustomErrorResponse{
     constructor(message?:string){
         if(!message){
             super("You are not authorized",HTTP_403_FORBIDDEN)
@@ -44,7 +47,7 @@ class NotAuthorizedError extends ErrorResponse{
     }
 }
 
-class ResourceNotFoundError extends ErrorResponse{
+class ResourceNotFoundError extends CustomErrorResponse{
     constructor(message?:string){
         if(!message){
             super("Resource cannot be found",HTTP_404_NOT_FOUND)
@@ -56,7 +59,7 @@ class ResourceNotFoundError extends ErrorResponse{
     }
 }
 
-class InternalServerError extends ErrorResponse{
+class InternalServerError extends CustomErrorResponse{
     constructor(message?:string){
         if(!message){
             super("Internal server error occurred",HTTP_500_INTERNAL_SERVER_ERROR)
@@ -68,4 +71,4 @@ class InternalServerError extends ErrorResponse{
     }
 }
 
-export {ErrorResponse, InternalServerError, NotAuthenticatedError, BadRequestError, ResourceNotFoundError, NotAuthorizedError}
+export {CustomErrorResponse, InternalServerError, NotAuthenticatedError, BadRequestError, ResourceNotFoundError, NotAuthorizedError}

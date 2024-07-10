@@ -1,6 +1,6 @@
 import express from 'express'
 import { addUserSocket, deleteUserSocket, getChatMessagesInRoom, getPastChatsOfUser, joinAllRooms, sendFirstMessage } from '../controllers/message_controller'
-import { authorizedRequest } from '../middlewares/auth'
+import { authorizedRequest } from '../middlewares/auth_and_error'
 const router = express.Router()
 
 router.post('/all-messages', authorizedRequest, getChatMessagesInRoom) //it will be get later, as we just need authenticated user to get all messages

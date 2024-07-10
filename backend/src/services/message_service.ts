@@ -3,8 +3,8 @@ import { Message } from "../models/message"
 import { IRoom, Room } from "../models/room"
 import { RoomMember } from "../models/room-member"
 import { IUser, IUserSocket, UserSocket } from "../models/user"
-import { MESSAGE_FROM_SERVER } from "../types/event_types"
-import { MESSAGE_TYPES, ROOM_TYPE, IRoomWithLatestMessage, roomsListItemMongoResponse } from "../types/room_message_types"
+import { MESSAGE_FROM_SERVER } from "../definitions/event_types"
+import { MESSAGE_TYPES, ROOM_TYPE, IRoomWithLatestMessage, roomsListItemMongoResponse } from "../definitions/room_message_types"
 
 export const createFirstMessage = async(senderUser:IUser, messagePayload:any)=>{
     //right now sender, receiver is just the username of the users, but it will be updated

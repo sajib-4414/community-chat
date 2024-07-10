@@ -89,3 +89,79 @@ it will have a new Model, UserSOcket: user, socketId[]
 there will be an API, addUserSocket [not deleting old sockets for the moment, will see if there is redudant sockets, i will store all sockets if user logs into multiple devices], deleteUserSocket[].
 whenver backend sees a message for a channel user that is new, so user is Maybe not connected, we will connect user's socket
 to the channel.
+Also learnt about backend integration properly with frontend,
+especiaally which query to run, for which ui, which mongoose query to run, response.
+
+if you jsut use express async error, and continue to throw error, it wil always throw 500.
+if you want to handle it, you have to use a global error handler to catch the error, and to properly send a response to user.
+just having something like this wont properly handle the error, express async error will always show 500 if not caught with a global handler like below.
+class CustomErrorResponse extends Error{
+    statusCode: number;
+    constructor(message:string, statusCode:number){
+        super(message);
+        this.statusCode = statusCode
+    }
+}
+
+class BadRequestError extends CustomErrorResponse{
+    constructor(message?:string){
+        if(!message){
+            super("Request cannot be fulfilled, bad data",HTTP_400_BAD_REQUEST)
+        }
+        else{
+            super(message,400)
+        }
+        
+    }
+}
+```
+app.use((err, req, res, next) => {
+    if (err instanceof NotAuthenticatedError) {
+        res.status(err.statusCode).json({ message: err.message });
+    } else {
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+});
+```
+specialty of this hadnler means, only this middleware will be contacted, or this will intercept
+if there is errors. other middleware which does not have err in the definiton, will not catch errors
+in the request response cycle.
+//global error handler, It must be placed after all routes, controllers are assigned to app instance,
+//that intercept any error that happens in the request response cycle
+app.use(globalErrorHandler)
+
+*** to have a base url for all axios request, and intercept all api response errors, and customizing it
+to redirect to login page, we need to have axios instance, we will use it throughout the app.
+import axios from "axios";
+const env = await import.meta.env;
+const BASE_URL = env.VITE_APP_API_URL || 'http://localhost:3001/api'; // Default URL
+
+export const axiosInstance = axios.create({
+    baseURL: BASE_URL,
+    // Add other axios configurations here
+    timeout: 10000, // Set timeout in milliseconds (optional)
+    headers: {
+      'Content-Type': 'application/json', // Default content type (optional)
+    },
+  });
+
+  //also intercepting the error to watch for some kind of errors
+  //such as for 401 redirect to login page
+  //could do that in any axios instance, inside the component too.
+  //but using here such that all axios in the app are intercepted
+
+  axiosInstance.interceptors.response.use(
+    (response)=>{
+      console.log('Response:', response);
+      return response;
+    },
+    (error)=>{
+      if(error!=null && error.status === 401){
+        console.log('401 error happened.............')
+      }
+      //intercepting and sending the same error to the caller component
+      return Promise.reject(error)
+    }
+  )
+
+  

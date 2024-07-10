@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { IUser } from "./user";
 import { IRoom } from "./room";
-import { MESSAGE_TYPES } from "../types/room_message_types";
+import { MESSAGE_TYPES } from "../definitions/room_message_types";
 interface IMessage extends mongoose.Document{
     message:string,
     createdAt:Date,

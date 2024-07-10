@@ -31,7 +31,7 @@ const Header:FC = ()=>{
 
 
     const handleLogout = async()=>{
-    console.log("deleting my socket to user")
+    console.log("deleting my socket to user after logging out")
     if(socket.id){
         const socketId = socket.id
         await axiosInstance.post('/messages/delete-socket', {socketId},getAuthHeader())

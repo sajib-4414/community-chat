@@ -1,7 +1,7 @@
 import { Server,Socket } from "socket.io";
-import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER, USER_JOINED_ROOM, USER_ROOM_JOIN_REQUEST } from "../types/event_types";
+import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER, USER_JOINED_ROOM, USER_ROOM_JOIN_REQUEST } from "../definitions/event_types";
 import { Message } from "../models/message";
-import { MESSAGE_TYPES } from "../types/room_message_types";
+import { MESSAGE_TYPES } from "../definitions/room_message_types";
 import { Room } from "../models/room";
 import { User } from "../models/user";
 

@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { ROOM_TYPE } from "../types/room_message_types";
+import { ROOM_TYPE } from "../definitions/room_message_types";
 import { IUser } from "./user";
 
 export interface IRoom extends mongoose.Document{

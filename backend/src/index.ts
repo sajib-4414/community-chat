@@ -9,6 +9,7 @@ import { connectToMongoDB } from './config/db';
 import { authRouter } from './routes/auth_user_routes';
 import { messageRouter } from './routes/message_routes';
 import { initializeSocketIoServer } from './config/socketInstance';
+import { globalErrorHandler } from './middlewares/auth_and_error';
 //initializaing a socket and express server
 const app = express()
 
@@ -31,6 +32,11 @@ router.use('/auth', authRouter);
 router.use('/messages', messageRouter);
 
 app.use('/api',router)
+
+//global error handler, It must be placed after all routes, controllers are assigned to app instance,
+//that intercept any error that happens in the request response cycle
+app.use(globalErrorHandler)
+
 const server = createServer(app)
 initializeSocketIoServer(server)
 

@@ -1,4 +1,4 @@
-import { BadRequestError, NotAuthenticatedError, ResourceNotFoundError } from "../helpers/error_definitions";
+import { BadRequestError, NotAuthenticatedError, ResourceNotFoundError } from "../definitions/error_definitions";
 import { IUser, User } from "../models/user"
 
 interface IRegisterPayload{

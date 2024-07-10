@@ -5,6 +5,7 @@ import { useDispatch } from "react-redux";
 import { storeUser } from "../store/UserSlice";
 import { axiosInstance } from "../axiosInstance";
 import { LoggedInUser } from "../models/usermodels";
+import { socket } from "../socket";
 export const Login:FC = ()=>{
 
     const [username, setUserName] = useState("");
@@ -28,11 +29,23 @@ export const Login:FC = ()=>{
         axiosInstance.post('/auth/login',{
             username,
             password
-        }).then((response)=>{
+        }).then(async (response)=>{
             console.log("response of login call is",response)
             const registedUser:LoggedInUser = response.data
             const userJSON = JSON.stringify(registedUser);
             localStorage.setItem('user', userJSON);
+
+           
+            console.log("adding my socket to user after loggin in")
+            const socketId = socket.id
+            const headers = {
+                headers: { Authorization: `Bearer ${registedUser?.token}` }
+            }
+            await axiosInstance.post('/messages/add-socket', {
+                socketId
+            },headers)
+            
+
             dispatch(storeUser(registedUser))
             
             navigate('/');

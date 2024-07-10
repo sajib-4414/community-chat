@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { addNewSocketIdToUser, createFirstMessage, deleteSocketIdFromUser, getChatMessagesOfRoom, getPastOneToOneChats, joinAllChatRooms } from "../services/message_service";
 import { IUser, IUserSocket, User, UserSocket } from "../models/user";
-import { HTTP_200_OK, HTTP_204_NO_CONTENT } from "../types/http_constants";
+import { HTTP_200_OK, HTTP_204_NO_CONTENT } from "../definitions/http_constants";
 
 export const sendFirstMessage = async(req:any, res:Response)=>{
     const messagePayload = req.body

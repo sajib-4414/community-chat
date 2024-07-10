@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { login, register } from "../services/auth_service";
-import { ResourceNotFoundError } from "../helpers/error_definitions";
+import { InternalServerError, ResourceNotFoundError } from "../definitions/error_definitions";
 
 
 export const Register = async(req:Request, res:Response)=>{
@@ -11,7 +11,7 @@ export const Register = async(req:Request, res:Response)=>{
     const {user,token} = await register(req.body)
     const jwtCookieExpire = process.env.JWT_COOKIE_EXPIRE;
     if(!jwtCookieExpire){
-        throw new Error('JWT_COOKIE_EXPIRE is not defined');
+        throw new InternalServerError('JWT_COOKIE_EXPIRE is not defined');
     }
     console.log('jwt cookie expire is',jwtCookieExpire)
     const options:any = {
