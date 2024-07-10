@@ -67,7 +67,7 @@ If I want to access the io instance from a controller to emit something, and cre
 better way, use a singleton instead of creating every time new Server(). 
 
 5. Problem:
-until both user started to chat with each other, then they are not part of a room actively(private chat mainly), and both are not connected via socket with room, so the message sent via socket to a room does not reach from one to another. 
+until both user messaged  each other, then they are not part of a room actively(private chat mainly), and both are not connected via socket with room, so the message sent via socket to a room does not reach from one to another. 
 Mainly because i make a user socket join a room upon message, not before that.
 if both user message each other then they join a room and start to see messages instantly.
 solution is to make both users part of the room before he gets a message.
@@ -85,8 +85,8 @@ and send the message back to user1 from server via socket.
 and in the API i am also making user2 a part of the same room.
 I just need to make user2 actively join that room, for that i need user2's socket.
 Solution: will add a socket Id array for each user. so another model, UserSocket.
-it will have a new Model, UserSocket: user, socketId[]
-there will be an API, addUserSocket [ deleting old sockets for the moment, have to later store all socketId until deleted, right now seeing socket disconnect is not fired at all], deleteUserSocket[] upon logout.
+I added new Model, UserSocket: user, socketId[]
+I added API, addUserSocket [ deleting old sockets for the moment, have to later store all socketId until deleted, right now seeing socket disconnect is not fired at all], deleteUserSocket[] upon logout.
 whenver backend sees a message(from user1) for a channel(like pvt-user1-user2),where user2 that is new, so user2's is socket is not yet connected to that room, so we will query the user2's associated socketIds in the backend, find socket with the socketId and join that socket (of User2) to the new room. Now we send message to the room. I must say, we will recieve user1's socketId in the backend call, and user1 will be also added to the room as well. so both user1, user2 will be added to the room and then server will send the message to the room.
 
 
