@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import { router } from "./router";
 const env = await import.meta.env;
 const BASE_URL = env.VITE_APP_API_URL || 'http://localhost:3001/api'; // Default URL
 
@@ -25,6 +26,7 @@ export const axiosInstance = axios.create({
       console.log("axios interceptor caught an error",error)
       if(error!=null && error?.response?.status === 401){
         console.log('401 error happened.............')
+        router.navigate('/login')
       }
       //intercepting and sending the same error to the caller component
       return Promise.reject(error)

@@ -1,17 +1,17 @@
 import { FC, FormEvent, useState } from "react";
 import './login.css'
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 import { storeUser } from "../store/UserSlice";
 import { axiosInstance } from "../axiosInstance";
 import { LoggedInUser } from "../models/usermodels";
 import { socket } from "../socket";
+import { router } from "../router";
 export const Login:FC = ()=>{
 
     const [username, setUserName] = useState("");
     const [password, setPassword] = useState("");
     const [errorLine,setErrorLine] = useState("")
-    const navigate = useNavigate();
     const dispatch = useDispatch()
 
     const submitForm = (event:FormEvent<HTMLFormElement>)=>{
@@ -48,7 +48,7 @@ export const Login:FC = ()=>{
 
             dispatch(storeUser(registedUser))
             
-            navigate('/');
+            router.navigate('/');
         }, (error)=>{
             console.log("login failed")
             console.log(error)

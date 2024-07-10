@@ -1,9 +1,9 @@
-import { Outlet, useNavigate } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import React, { useEffect, useRef } from "react";
 import { useAppSelector } from "../store/store";
 import { LoggedInUser } from "../models/usermodels";
+import { router } from "../router";
 export const RouteGuardWrapper: React.FC = () => {
-  const navigate = useNavigate();
   const loggedInUser: LoggedInUser|null = useAppSelector(
     (state) => state.userSlice.loggedInUser,
   );
@@ -18,7 +18,7 @@ export const RouteGuardWrapper: React.FC = () => {
         const storedUser = localStorage.getItem("user");
         if (!storedUser) {
         //   notificationHook.showNotification("Please login first"); will be added soon
-          navigate("login");
+          router.navigate("login");
         }
       }
     }

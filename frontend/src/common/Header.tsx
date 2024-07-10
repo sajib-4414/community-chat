@@ -1,16 +1,16 @@
 import { FC } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { LoggedInUser } from "../models/usermodels";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { resetUser } from "../store/UserSlice";
 import { axiosInstance } from "../axiosInstance";
 import { socket } from "../socket";
+import { router } from "../router";
 
 const Header:FC = ()=>{
     const loggedinUser:LoggedInUser|null = useAppSelector(
         (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
     )
-    const navigate = useNavigate()
     const dispatch = useAppDispatch();
 
     const getAuthHeader = ()=>{
@@ -37,7 +37,7 @@ const Header:FC = ()=>{
         await axiosInstance.post('/messages/delete-socket', {socketId},getAuthHeader())
     
         dispatch(resetUser())
-        navigate('/login')
+        router.navigate('/login')
         }
     }
     

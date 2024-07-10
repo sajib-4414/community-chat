@@ -1,10 +1,10 @@
 import { FC, FormEvent, useState } from "react";
 import './login.css'
-import { useNavigate } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 import { storeUser } from "../store/UserSlice";
 import { axiosInstance } from "../axiosInstance";
 import { LoggedInUser } from "../models/usermodels";
+import { router } from "../router";
 export const Register:FC = ()=>{
 
     const [username, setUserName] = useState("");
@@ -12,7 +12,6 @@ export const Register:FC = ()=>{
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [errorLine,setErrorLine] = useState("")
-    const navigate = useNavigate();
     const dispatch = useDispatch()
 
     const submitForm = (event:FormEvent<HTMLFormElement>)=>{
@@ -49,7 +48,7 @@ export const Register:FC = ()=>{
             const userJSON = JSON.stringify(registedUser);
             localStorage.setItem('user', userJSON);
             dispatch(storeUser(registedUser))
-            navigate('/');
+            router.navigate('/');
         }, (error)=>{
             console.log("login failed")
             console.log(error)
