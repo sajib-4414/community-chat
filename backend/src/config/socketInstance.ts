@@ -34,7 +34,7 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
             const dbMessage = await Message.create({
                 message:payload.message,
                 sender:  payload.sender._id  ,
-                room:await Room.findOne({ name:payload.room}) ,
+                room:await Room.findOne({ code:payload.roomcode}) ,
                 oneToOne:true,
                 messageType:MESSAGE_TYPES.USER_MSG
             })

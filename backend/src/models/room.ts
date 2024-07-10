@@ -4,16 +4,23 @@ import { IUser } from "./user";
 
 export interface IRoom extends mongoose.Document{
     name:string,
+    code:string,
     roomType:ROOM_TYPE,
     createdAt:Date,
     updatedAt:Date,
-    createdBy:string|IUser
+    createdBy:string|IUser,
+    privateRoomMembers:IUser[],
 }
 
 const roomSchema = new mongoose.Schema<IRoom>({
     name:{
         type:String,
         required:true
+    },
+    code:{
+        type:String,
+        required:true,
+        unique:true,
     },
     roomType:{
         type:String,
@@ -22,6 +29,11 @@ const roomSchema = new mongoose.Schema<IRoom>({
     },
     createdBy:{
         type: mongoose.Schema.Types.ObjectId,
+        ref:"User",
+        required:true
+    },
+    privateRoomMembers:{
+        type: [mongoose.Schema.Types.ObjectId],
         ref:"User",
         required:true
     }

@@ -12,12 +12,30 @@ export enum MESSAGE_TYPES{
     SYSTEM_MSG = "system_message",
     USER_MSG = "user_message"
 }
-export interface IRoomWithLatestMessage{
-    _id:string,
-    roomdetails:string|IRoom,
-    latest_message:IMessage,
-    receiver:IUser
+
+export interface MessageWithRoom{
+    room:null|string|IRoom,
+    message:IMessage|string,
 }
+
+
+// export interface IRoomWithLatestMessage{
+//     _id?:string,
+//     roomdetails:string|IRoom,
+//     latest_message:IMessage,
+//     receiver:IUser;//means other party, lke if use1 is talking to user2, then its user2.
+// }
+
+// export class RoomWithLatestMessage implements IRoomWithLatestMessage{
+//     roomdetails:string|IRoom;
+//     latest_message:IMessage;
+//     receiver:IUser;
+//     constructor(roomdetails:string|IRoom, latest_message:IMessage, receiver:IUser ){
+//         this.roomdetails = roomdetails;
+//         this.latest_message = latest_message;
+//         this.receiver = receiver;
+//     }
+// }
 
 //used when we query to find all user's rooms
 export interface roomsListItemMongoResponse{

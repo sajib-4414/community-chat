@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import { addNewSocketIdToUser, createFirstMessage, deleteSocketIdFromUser, getChatMessagesOfRoom, getPastOneToOneChats, joinAllChatRooms } from "../services/message_service";
 import { IUser, IUserSocket, User, UserSocket } from "../models/user";
 import { HTTP_200_OK, HTTP_204_NO_CONTENT } from "../definitions/http_constants";
+import { IMessage } from "../models/message";
+import { IRoom } from "../models/room";
+import { IRoomWithLatestMessage, MessageWithRoom } from "../definitions/room_message_types";
 
 export const sendFirstMessage = async(req:any, res:Response)=>{
     const messagePayload = req.body
@@ -11,12 +14,12 @@ export const sendFirstMessage = async(req:any, res:Response)=>{
     res.status(HTTP_200_OK).json({})
 }
 
-//get all messages of a channel, right now of a one to one channel
-export const getChatMessagesInRoom = async (req:Request, res:Response)=>{
+//get all messages of a channel, espeicaily user opened the chat window with a person
+//right now of a one to one channel
+export const getChatMessagesInRoom = async (req:any, res:Response)=>{
     const chatRequest = req.body
-
-    const conversationMessages = await getChatMessagesOfRoom(chatRequest)
-
+    const loggedInUser = req.user
+    const conversationMessages:IMessage[] = await getChatMessagesOfRoom(loggedInUser, chatRequest)
     console.log("conversationMessages is", conversationMessages)
     res.json(conversationMessages)
 }
@@ -24,7 +27,8 @@ export const getChatMessagesInRoom = async (req:Request, res:Response)=>{
 //to show the recent messages in the frotnennd
 export const getPastChatsOfUser = async (req:any, res:Response)=>{
     
-    const pastChats = await getPastOneToOneChats(req.user)
+    const pastChats:MessageWithRoom[] = await getPastOneToOneChats(req.user)
+    
     res.status(HTTP_200_OK).json(pastChats)
 }
 

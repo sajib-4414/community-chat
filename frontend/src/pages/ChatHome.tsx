@@ -6,7 +6,7 @@ import { useAppSelector } from "../store/store";
 import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER } from "../constants";
 import { LoggedInUser } from "../models/usermodels";
 import { axiosInstance } from "../axiosInstance";
-import { IRoomWithLatestMessage } from "../interfaces/MessageInterfaces";
+import { IMessage, IRoom, IUser, MessagePayLoadToServer, MessageWithRoom, ROOM_TYPE } from "../interfaces/MessageInterfaces";
 import { ChatContainer } from "../components/ChatContainer";
 import { ChatFooterContainer } from "../components/ChatFooterContainer";
 export  const ChatHome = ()=>{
@@ -18,10 +18,12 @@ export  const ChatHome = ()=>{
         (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
     )
     const [contacts, setContacts] = useState<any>([])
-    const [currentlyChattingWith, setCurrentlyChattingWith] = useState<any>(null)
-    const [currentChatMessages, setCurrentChatMessages] = useState<any>([])
+    const [currentlyChatContact, setCurrentlyChatContact] = useState<IUser|null>(null)
+    const [currentMessageType, setCurrentMessageType] = useState("")
+    const [currentChatRoom, setCurrentChatRoom] = useState<IRoom|null>(null)
+    const [currentChatMessages, setCurrentChatMessages] = useState<IMessage[]>([])
     const [currentMessage, setCurrentMessage] = useState("")
-    const [pastChats, setPastChats] = useState<IRoomWithLatestMessage[]>([])
+    const [pastChats, setPastChats] = useState<MessageWithRoom[]>([])
 
     //Functions and listeners
     const getAuthHeader = ()=>{
@@ -65,6 +67,7 @@ export  const ChatHome = ()=>{
         const usersExceptLoggedInUser = allUsers.filter((user:any)=> user.username!=loggedinUser?.user?.username)
         setContacts(usersExceptLoggedInUser)
     }
+    //fetching all past conversations for showing inthe chat history
     const fetchPastMessages = async()=>{
         const response = await axiosInstance.get('/messages/past-chats', getAuthHeader())
         setPastChats(response.data)
@@ -83,30 +86,32 @@ export  const ChatHome = ()=>{
         },getAuthHeader())
     }
     const sendCurrentMessage = async()=>{
+        //Now we send all message via socket, No first message via API,
+        //API will determine if its the first message or what to do
         
-        //send the first message with api
-        if(currentChatMessages.length==0){
-            const users = [loggedinUser?.user.username, currentlyChattingWith.username]
-            users.sort()
-            const roomName = "pvt-"+users.join("-")
+        // //send the first message with api
+        // if(currentChatMessages.length==0){
+        //     const users = [loggedinUser?.user.username, currentlyChattingWith.username]
+        //     users.sort()
+        //     const roomName = "pvt-"+users.join("-")
 
             
-            await axiosInstance.post('/messages/message',{
-                receiver:currentlyChattingWith, 
-                messageRoomName:roomName,
-                message:currentMessage,
-                socketId:socket.id
-            }, getAuthHeader())
-            setCurrentMessage("")
-        }
-        else{
+        //     await axiosInstance.post('/messages/message',{
+        //         receiver:currentlyChattingWith, 
+        //         messageRoomName:roomName,
+        //         message:currentMessage,
+        //         socketId:socket.id
+        //     }, getAuthHeader())
+        //     setCurrentMessage("")
+        // }
+        // else{
             console.log("sent by socket./...........")
             //if there is message already then send via socket
 
-            //request to server via socket event to join the room
-            const users = [loggedinUser?.user.username, currentlyChattingWith.username]
-            users.sort()
-            const roomName = "pvt-"+users.join("-")
+            // //request to server via socket event to join the room
+            // const users = [loggedinUser?.user.username, currentlyChattingWith.username]
+            // users.sort()
+            // const roomName = "pvt-"+users.join("-")
 
             //does not working joining and sending the message at the same time, 
             // we are doing this inthe server, joining the socket in the room then emitting a message
@@ -115,32 +120,76 @@ export  const ChatHome = ()=>{
             // } )
 
             //then emit the mesasge
-            socket.emit(MESSAGE_TO_SERVER, {
-                sender:loggedinUser?.user,//todo this will come from authentiation
-                room:roomName,
-                message: currentMessage
-            } )
+            const messagePayload:MessagePayLoadToServer = {
+                // sender:loggedinUser?.user,//todo this will come from authentiation
+                // room:roomName,
+                // message: currentMessage
+                messageType: ROOM_TYPE.ONE_TO_ONE,
+                targetUser: currentlyChattingWith!,//it will be empty for groupchats
+                message:currentMessage,
+                room:undefined
+            }
+            socket.emit(MESSAGE_TO_SERVER, messagePayload )
             setCurrentMessage("")
-        }
+        // }
     }
-    //todo current chatter wont be needed with authentication
-    const fetchChatMessages = async (targetUser:any)=>{
-        const users = [loggedinUser?.user.username, targetUser.username]
-        users.sort()
-        const roomName = "pvt-"+users.join("-")
-        const response = await axiosInstance.post('/messages/all-messages',{
-            roomName,
-            currentChatter:loggedinUser?.user.username
-        },getAuthHeader())
-        setCurrentChatMessages(response.data)
 
+    const fetchChatMessagesForCurrentChat = async (roomOrMessageType:ROOM_TYPE, targetUser?:any,room?:IRoom|null )=>{
+        // const users = [loggedinUser?.user.username, targetUser.username]
+        // users.sort()
+        // const roomName = "pvt-"+users.join("-")
+        // const response = await axiosInstance.post('/messages/all-messages',{
+        //     roomName,
+        //     currentChatter:loggedinUser?.user.username
+        // },getAuthHeader())
+
+        // setCurrentChatMessages(response.data)
+
+
+        const payload:any = {}
+        //send whatever info we have to the server
+       
+         //case 1: one to one chat, user clicked a contact, we dont know the room
+        //ensures its the case 1
+        if(!room && targetUser){
+            payload.targetUser = targetUser //we just know target user, we want to fetch chat info with that user one to one
+            payload.messageType = roomOrMessageType//we know for sure what kind of message we want to fetch
+            // payload.room=room//for one to one chat when someone clicked contact, room will be None/undefined
+        }
+
+        //case 2 user clicked a recent one to one chat, we know the room
+        //we also know the target user, that is another user from the room
+        if(room && targetUser){
+            payload.targetUser = targetUser //target user will be xtracted from the room
+            payload.messageType = roomOrMessageType
+            payload.room=room//for one to one chat when someone reent chat, we know the room
+        }
+
+        //fetch all the past messages for this chat with this person/group
+        const response = await axiosInstance.post('/messages/all-messages',payload,getAuthHeader())
+        setCurrentChatMessages(response.data)
     }
-    const handleContactClick = (contact:any)=>{
-        setCurrentlyChattingWith(contact)
-        fetchChatMessages(contact)
+    const handleContactClick = (contact?:IUser)=>{
+        if(contact){
+            //someone wants to do a private chat, and just clicked a contact of a private person
+            //1. set currentChat to the contact
+            setCurrentlyChatContact(contact)
+            //2. set current message type
+            setCurrentMessageType(ROOM_TYPE.ONE_TO_ONE)
+            //3. set the current room, we cannot get the room info from the contact only, so set it to null
+            setCurrentChatRoom(null)
+
+            //4. Now fecth the previous messages of this chat
+            fetchChatMessagesForCurrentChat(ROOM_TYPE.ONE_TO_ONE, contact)
+        }
+        else{
+            //someone clicked a group chat name, no contact to send the message to.
+            //1. Fetch group messages
+        }
+        
     }
     socket.on(MESSAGE_FROM_SERVER, (dbMessage) => {
-        //also now check if the message should go to current chat message or past chat message.
+        //TODO also now check if the message should go to current chat message or past chat message.
         console.log("new message received",dbMessage)
 
         setCurrentChatMessages([...currentChatMessages, dbMessage])
@@ -171,11 +220,29 @@ export  const ChatHome = ()=>{
             socket.off(MESSAGE_TO_SERVER);
         }
 
-    },[currentChatMessages])
+    },[])
 
-    const handleRecentChatItemClick = (imessage:IRoomWithLatestMessage)=>{
+    const handleRecentChatItemClick = (imessage:MessageWithRoom)=>{
         console.log('clicked')
-        handleContactClick(imessage.receiver)
+        // handleContactClick(imessage.receiver)
+        const room:IRoom|null|string = imessage.room
+        let targetUser;
+        if(room && typeof room === 'object'){
+            targetUser = room.privateRoomMembers.find(user=> user._id !== loggedinUser?.user._id)
+        }
+
+        //someone wants to do a private chat, and just clicked a recent chats with another person
+        //1. set currentChat to the contact
+        if(targetUser)
+            setCurrentlyChatContact(targetUser)
+        //2. set current message type
+        setCurrentMessageType(ROOM_TYPE.ONE_TO_ONE)
+        //3. set the current room, we cannot get the room info from the contact only, so set it to null
+        if(room)
+            setCurrentChatRoom(room as IRoom)
+
+        //4. Now fecth the previous messages of this chat
+        fetchChatMessagesForCurrentChat(ROOM_TYPE.ONE_TO_ONE, targetUser)
     }
 
     return <div className="full container">
@@ -207,7 +274,7 @@ export  const ChatHome = ()=>{
                     <h4>Recent</h4>
                     <ul>
                         {
-                            pastChats.map((imessage:IRoomWithLatestMessage,index)=><li 
+                            pastChats.map((imessage:MessageWithRoom,index)=><li 
                             key={index}
                             onClick={()=>handleRecentChatItemClick(imessage)}
                             >

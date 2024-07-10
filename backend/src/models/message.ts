@@ -7,9 +7,11 @@ interface IMessage extends mongoose.Document{
     createdAt:Date,
     updatedAt:Date,
     sender:string|IUser,
+    reciever:string|IUser,
     room:string|IRoom,
     oneToOne:boolean,
-    messageType:MESSAGE_TYPES
+    messageType:MESSAGE_TYPES,
+    isUnread:boolean
 }
 
 const messsageSchema = new mongoose.Schema<IMessage>({
@@ -21,6 +23,11 @@ const messsageSchema = new mongoose.Schema<IMessage>({
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
         required:true
+    },
+    reciever:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:"User",
+        required:false //because for group channel we dont have a set reciver, receiver is everybody, so it be null that time
     },
     room:{
         type:mongoose.Schema.Types.ObjectId,
@@ -34,6 +41,10 @@ const messsageSchema = new mongoose.Schema<IMessage>({
     messageType:{
         type:String,
         enum:MESSAGE_TYPES
+    },
+    isUnread:{
+        type:Boolean,
+        default:false
     }
 }, {timestamps: true})
 

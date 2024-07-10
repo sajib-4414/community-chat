@@ -226,3 +226,64 @@ export default GuardedHOC;
 //in destination
 const GuardedChatHome = GuardedHOC(WrappedChatHome)
 <GuardedChatHome />
+
+how to notify user via socket for a chat that user has not clicked yet and show them on the recent chat?
+how to notify user via socket for a chat that user has not clicked,but talked before, but now talking to somebody else?
+how to notify user via socket for a chat that nver started, and user is either talking to somebody or nobody.
+how to show unread message.
+last active chat(either user1 chatted, or user2 chatted) sould show on top of recent chats.
+
+change the implementation of one to one chat.
+right now if user1 messages user2, we create a channel named as pvt-username1-username2.
+we sort the username so that either user1, user2 can access the same channel.
+alternative:
+for roomtype one to one, we keep an array of privateRoomMembers:[user1,user2], for group chat it will be empty.
+for group chat privateRoomMembers will be empty and roommembers array will say how many members are in a group. 
+
+For first message:
+user1 sends message to user2, 
+front end will send, messagetype one to one, targetUser: user[for group chat this will not be sent], message content, roomInfo[will be left empty for first private message]
+backend sees there is no room info submitted and message type is one to one. Still it checks if there is a Room which is one to one, where both user1, user2 is there.
+if it is, then they already have a private room, if not, then backend creates such room.
+now socketio joins the sender socket, reciver socket to the room and send the message. adding sockets to the room
+is idempotent, as its a set.We could do some optimization later that should we check if user is already there.
+So we no longer need roomcode
+
+For later messages:
+Now, for subsequent messages, 
+frotnend sends messagetype groupchat, targetUser:empty, message content, roomInfo
+backend sees retrieves that room from db, so backend just creates a message,with that room, make both sockets join room, and send the mesage to the room.
+What to send to the frotnend?
+frontend needs, dbMessage, roomInfo[will be used for groupchat to show. also for one to one chat, if room shows one to one and message says one to one, then frotnend checks what is the other User, then shows that on the UI ]
+
+backend always check if there is room exist for that user1,user2 as room can be empty, when user chooses a contact and send a message.
+
+now how will getAllPrevious messages API work: that fetches messages with this person earlier?
+backend will get call like: requesting message history, type-one-to-one[assuming user clicked contact name],roomInfo:null/info[null when just contact is chosen, roominfo there when room will be selected, or the previous chat will be selected], targetUser
+
+Message models:receiver will be empty for group chats.
+
+also dont do api call for first chat, do the same socket call, let backend handle that.
+
+upon a message come from backend with room, message,
+from backend we will always have room.
+how to update current chat?
+we check if the message is one to one. then we check who they are chatting with
+how to update recent chats?
+
+in the frontnend what happens when someone clicks a username?
+-> setCurrentChatRoom:null
+-> currentMessageType:one_to_one
+-> setCurrentContact:contact
+
+what happens when someone clicks a recent chat?
+if the clicked ChatWithRoomInfo, and see the room, from there we set the curentchatroom, current message type, currentcontact will be the other person
+from the room's privateRoomMember
+-> setCurrentChatRoom:roomInfo
+-> currentMessageType:one_to_one
+-> setCurrentContact:contact
+
+For group chat, if they click the group, room->rooom, message_type:take from group, currentcontact:null
+
+So now user sends a message:
+backend sends messagetype:currentMessageType[taken from the room info], message, targetUser(if its one to one message),roomInfo:if possible if they click recent chat of one to one

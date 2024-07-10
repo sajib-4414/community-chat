@@ -17,6 +17,13 @@ export enum MESSAGE_TYPES{
     USER_MSG = "user_message"
 }
 
+export interface MessagePayLoadToServer{
+    messageType: ROOM_TYPE,
+    targetUser?: IUser,//it will be empty for groupchats
+    message:string,
+    room?:IRoom
+}
+
 export interface IMessage {
     message:string,
     createdAt:Date,
@@ -29,15 +36,15 @@ export interface IMessage {
 
 export interface IRoom {
     name:string,
+    code:string,
     roomType:ROOM_TYPE,
     createdAt:Date,
     updatedAt:Date,
-    createdBy:string|IUser
+    createdBy:string|IUser,
+    privateRoomMembers:IUser[],
 }
 
-export interface IRoomWithLatestMessage{
-    _id:string,
-    roomdetails:string|IRoom,
-    latest_message:IMessage,
-    receiver:IUser
+export interface MessageWithRoom{
+    room:null|string|IRoom,
+    message:IMessage|string,
 }
