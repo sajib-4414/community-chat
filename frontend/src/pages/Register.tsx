@@ -5,6 +5,7 @@ import { storeUser } from "../store/UserSlice";
 import { axiosInstance } from "../axiosInstance";
 import { LoggedInUser } from "../models/usermodels";
 import { router } from "../router";
+import { socket } from "../socket";
 export const Register:FC = ()=>{
 
     const [username, setUserName] = useState("");
@@ -42,9 +43,24 @@ export const Register:FC = ()=>{
             name,
             email,
             password
-        }).then((response)=>{
+        }).then(async(response)=>{
             console.log("response of register call is",response)
             const registedUser:LoggedInUser = response.data
+
+
+            console.log("adding my socket to user after loggin in")
+            const socketId = socket.id
+            const headers = {
+                headers: { Authorization: `Bearer ${registedUser?.token}` }
+            }
+            await axiosInstance.post('/messages/add-socket', {
+                socketId
+            },headers)
+            
+
+            dispatch(storeUser(registedUser))
+
+
             const userJSON = JSON.stringify(registedUser);
             localStorage.setItem('user', userJSON);
             dispatch(storeUser(registedUser))

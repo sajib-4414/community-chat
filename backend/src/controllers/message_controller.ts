@@ -1,10 +1,10 @@
-import { Request, Response } from "express";
+import {  Response } from "express";
 import { addNewSocketIdToUser, createFirstMessage, deleteSocketIdFromUser, getChatMessagesOfRoom, getPastOneToOneChats, joinAllChatRooms } from "../services/message_service";
-import { IUser, IUserSocket, User, UserSocket } from "../models/user";
+import { IUser } from "../models/user";
 import { HTTP_200_OK, HTTP_204_NO_CONTENT } from "../definitions/http_constants";
 import { IMessage } from "../models/message";
-import { IRoom } from "../models/room";
-import { IRoomWithLatestMessage, MessageWithRoom } from "../definitions/room_message_types";
+
+import {  MessageWithRoom } from "../definitions/room_message_types";
 
 export const sendFirstMessage = async(req:any, res:Response)=>{
     const messagePayload = req.body
@@ -46,7 +46,7 @@ export const joinAllRooms = async(req:any, res:Response)=>{
 export const addUserSocket = async(req:any, res:Response)=>{
     const {socketId} = req.body
     addNewSocketIdToUser(req.user, socketId)
-    console.log('user socket connected............')
+
     
     res.status(HTTP_204_NO_CONTENT).json({})
 }

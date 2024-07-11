@@ -36,6 +36,7 @@ export interface IMessage {
 }
 
 export interface IRoom {
+    _id:string;
     name:string,
     code:string,
     roomType:ROOM_TYPE,
@@ -46,6 +47,16 @@ export interface IRoom {
 }
 
 export interface MessageWithRoom{
-    room:null|string|IRoom,
-    message:IMessage|string,
+    room:IRoom,
+    message:IMessage,
+}
+
+//This is for the recent chats bar,will be used to show the other user
+//like user1 was chatting with user2
+//in the recent window it must show user2 when user1 sees the recent chats
+//in the recent window it must show user1 when user2 sees the recent chats
+export interface MessageWithAlternateUser{
+    latest_message:IMessage,
+    user_chatting_with:IUser;
+    room:IRoom;
 }

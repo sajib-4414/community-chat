@@ -1,8 +1,8 @@
 import { Server,Socket } from "socket.io";
 import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER, USER_JOINED_ROOM, USER_ROOM_JOIN_REQUEST } from "../definitions/event_types";
-import { Message } from "../models/message";
+import { IMessage, Message } from "../models/message";
 import { MESSAGE_TYPES, MessagePayLoadToServer, MessageWithRoom, ROOM_TYPE } from "../definitions/room_message_types";
-import { Room } from "../models/room";
+import { IRoom, Room } from "../models/room";
 import { User, UserSocket } from "../models/user";
 
 let io:any = null;
@@ -25,6 +25,8 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
             console.log('CLient want to join a room')
         })
         socket.on(MESSAGE_TO_SERVER,async (payload:MessagePayLoadToServer)=>{
+            console.log('got message from socket=',socket.id)
+            console.log('got a message from client via socket',payload)
 
             //Handle both case, if this is the first chat , or it is a already started chat
 
@@ -48,6 +50,7 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
                         payload.senderUser
                     ]
                 })
+                console.log('room exists......')
                 //if we find any room then its good. if not we create it now.
                 if(!room){
                     room = await Room.create({
@@ -61,8 +64,10 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
                         code:`pvt-${payload.senderUser.username}-${payload.targetUser.username}`
 
                     })
+                    console.log('room does not exist')
                 }
             }
+
             //now we create the dbMessage
             const dbMessage = await Message.create({
                 message:payload.message,
@@ -72,7 +77,7 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
                 messageRoomType:payload.messageRoomType,
                 messageType:MESSAGE_TYPES.USER_MSG
             })
-
+            console.log('db message created')
             const receiverUserSocket = await UserSocket.findOne({
                 user:payload.targetUser
             })
@@ -80,18 +85,22 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
 
             //we will join both sender and receiver socke to the room
             //this is the sender socket
-            socket.join(payload.room?.name!);
+            socket.join(payload.room?.code!);
             //this is the receiver socket
-            targetSocket.join(payload.room?.name!)
+            targetSocket.join(payload.room?.code!)
+
+            console.log('both sockets have joined the room')
 
             //retireve the updated message from DB
-            const storedMessage = await Message.findById(dbMessage._id).populate('sender')
+            const storedMessage:IMessage|null = await Message.findById(dbMessage._id).populate('sender')
+            const storedRoom:IRoom|null = await Room.findById(room?.id).populate('privateRoomMembers')
             const messagePayloadToFrotnend:MessageWithRoom = {
-                message:dbMessage,
-                room:room!
+                message:storedMessage!,
+                room:storedRoom!
             } 
 
-            io.to(payload.room).emit(MESSAGE_FROM_SERVER,messagePayloadToFrotnend)
+            console.log('now emitting to the room')
+            io.to(payload.room?.code).emit(MESSAGE_FROM_SERVER,messagePayloadToFrotnend)
 
             // socket.join(payload.room);
             // console.log("my rooms are", socket.rooms)

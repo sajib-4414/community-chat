@@ -3,6 +3,7 @@ import { ROOM_TYPE } from "../definitions/room_message_types";
 import { IUser } from "./user";
 
 export interface IRoom extends mongoose.Document{
+    _id:string;
     name:string,
     code:string,
     roomType:ROOM_TYPE,

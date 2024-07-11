@@ -6,7 +6,7 @@ import { useAppSelector } from "../store/store";
 import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER } from "../constants";
 import { LoggedInUser } from "../models/usermodels";
 import { axiosInstance } from "../axiosInstance";
-import { IMessage, IRoom, IUser, MessagePayLoadToServer, MessageWithRoom, ROOM_TYPE } from "../interfaces/MessageInterfaces";
+import { IMessage, IRoom, IUser, MessagePayLoadToServer, MessageWithAlternateUser, MessageWithRoom, ROOM_TYPE } from "../interfaces/MessageInterfaces";
 import { ChatContainer } from "../components/ChatContainer";
 import { ChatFooterContainer } from "../components/ChatFooterContainer";
 export  const ChatHome = ()=>{
@@ -19,11 +19,11 @@ export  const ChatHome = ()=>{
     )
     const [contacts, setContacts] = useState<any>([])
     const [currentlyChatContact, setCurrentlyChatContact] = useState<IUser|null>(null)
-    const [currentMessageType, setCurrentMessageType] = useState("")
+    const [currentMessageRoomType, setCurrentMessageRoomType] = useState("")
     const [currentChatRoom, setCurrentChatRoom] = useState<IRoom|null>(null)
     const [currentChatMessages, setCurrentChatMessages] = useState<IMessage[]>([])
     const [currentMessage, setCurrentMessage] = useState("")
-    const [pastChats, setPastChats] = useState<MessageWithRoom[]>([])
+    const [pastChats, setPastChats] = useState<MessageWithAlternateUser[]>([])
 
     //Functions and listeners
     const getAuthHeader = ()=>{
@@ -47,7 +47,7 @@ export  const ChatHome = ()=>{
         },getAuthHeader())
     }
     async function onConnect() {
-        console.log('socket connected')
+        console.log('socket connected, socketid=',socket.id)
         console.log('on Connect auth header is',getAuthHeader())
         if(socket.id){
             await joinAllRoomsOfUser(socket.id);
@@ -70,7 +70,25 @@ export  const ChatHome = ()=>{
     //fetching all past conversations for showing inthe chat history
     const fetchPastMessages = async()=>{
         const response = await axiosInstance.get('/messages/past-chats', getAuthHeader())
-        setPastChats(response.data)
+        console.log("past messages response is",response)
+        //from server we get an array that just has message and room info, for one to one chat
+        //we have to find the alternate user(to which user current usr is chatting with), to show it in the recents
+        const messageWithRooms:MessageWithRoom[] = response.data
+        if(loggedinUser){
+            const pastChatData:MessageWithAlternateUser[] = messageWithRooms.map((imessage)=>{
+                const alternateUser:IUser = imessage.room.privateRoomMembers.find(user=>user._id !== loggedinUser.user._id)
+                if(alternateUser){
+                    return {
+                        latest_message:imessage.message,
+                        user_chatting_with:alternateUser,
+                        room:imessage.room
+                    }
+                }
+                
+            })
+            setPastChats(pastChatData)
+        }
+        
     }
     const joinAllRoomsOfUser = async (socketId:string)=>{
         const payload = {
@@ -124,7 +142,7 @@ export  const ChatHome = ()=>{
                 // sender:loggedinUser?.user,//todo this will come from authentiation
                 // room:roomName,
                 // message: currentMessage
-                messageType: ROOM_TYPE.ONE_TO_ONE,
+                messageRoomType: ROOM_TYPE.ONE_TO_ONE,
                 targetUser: currentlyChatContact,//it will be empty for groupchats
                 senderUser:loggedinUser?.user,
                 message:currentMessage,
@@ -154,7 +172,7 @@ export  const ChatHome = ()=>{
         //ensures its the case 1
         if(!room && targetUser){
             payload.targetUser = targetUser //we just know target user, we want to fetch chat info with that user one to one
-            payload.messageType = roomOrMessageType//we know for sure what kind of message we want to fetch
+            payload.messageRoomType = roomOrMessageType//we know for sure what kind of message we want to fetch
             // payload.room=room//for one to one chat when someone clicked contact, room will be None/undefined
         }
 
@@ -162,12 +180,13 @@ export  const ChatHome = ()=>{
         //we also know the target user, that is another user from the room
         if(room && targetUser){
             payload.targetUser = targetUser //target user will be xtracted from the room
-            payload.messageType = roomOrMessageType
+            payload.messageRoomType = roomOrMessageType
             payload.room=room//for one to one chat when someone reent chat, we know the room
         }
 
         //fetch all the past messages for this chat with this person/group
         const response = await axiosInstance.post('/messages/all-messages',payload,getAuthHeader())
+        console.log('fetching current chat messages via api, response=',response)
         setCurrentChatMessages(response.data)
     }
     const handleContactClick = (contact?:IUser)=>{
@@ -176,7 +195,7 @@ export  const ChatHome = ()=>{
             //1. set currentChat to the contact
             setCurrentlyChatContact(contact)
             //2. set current message type
-            setCurrentMessageType(ROOM_TYPE.ONE_TO_ONE)
+            setCurrentMessageRoomType(ROOM_TYPE.ONE_TO_ONE)
             //3. set the current room, we cannot get the room info from the contact only, so set it to null
             setCurrentChatRoom(null)
 
@@ -189,11 +208,55 @@ export  const ChatHome = ()=>{
         }
         
     }
-    socket.on(MESSAGE_FROM_SERVER, (dbMessage) => {
+    socket.on(MESSAGE_FROM_SERVER, (messagePayload:MessageWithRoom) => {
         //TODO also now check if the message should go to current chat message or past chat message.
-        console.log("new message received",dbMessage)
+        console.log("new message received",messagePayload)
 
-        setCurrentChatMessages([...currentChatMessages, dbMessage])
+        //check if the message belong to curent opened(ifopened) chat window or the recent chats
+
+        //this means we have to update the current chat window
+        // user clicked a contact, we dont know the room, we just know contact and its a one to one chat
+        //get the other contact from the room, check out of two parties who is the other one
+            //if they are the one user clicked to chat, then we know we have to update the current chat window
+        if(currentChatRoom===null && currentMessageRoomType===ROOM_TYPE.ONE_TO_ONE && currentlyChatContact){
+            console.log('here')
+            const room:IRoom = messagePayload.room;
+            const targetUserFromPayload = room.privateRoomMembers.find(user=>user._id!== loggedinUser?.user._id)
+            if(targetUserFromPayload?._id === currentlyChatContact._id){
+                console.log('maybe not here')
+                //update current messages
+                setCurrentChatMessages([...currentChatMessages, messagePayload.message])
+            }
+        }
+        //user clicked a recent chat[which has room, message both], so we know the chatroom, chat contact[for one to one we can retreive from the room, chcking who is the other prtyy]
+        else if(currentChatRoom!==null && currentMessageRoomType===ROOM_TYPE.ONE_TO_ONE && currentlyChatContact){
+            // we check is it sure this is the room we got from server
+            console.log('here2')
+            if(currentChatRoom._id === messagePayload.room._id){
+                //update current messages
+                setCurrentChatMessages([...currentChatMessages, messagePayload.message])
+            }
+        }
+        //user has not clicked any contact/recent chat, or the incoming message's room/contact does not 
+        //match with the currently opened chat window's cotnact/room
+        //so we update the recent chat.
+        //But We also have to update the recent chat and current chat both if user is currently chatting with someone
+        
+        else{
+            if(loggedinUser){
+                console.log('here3')
+                const alternateUser:IUser = messagePayload.room.privateRoomMembers.find(user=>user._id !== loggedinUser.user._id)
+                const newMessageWithUser:MessageWithAlternateUser = {
+                    latest_message:messagePayload.message,
+                    user_chatting_with:alternateUser,
+                    room:messagePayload.room
+                }
+                console.log("new message with user is  ", newMessageWithUser)
+                setPastChats([...pastChats, newMessageWithUser])
+            }
+            
+        }
+        
         
     });
     useEffect(()=>{
@@ -223,7 +286,7 @@ export  const ChatHome = ()=>{
 
     },[])
 
-    const handleRecentChatItemClick = (imessage:MessageWithRoom)=>{
+    const handleRecentChatItemClick = (imessage:MessageWithAlternateUser)=>{
         console.log('clicked')
         // handleContactClick(imessage.receiver)
         const room:IRoom|null|string = imessage.room
@@ -236,11 +299,11 @@ export  const ChatHome = ()=>{
         //1. set currentChat to the contact
         if(targetUser)
             setCurrentlyChatContact(targetUser)
-        //2. set current message type
-        setCurrentMessageType(ROOM_TYPE.ONE_TO_ONE)
-        //3. set the current room, we cannot get the room info from the contact only, so set it to null
-        if(room)
-            setCurrentChatRoom(room as IRoom)
+            //2. set current message type
+            setCurrentMessageRoomType(ROOM_TYPE.ONE_TO_ONE)
+            //3. set the current room, we cannot get the room info from the contact only, so set it to null
+            if(room)
+                setCurrentChatRoom(room as IRoom)
 
         //4. Now fecth the previous messages of this chat
         fetchChatMessagesForCurrentChat(ROOM_TYPE.ONE_TO_ONE, targetUser)
@@ -275,7 +338,7 @@ export  const ChatHome = ()=>{
                     <h4>Recent</h4>
                     <ul>
                         {
-                            pastChats.map((imessage:MessageWithRoom,index)=><li 
+                            pastChats.map((imessage:MessageWithAlternateUser,index)=><li 
                             key={index}
                             onClick={()=>handleRecentChatItemClick(imessage)}
                             >
@@ -284,7 +347,7 @@ export  const ChatHome = ()=>{
                                     className="chat-avatar-small"
                                     src={avatarImage}/>
                                     <div>
-                                        <strong><span>{imessage.receiver.name && imessage.receiver.name!==""?imessage.receiver.name:imessage.receiver.username}</span></strong>
+                                        <strong><span>{imessage.user_chatting_with.name && imessage.user_chatting_with.name!==""?imessage.user_chatting_with.name:imessage.user_chatting_with.username}</span></strong>
                                         <p>{imessage.latest_message.message}</p>
                                     </div>
                                 </div>
@@ -299,14 +362,14 @@ export  const ChatHome = ()=>{
             </div>
              {/* right side message container  */}
             <div className="message-container">
-                {currentlyChattingWith?
+                {currentlyChatContact?
                 <>
                     <div className="message-container-header">
                     <div className="message-image-container">
                         <img 
                         className="chat-avatar"
                         src={avatarImage}/>
-                        <strong><span>{currentlyChattingWith?currentlyChattingWith.username:''}</span></strong>
+                        <strong><span>{currentlyChatContact?currentlyChatContact.username:''}</span></strong>
                         <span className="chat-active">&#8203;</span>
                         
                     </div>
@@ -320,7 +383,7 @@ export  const ChatHome = ()=>{
                 />
                 
                 <ChatFooterContainer
-                currentlyChattingWith={currentlyChattingWith}
+                currentlyChattingWith={currentlyChatContact}
                 currentMessage={currentMessage}
                 setCurrentMessage={setCurrentMessage}
                 sendCurrentMessage={sendCurrentMessage}

@@ -101,8 +101,8 @@ export const createFirstMessage = async(senderUser:IUser, messagePayload:any)=>{
 
 export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:any)=>{
     //todo in future check current user authorized to get chat data of this room
-    
-    let {targetUser, messageType, room} = requestPayload
+    console.log('requet to get message of current room',requestPayload)
+    let {targetUser, messageRoomType, room:payloadRoom} = requestPayload
     // console.log("room name requested is ",roomName)
 
     // const room = await Room.findOne({
@@ -121,17 +121,20 @@ export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:a
     //if we find a room, that means its their(use1,user2)'s private room
 
     let messages:IMessage[] = []
+    let room;
     //case 1, targetUser is Not null, and room is Null, as user clicked a user contact from the contact list in the 
     //frontend
-    if(!room && targetUser){
-      const room = await Room.findOne({
-        roomType:messageType,
+    if(!payloadRoom && targetUser){
+      room = await Room.findOne({
+        roomType:messageRoomType,
         privateRoomMembers:[
           loggedInUser,
           targetUser
         ]
       })
+      console.log('room finding done')
       if(!room){
+        console.log('room does not exist')
         //room was never created, means they never chatted before
         //return empty array
         return []
@@ -140,14 +143,15 @@ export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:a
 
     //case2 targetUser is also not Null[as UI can see private room members and fuind out the target User], but room is Not null, means user clicked a recent one to one chat, and requesting history
     //coming here means room is there, either we find it from db or from API request
-    if(room && targetUser){
-      await Message.find({
-        room
+    console.log('here target user is',targetUser)
+    if(room  && targetUser._id !=""
+    ){
+      messages = await Message.find({
+        room:room
       }).populate('sender')
+      console.log('messages are',messages)
     }
-    messages = await Message.find({
-      room
-    })
+    
     return messages;
 }
 
@@ -272,20 +276,7 @@ export const joinAllChatRooms = async (currentUser:IUser, socketId:string)=>{
 }
 
 export const addNewSocketIdToUser = async (user:IUser, socketId:string)=>{
-  console.log("user is.............",user)
-  // let userSocket:IUserSocket|null = await UserSocket.findOne({
-  //       user
-  //   })
-  //   if(!userSocket){
-  //       userSocket = await UserSocket.create({
-  //           user,
-  //           socketIds:[socketId]
-  //       })
-  //   }
-  //   else{
-  //       userSocket.socketIds = [socketId]
-  //       await userSocket.save()
-  //   }
+
   let updatedUserSocket: IUserSocket | null = await UserSocket.findOneAndUpdate(
     { user },
     { $set: { socketIds: [socketId] } },
