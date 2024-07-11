@@ -249,3 +249,85 @@ So now user sends a message:
 backend sends messagetype:currentMessageType[taken from the room info], message, targetUser(if its one to one message),roomInfo:if possible if they click recent chat of one to one
 
 Todo: do token based authentication with socketio middleware
+
+unfnished query to get past one to one chats with populated privateMmbers
+[
+  {
+    $match: {
+      privateRoomMembers: {
+        $in: [
+          ObjectId("668ffc9d277b9c7ecc25bc04"),
+        ],
+      },
+    },
+  },
+  {
+    $lookup: {
+      from: "messages",
+      localField: "_id",
+      foreignField: "room",
+      pipeline: [
+        {
+          $sort: {
+            createdAt: -1,
+          },
+        },
+        {
+          $limit: 1,
+        },
+      ],
+      as: "message",
+    },
+  },
+  {
+    $unwind: {
+      path: "$message",
+    },
+  },
+  {
+    $unwind: {
+      path: "$privateRoomMembers",
+    },
+  },
+  {
+    $lookup: {
+      from: "users",
+      localField: "privateRoomMembers",
+      foreignField: "_id",
+      as: "user_detail"
+    }
+  },
+  {
+    $unwind: {
+      path: "$user_detail",
+      preserveNullAndEmptyArrays: false
+    }
+  },
+  {
+  // {
+  //   $group: {
+  //     _id: "_id",
+  //     room: {
+  //       $push:{
+  //         privateRoomMembers:"$privateRoomMembers",
+  //         message:"$message"
+  //       }
+  //     }
+  //   }
+  // }
+  // {
+  //   $project: {
+  //     room: {
+  //       name: "$name",
+  //       _id: "$_id",
+  //       code: "$code",
+  //       roomType: "$roomType",
+  //       createdAt: "$createdAt",
+  //       updatedAt: "$updatedAt",
+  //       createdBy: "$createdBy",
+  //       privateRoomMembers: "$privateRoomMembers",
+  //     },
+  //     message: 1,
+  //   },
+  // }
+]

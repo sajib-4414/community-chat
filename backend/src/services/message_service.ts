@@ -2,9 +2,10 @@ import { getIoInstance } from "../config/socketInstance"
 import { IMessage, Message } from "../models/message"
 import { IRoom, Room } from "../models/room"
 import { RoomMember } from "../models/room-member"
-import { IUser, IUserSocket, UserSocket } from "../models/user"
+import { IUser, IUserSocket, User, UserSocket } from "../models/user"
 import { MESSAGE_FROM_SERVER } from "../definitions/event_types"
 import { MESSAGE_TYPES, ROOM_TYPE, roomsListItemMongoResponse, MessageWithRoom } from "../definitions/room_message_types"
+import mongoose from "mongoose"
 
 export const createFirstMessage = async(senderUser:IUser, messagePayload:any)=>{
     //right now sender, receiver is user
@@ -128,8 +129,8 @@ export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:a
       room = await Room.findOne({
         roomType:messageRoomType,
         privateRoomMembers:[
-          loggedInUser,
-          targetUser
+          loggedInUser.id,
+          targetUser.id
         ]
       })
       console.log('room finding done')
@@ -156,78 +157,63 @@ export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:a
 }
 
 export const getPastOneToOneChats = async (user:IUser)=>{
+  console.log("user is..........xxxx",user._id)
   //todo simplify query, we dont need much query here, we also dont need receiver
-    const pastChatsOfUser:MessageWithRoom[] = await RoomMember.aggregate(
-        [
-            {
-              $match: {
-                member: user._id
-              }
-            },
-            {
-              $project: {
-                room:1
-              }
-            },
-            {
-              '$lookup': {
-                'from': "messages",
-                'localField':'room',
-                'foreignField':'room',
-                'pipeline':[
-                  {
-                    $sort:{
-                      "createdAt":-1
-                    },
-                  },
-                  {
-                    $limit:1
-                  }
-                ],
-                'as':'latest_message'
-              }
-            },
-            {
-              $lookup: {
-                from: "rooms",
-                localField: "room",
-                foreignField: "_id",
-                as: "roomdetails"
-              }
-            },
-            {
-              $unwind: {
-                path: "$roomdetails",
-                preserveNullAndEmptyArrays: false
-              }
-            },
-            {
-              $unwind: {
-                path: "$latest_message",
-                preserveNullAndEmptyArrays: false
-              }
-            },
-            {
-              $project: {
-                room:0
-              }
-            },
-            {
-              $project: {
-                _id:0,
-                room:"$roomdetails",
-                message:"$latest_message"
-              }
-            },
-            {
-              $sort: {
-                "latest_message.createdAt": -1,
+    const pastChatsOfUser:MessageWithRoom[] = await Room.aggregate(
+      [
+
+        {
+          $match: {
+             "privateRoomMembers": {
+              "$in": [user._id]
+            }
+          }
+        },
+        {
+          $lookup: {
+            from: "messages",
+            localField: "_id",
+            foreignField: "room",
+            'pipeline':[
+              {
+                $sort:{
+                  "createdAt":-1
               },
-            },
-            
-          ]
+              },
+              {
+                $limit:1
+              }
+            ],
+            as: "message"
+          }
+        },
+        {
+          $unwind: {
+            path: "$message"
+          }
+        },
+        {
+        $project: {
+              "room" : {
+                "name": "$name",
+                "_id":"$_id",
+                "code":"$code",
+                "roomType":"$roomType",
+                "createdAt":"$createdAt",
+                "updatedAt":"$updatedAt",
+                "createdBy":"$createdBy",
+                "privateRoomMembers":"$privateRoomMembers"
+                
+              },
+              "message":1
+              
+            }
+        }
+      ]
     )
-      return pastChatsOfUser;
+    
+    console.log("past chats are....",pastChatsOfUser)
+    return pastChatsOfUser;
 }
 
 export const joinAllChatRooms = async (currentUser:IUser, socketId:string)=>{

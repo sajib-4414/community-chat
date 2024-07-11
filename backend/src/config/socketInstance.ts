@@ -67,6 +67,10 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
                     console.log('room does not exist')
                 }
             }
+            else{
+                //room is there just need to pick it up
+                room = await Room.findById(payload.room?.id)
+            }
 
             //now we create the dbMessage
             const dbMessage = await Message.create({
