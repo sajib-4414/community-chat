@@ -125,9 +125,10 @@ export  const ChatHome = ()=>{
                 // room:roomName,
                 // message: currentMessage
                 messageType: ROOM_TYPE.ONE_TO_ONE,
-                targetUser: currentlyChattingWith!,//it will be empty for groupchats
+                targetUser: currentlyChatContact,//it will be empty for groupchats
+                senderUser:loggedinUser?.user,
                 message:currentMessage,
-                room:undefined
+                room:currentChatRoom! //backend will handle if its null
             }
             socket.emit(MESSAGE_TO_SERVER, messagePayload )
             setCurrentMessage("")

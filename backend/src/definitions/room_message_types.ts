@@ -18,6 +18,14 @@ export interface MessageWithRoom{
     message:IMessage|string,
 }
 
+export interface MessagePayLoadToServer{
+    messageRoomType: ROOM_TYPE,
+    targetUser?: IUser|null,//it will be empty for groupchats
+    senderUser?:IUser|null,
+    message:string,
+    room?:IRoom
+}
+
 
 // export interface IRoomWithLatestMessage{
 //     _id?:string,

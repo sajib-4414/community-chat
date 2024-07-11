@@ -18,8 +18,9 @@ export enum MESSAGE_TYPES{
 }
 
 export interface MessagePayLoadToServer{
-    messageType: ROOM_TYPE,
-    targetUser?: IUser,//it will be empty for groupchats
+    messageRoomType: ROOM_TYPE,
+    targetUser?: IUser|null,//it will be empty for groupchats
+    senderUser?:IUser|null,
     message:string,
     room?:IRoom
 }

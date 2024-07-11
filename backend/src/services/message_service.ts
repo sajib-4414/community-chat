@@ -4,7 +4,7 @@ import { IRoom, Room } from "../models/room"
 import { RoomMember } from "../models/room-member"
 import { IUser, IUserSocket, UserSocket } from "../models/user"
 import { MESSAGE_FROM_SERVER } from "../definitions/event_types"
-import { MESSAGE_TYPES, ROOM_TYPE, IRoomWithLatestMessage, roomsListItemMongoResponse, RoomWithLatestMessage, MessageWithRoom } from "../definitions/room_message_types"
+import { MESSAGE_TYPES, ROOM_TYPE, roomsListItemMongoResponse, MessageWithRoom } from "../definitions/room_message_types"
 
 export const createFirstMessage = async(senderUser:IUser, messagePayload:any)=>{
     //right now sender, receiver is user

@@ -35,7 +35,7 @@ const roomSchema = new mongoose.Schema<IRoom>({
     privateRoomMembers:{
         type: [mongoose.Schema.Types.ObjectId],
         ref:"User",
-        required:true
+        required:false
     }
 },{timestamps: true})
 
