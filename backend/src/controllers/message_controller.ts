@@ -20,13 +20,13 @@ export const getChatMessagesInRoom = async (req:any, res:Response)=>{
     const chatRequest = req.body
     const loggedInUser = req.user
     const conversationMessages:IMessage[] = await getChatMessagesOfRoom(loggedInUser, chatRequest)
-    console.log("conversationMessages is", conversationMessages)
+    // console.log("conversationMessages is", conversationMessages)
     res.json(conversationMessages)
 }
 
 //to show the recent messages in the frotnennd
 export const getPastChatsOfUser = async (req:any, res:Response)=>{
-    
+    console.log('past chat api is called.......')
     const pastChats:MessageWithRoom[] = await getPastOneToOneChats(req.user)
     
     res.status(HTTP_200_OK).json(pastChats)

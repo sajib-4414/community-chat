@@ -4,7 +4,7 @@ import { IRoom, Room } from "../models/room"
 import { RoomMember } from "../models/room-member"
 import { IUser, IUserSocket, User, UserSocket } from "../models/user"
 import { MESSAGE_FROM_SERVER } from "../definitions/event_types"
-import { MESSAGE_TYPES, ROOM_TYPE, roomsListItemMongoResponse, MessageWithRoom } from "../definitions/room_message_types"
+import { MESSAGE_TYPES, ROOM_TYPE, roomsListItemMongoResponse, MessageWithRoom, PastChatAggegationResponseItem } from "../definitions/room_message_types"
 import mongoose from "mongoose"
 
 export const createFirstMessage = async(senderUser:IUser, messagePayload:any)=>{
@@ -128,10 +128,27 @@ export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:a
     if(!payloadRoom && targetUser){
       room = await Room.findOne({
         roomType:messageRoomType,
-        privateRoomMembers:[
-          loggedInUser.id,
-          targetUser.id
-        ]
+        $and:[
+          {
+            privateRoomMembers:{
+              $in:[
+                loggedInUser._id
+              ]
+            }
+          },
+          {
+            privateRoomMembers:{
+              $in:[
+                targetUser._id
+              ]
+            }
+          }
+        ],
+        
+        // [
+        //   loggedInUser._id,
+        //   targetUser._id
+        // ]
       })
       console.log('room finding done')
       if(!room){
@@ -159,61 +176,98 @@ export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:a
 export const getPastOneToOneChats = async (user:IUser)=>{
   console.log("user is..........xxxx",user._id)
   //todo simplify query, we dont need much query here, we also dont need receiver
-    const pastChatsOfUser:MessageWithRoom[] = await Room.aggregate(
+    const pastChatsOfUser:PastChatAggegationResponseItem[] = await Room.aggregate(
       [
-
         {
           $match: {
-             "privateRoomMembers": {
-              "$in": [user._id]
-            }
-          }
+            privateRoomMembers: {
+              $in: [
+                user._id,
+              ],
+            },
+          },
         },
         {
           $lookup: {
             from: "messages",
             localField: "_id",
             foreignField: "room",
-            'pipeline':[
+            pipeline: [
               {
-                $sort:{
-                  "createdAt":-1
-              },
+                $sort: {
+                  createdAt: -1,
+                },
               },
               {
-                $limit:1
-              }
+                $limit: 1,
+              },
             ],
-            as: "message"
+            as: "message",
+          },
+        },
+        {
+          $unwind: {
+            path: "$message",
+          },
+        },
+        {
+          $unwind: {
+            path: "$privateRoomMembers",
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "privateRoomMembers",
+            foreignField: "_id",
+            as: "user_detail"
           }
         },
         {
           $unwind: {
-            path: "$message"
+            path: "$user_detail",
+            preserveNullAndEmptyArrays: false
           }
-        },
+        }
+        ,
         {
-        $project: {
-              "room" : {
-                "name": "$name",
-                "_id":"$_id",
-                "code":"$code",
-                "roomType":"$roomType",
-                "createdAt":"$createdAt",
-                "updatedAt":"$updatedAt",
-                "createdBy":"$createdBy",
-                "privateRoomMembers":"$privateRoomMembers"
-                
-              },
-              "message":1
-              
+          $match: {
+            "user_detail._id":{
+              $ne:user._id
             }
+          }
+        }
+        ,
+        {
+          $project: {
+            room: {
+              name: "$name",
+              _id: "$_id",
+              code: "$code",
+              roomType: "$roomType",
+              createdAt: "$createdAt",
+              updatedAt: "$updatedAt",
+              createdBy: "$createdBy",
+              privateRoomMembers: "$privateRoomMembers",
+            },
+            message: 1,
+            user_detail:1
+          },
         }
       ]
     )
-    
-    console.log("past chats are....",pastChatsOfUser)
-    return pastChatsOfUser;
+    const modified_past_one_to_one_chats:MessageWithRoom[] = pastChatsOfUser.map((psitem)=>{
+      const room:IRoom = psitem.room;
+      console.log("inside room is, ",room)
+      room.privateRoomMembers = [psitem.user_detail, user]
+      const message = psitem.message
+      return {
+        room,
+        message
+      }
+    })
+    console.log("past chats are....",modified_past_one_to_one_chats)
+    return modified_past_one_to_one_chats;
 }
 
 export const joinAllChatRooms = async (currentUser:IUser, socketId:string)=>{

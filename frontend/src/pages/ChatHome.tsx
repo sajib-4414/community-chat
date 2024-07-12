@@ -244,15 +244,42 @@ export  const ChatHome = ()=>{
         
         else{
             if(loggedinUser){
+                //check if some message is there already from the sender user, then remove it, 
+                //and then add
+                
                 console.log('here3')
                 const alternateUser:IUser = messagePayload.room.privateRoomMembers.find(user=>user._id !== loggedinUser.user._id)
+                
+                
                 const newMessageWithUser:MessageWithAlternateUser = {
                     latest_message:messagePayload.message,
                     user_chatting_with:alternateUser,
                     room:messagePayload.room
                 }
                 console.log("new message with user is  ", newMessageWithUser)
-                setPastChats([...pastChats, newMessageWithUser])
+                const existingchatIndex = pastChats.findIndex((ps:MessageWithAlternateUser)=> ps.user_chatting_with._id === alternateUser._id)
+                if(existingchatIndex !=-1){
+                    //there is already chat of the new message sender at this moment
+                    //so we need to pop it first, we dont want to show duplicate item
+                    //in the recent chats UI
+                    const currentPastMessages = structuredClone(pastChats)
+                    currentPastMessages.splice(existingchatIndex,1)
+                    currentPastMessages.push(newMessageWithUser)
+                    currentPastMessages.sort((a,b)=>{
+                        return(new Date(b.latest_message.createdAt).getTime()-new Date(a.latest_message.createdAt).getTime())
+                    })
+                    setPastChats(currentPastMessages)
+                }
+                else{
+                    //there is no existing chat in the pastchat array from the new message sender
+                    const currentPastMessages = structuredClone(pastChats)
+                    currentPastMessages.push(newMessageWithUser)
+                    currentPastMessages.sort((a,b)=>{
+                        return(new Date(b.latest_message.createdAt).getTime()-new Date(a.latest_message.createdAt).getTime())
+                    })
+                    setPastChats(currentPastMessages)
+                }
+                
             }
             
         }

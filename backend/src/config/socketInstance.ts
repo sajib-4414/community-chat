@@ -43,6 +43,7 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
             let room;
             //case1: Its a first time sent message
             if(!payload.room && payload.targetUser && payload.senderUser && payload.messageRoomType === ROOM_TYPE.ONE_TO_ONE){
+                console.log("here333..........")
                 room = await Room.findOne({
                     roomType:payload.messageRoomType,
                     privateRoomMembers:[
@@ -68,8 +69,9 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
                 }
             }
             else{
+                console.log("here4..........")
                 //room is there just need to pick it up
-                room = await Room.findById(payload.room?.id)
+                room = await Room.findById(payload.room?._id)
             }
 
             //now we create the dbMessage
@@ -85,13 +87,25 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
             const receiverUserSocket = await UserSocket.findOne({
                 user:payload.targetUser
             })
-            const targetSocket = io.sockets.sockets.get(receiverUserSocket?.socketIds[0]);
+            
 
             //we will join both sender and receiver socke to the room
             //this is the sender socket
             socket.join(payload.room?.code!);
             //this is the receiver socket
-            targetSocket.join(payload.room?.code!)
+            //reciver may not be in online, so we attempt to join the receiver to the room
+            try{
+                const targetSocket = io.sockets.sockets.get(receiverUserSocket?.socketIds[0]);
+                if (targetSocket)
+                    targetSocket.join(payload.room?.code!)
+                else
+                    console.log("reciver is not online, just db message this time....")
+            }catch(err){
+                console.log("reciver is Maybe not online or registered, just db message this time....")
+                console.log()
+                console.log(err)
+            }
+            
 
             console.log('both sockets have joined the room')
 

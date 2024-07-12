@@ -50,3 +50,10 @@ export interface roomsListItemMongoResponse{
     _id:string,
     roomdetails:IRoom
 }
+
+export interface PastChatAggegationResponseItem{
+    _id:string,
+    room:IRoom,
+    message:IMessage,
+    user_detail:IUser
+}

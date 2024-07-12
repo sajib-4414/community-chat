@@ -39,6 +39,7 @@ export const globalErrorHandler = (err:Error, req:Request, res:Response, next:Ne
         return; 
     }
     //coming here meanserror was not a defined custom error
+    console.log(err)
     res.status(400).send({
         errors:[{
             message:'Unexpected server error, see stacktrace'
