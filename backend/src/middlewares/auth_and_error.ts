@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { User } from "../models/user";
 import { CustomErrorResponse, NotAuthenticatedError } from "../definitions/error_definitions";
+import { MongoServerError } from 'mongodb';
 
 export const authorizedRequest = async(req:any, res:Response, next:NextFunction)=>{
     let token:any;
@@ -38,6 +39,18 @@ export const globalErrorHandler = (err:Error, req:Request, res:Response, next:Ne
         })
         return; 
     }
+    else if (err instanceof MongoServerError && err.code === 11000) {
+        // Duplicate key error
+        const field = Object.keys(err.keyValue)[0];
+        const value = err.keyValue[field];
+        
+        console.log(err)
+        return res.status(400).send({
+            errors:[{
+                message: `Duplicate key error: ${field} with value ${value} already exists.`,
+            }]
+        })
+      }
     //coming here meanserror was not a defined custom error
     console.log(err)
     res.status(400).send({

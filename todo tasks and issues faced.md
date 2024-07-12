@@ -331,3 +331,19 @@ unfnished query to get past one to one chats with populated privateMmbers
   //   },
   // }
 ]
+
+private chat banate jaye onek kosto hoise,
+first e erkm korsi j roomname banabo pvt-username1-username2,
+ei private room banabo, then oitai maintain korbo.
+r frotnend first time chat hole room ekhono create hoy nai, erkm name form kore room name send korto,
+ota diyei banay feltam, jeta bujhlam eta businesss logic er ongso securirt er jonno eta froentned e thaka uchit na.
+
+pore ekhon jeta korsi, first time chat er jonno frotnend sudhu name gula pathato, backend dekhto room ase kina, na thakle banay dito,
+then frotnend k room dito, kivabe room banabe eta backend er upore.
+
+r first e room, roommembers, messages, users erkm collection banai, then dekhlam rpivate chat er jonno roommemmber theke abar join kore
+ana redundant, as just duita user. so ami one to one chat er jonno duita room member er name, room model ei rekhe disi, group chat er jonno roommembers model use hobe, as room e eonek onek lok thakte pare.
+
+r prothome routegard banaisilam hocche parent route, child route emne kore. all component jekhaner authenticated howa lagbe,
+segula same ekta parent er under a bar bar create korsilam. (parent(compA), parent(compB)). ete kore dekhlam child ta invoke hoye jeto, then parent er logic e redirect korto login e . but jeta dorkar seta hocche child ta invoke jate na hoy, jate 401 error na khay jodi localhost e user nai thake.
+ejonno HOC banai, all comp jegular auth lagbe, segula HOC ekta component banai, seta check korto auth info ase kina store or local storage e, then na thakle null(empty kind of) reutnr korto, r auth thakle actual component return korto. ete kore jei component e auth lagbe seta invoke e hoto na, HOC jodi dekhto auth nai, taile oi component return korto na, invoke o hoto na, ar 401 khayna. so this was a much better option.
