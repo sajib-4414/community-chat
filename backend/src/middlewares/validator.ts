@@ -5,7 +5,11 @@ import { BadRequestError } from "../definitions/error_definitions";
 export const validateValidators = (req:any,res:any,next:NextFunction)=>{
     const validationErrors = validationResult(req);
     if(!validationErrors.isEmpty()){
-        throw new BadRequestError('Validation failed: ' + JSON.stringify(validationErrors.array()));
+        let allValidationErrors = ""
+        validationErrors.array().forEach(err=>{
+            allValidationErrors = allValidationErrors + err.msg+"\n"
+        })
+        throw new BadRequestError('Validation failed: ' + allValidationErrors);
     }
 
     next();

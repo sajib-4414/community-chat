@@ -1,40 +1,20 @@
-#### configuration of express server and socketio server
-```
-//initializaing a socket and express server
-const expressServer = express()
-const server = createServer(expressServer)
-const io = new Server(server,{})
+## Community Chat
 
-//when a new socket joins to the server
-//or when a new client connects
-io.on("connection", (socket: Socket) => {
-    console.log('new socket client just joined')
-});
+Overview: This is an ongoing project of mine to build a community chat application to facilitate one to one chat and group chat in a given community, especially for newcomers. People often finds it hard to communicate or find new people in a new area. This application is trying to mitigate that. 
 
-expressServer.get('/',(req,res)=>{
-    res.send('Hello world')
-})
+The way it works is, Users can signup for the community chat with a postal code. Once they create an account they can start to chat with other people or groups that are available. In order to find new people and group they have to search. Search will show up people who have signed up or the group chats which are open to people of the postcode, the new user put when registering. Users can also find people and community from other postcode, they just have to modify the postcode when searching.
 
-server.listen(3001, ()=>{
-    console.log('http server is running at 3001 port')
-})
-```
-**
-Vite has by default support for .env files.
-How to use: https://stackoverflow.com/a/77102955
+Users can then send request to chat to other users or also send request to join a group chat.
 
+Technology stack: Typescript, React, Vite, Redux, Redux Toolkit, Express, MongoDB, SocketIO
 
-Library to add
-* express validator
-* mongoose aggregate pagination
-* mongo migrate
-* express async error
-* bcrypt
-* something for jwt
-* route creating library
+Installation:
+- Clone the project.
+- Have nodejs, and npm installed.
+- Go to the backend and frontend folders in two terminals, and issue command `npm install`.
+- in both terminals issue command `npm start`.
 
-CORS:
-const cors = require('cors')
-expressServer.use(cors())//using default settings, CORS-> Allow all server
-//best approach is to configure which server to allow
-
+Features to be added:
+* Ability to find people using gps/current location.
+* Content filtering, therefore users can report any message/user.
+* Searching people by name.

@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import { User } from "../models/user";
-import { CustomErrorResponse, NotAuthenticatedError } from "../definitions/error_definitions";
+import { BadRequestError, CustomErrorResponse, InternalServerError, NotAuthenticatedError, NotAuthorizedError, ResourceNotFoundError } from "../definitions/error_definitions";
 import { MongoServerError } from 'mongodb';
 
 export const authorizedRequest = async(req:any, res:Response, next:NextFunction)=>{
@@ -33,7 +33,11 @@ export const authorizedRequest = async(req:any, res:Response, next:NextFunction)
 
 export const globalErrorHandler = (err:Error, req:Request, res:Response, next:NextFunction)=>{
     console.log('error intercepted..................................')
-    if(err instanceof CustomErrorResponse){
+    console.log(err)
+    if(err instanceof NotAuthenticatedError || err instanceof NotAuthorizedError || err instanceof ResourceNotFoundError 
+        || err instanceof BadRequestError || err instanceof InternalServerError
+    ){
+        console.log("its coming here")
         res.status(err.statusCode).send({
             errors: err.formattedErrors()
         })

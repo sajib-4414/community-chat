@@ -2,10 +2,11 @@ import { FC, FormEvent, useState } from "react";
 import './login.css'
 import { useDispatch } from "react-redux";
 import { storeUser } from "../store/UserSlice";
-import { axiosInstance } from "../axiosInstance";
+import { axiosInstance } from "../utility/axiosInstance";
 import { LoggedInUser } from "../models/usermodels";
 import { router } from "../router";
 import { socket } from "../socket";
+import { ErrorParser } from "../utility/errorParser";
 export const Register:FC = ()=>{
 
     const [username, setUserName] = useState("");
@@ -68,6 +69,8 @@ export const Register:FC = ()=>{
         }, (error)=>{
             console.log("login failed")
             console.log(error)
+            const stringError = ErrorParser(error);
+            setErrorLine(stringError)
         })
         
     }

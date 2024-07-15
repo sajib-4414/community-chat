@@ -5,6 +5,7 @@ abstract class CustomErrorResponse extends Error{
     constructor(message:string, statusCode:number){
         super(message);
         this.statusCode = statusCode
+        Object.setPrototypeOf(this, CustomErrorResponse.prototype);
     }
     formattedErrors() {
         return [{ message: this.message }];
@@ -19,6 +20,7 @@ class BadRequestError extends CustomErrorResponse{
         else{
             super(message,400)
         }
+        
         
     }
 }
@@ -67,6 +69,7 @@ class InternalServerError extends CustomErrorResponse{
         else{
             super(message,HTTP_500_INTERNAL_SERVER_ERROR)
         }
+        
         
     }
 }

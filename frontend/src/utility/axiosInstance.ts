@@ -1,7 +1,5 @@
 import axios, { AxiosError } from "axios";
-import { router } from "./router";
-import { useAppDispatch } from "./store/store";
-import { resetUser } from "./store/UserSlice";
+import { router } from "../router";
 const env = await import.meta.env;
 const BASE_URL = env.VITE_APP_API_URL || 'http://localhost:3001/api'; // Default URL
 

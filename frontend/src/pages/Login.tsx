@@ -3,10 +3,11 @@ import './login.css'
 import { Link } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 import { storeUser } from "../store/UserSlice";
-import { axiosInstance } from "../axiosInstance";
+import { axiosInstance } from "../utility/axiosInstance";
 import { LoggedInUser } from "../models/usermodels";
 import { socket } from "../socket";
 import { router } from "../router";
+import { ErrorParser } from "../utility/errorParser";
 export const Login:FC = ()=>{
 
     const [username, setUserName] = useState("");
@@ -35,8 +36,6 @@ export const Login:FC = ()=>{
             const userJSON = JSON.stringify(registedUser);
             localStorage.setItem('user', userJSON);
 
-           
-            console.log("adding my socket to user after loggin in")
             const socketId = socket.id
             const headers = {
                 headers: { Authorization: `Bearer ${registedUser?.token}` }
@@ -52,6 +51,8 @@ export const Login:FC = ()=>{
         }, (error)=>{
             console.log("login failed")
             console.log(error)
+            const stringError = ErrorParser(error);
+            setErrorLine(stringError)
         })
         
     }

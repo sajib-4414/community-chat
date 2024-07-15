@@ -5,7 +5,7 @@ import avatarImage from './../assets/test_avatar_image.jpg';
 import { useAppSelector } from "../store/store";
 import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER } from "../constants";
 import { LoggedInUser } from "../models/usermodels";
-import { axiosInstance } from "../axiosInstance";
+import { axiosInstance } from "../utility/axiosInstance";
 import { IMessage, IRoom, IUser, MessagePayLoadToServer, MessageWithAlternateUser, MessageWithRoom, ROOM_TYPE } from "../interfaces/MessageInterfaces";
 import { ChatContainer } from "../components/ChatContainer";
 import { ChatFooterContainer } from "../components/ChatFooterContainer";
@@ -42,6 +42,7 @@ export  const ChatHome = ()=>{
         }
     };
     async function deleteSocketFromUser(socketId:string) {
+        //we dont need to show any error for this, we can silenty call this api
         await axiosInstance.post('/messages/delete-socket', {
             socketId
         },getAuthHeader())

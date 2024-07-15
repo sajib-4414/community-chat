@@ -1,0 +1,35 @@
+# Project Todos
+
+### FrontEnd
+- split the ChatHome into recent container, contacts container, and Message container. with callback.
+- Fix the UI for login, registration pages.
+- Fix chat bubble padding when zooming in or out.
+
+### Backend
+- Socketio middleware for authentication
+- Search API for autocomplete. Optimize it with caching, indexing. Maybe add apache elastic search. Advanced: search in messages as well
+- Search messages in the current chat window
+- Current window chat messages should be paginated, recent chat should be too.
+- Adding profile images
+- Being able to upload images
+- Add online, offline functionality.
+- User Blocking: Allow users to block/unblock other users.
+- Message read/seen functionality.
+- Add message delete functionality.
+- Add message sent/Not sent functionality[auto append sender's message, then update with socket response]
+- Add functionality to accept one to one chat request and then. Maybe add a friend request or something, use a graph database also.
+- Add testing.
+- Add Postal code, and postal code based radius based searching.
+- Add group chat
+- Lock/Unlock users.
+- Add a moderator role that can ban users.
+- Message Reactions
+- Add end to end encryption
+- Message Notifications: Implement push notifications for new messages when users are not actively using the app.
+
+### Devops
+- Add github workflow
+- Add Docker with docker entry point sh file, docker compose, multi stage build,docker run command, mongodb local instance.
+
+### Misc:
+- Add documentation with some tools

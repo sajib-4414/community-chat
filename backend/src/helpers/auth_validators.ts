@@ -23,5 +23,5 @@ export const loginValidators:ValidationChain[] = [
     .trim()
     .notEmpty()
     .isLength({min:4})
-    .withMessage('You must supply a password'),
+    .withMessage('Password must be of minimum length 4'),
 ]
