@@ -85,6 +85,7 @@ export  const ChatHome = ()=>{
                     }
                 }
                 
+                
             })
             setPastChats(pastChatData)
         }
@@ -104,38 +105,6 @@ export  const ChatHome = ()=>{
         },getAuthHeader())
     }
     const sendCurrentMessage = async()=>{
-        //Now we send all message via socket, No first message via API,
-        //API will determine if its the first message or what to do
-        
-        // //send the first message with api
-        // if(currentChatMessages.length==0){
-        //     const users = [loggedinUser?.user.username, currentlyChattingWith.username]
-        //     users.sort()
-        //     const roomName = "pvt-"+users.join("-")
-
-            
-        //     await axiosInstance.post('/messages/message',{
-        //         receiver:currentlyChattingWith, 
-        //         messageRoomName:roomName,
-        //         message:currentMessage,
-        //         socketId:socket.id
-        //     }, getAuthHeader())
-        //     setCurrentMessage("")
-        // }
-        // else{
-            console.log("sent by socket./...........")
-            //if there is message already then send via socket
-
-            // //request to server via socket event to join the room
-            // const users = [loggedinUser?.user.username, currentlyChattingWith.username]
-            // users.sort()
-            // const roomName = "pvt-"+users.join("-")
-
-            //does not working joining and sending the message at the same time, 
-            // we are doing this inthe server, joining the socket in the room then emitting a message
-            // socket.emit(USER_ROOM_JOIN_REQUEST,{
-            //     roomName
-            // } )
 
             //then emit the mesasge
             const messagePayload:MessagePayLoadToServer = {
@@ -154,16 +123,6 @@ export  const ChatHome = ()=>{
     }
 
     const fetchChatMessagesForCurrentChat = async (roomOrMessageType:ROOM_TYPE, targetUser?:any,room?:IRoom|null )=>{
-        // const users = [loggedinUser?.user.username, targetUser.username]
-        // users.sort()
-        // const roomName = "pvt-"+users.join("-")
-        // const response = await axiosInstance.post('/messages/all-messages',{
-        //     roomName,
-        //     currentChatter:loggedinUser?.user.username
-        // },getAuthHeader())
-
-        // setCurrentChatMessages(response.data)
-
 
         const payload:any = {}
         //send whatever info we have to the server

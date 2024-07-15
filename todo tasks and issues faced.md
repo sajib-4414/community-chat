@@ -11,12 +11,14 @@ so i did not have the socket instance to join it in the room. solve was, sending
 frotnend to server. then in the api call
 const socket = io.sockets.sockets.get(socketId);
 socket.join(room.name);
+***ei approach bad disi, ekhon onlogin, ar on chat home enter e socketId pathay dey, ar socket er emit e sudhu user**
 
 2. How to handle one to one chat?
 one to one message was done by private channel.
 we could do just connecting one socket to another, but that way we will loose reference once socket disconnected
 and could not store and retrieve messages. so i decided i could do a channel pvt-username1-username2
 and communicating through this room will be their one to one chat.
+**this is replaced by a better means**
 
 3. how did i handle first time chat of one to one?
 one approach was as soon as someone clicks somebody's name, create a pvt channel(either by requeting throuh api or via socket event). but if person is not doing chat, it would be redudnant chatroom creation in the database.
