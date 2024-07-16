@@ -59,11 +59,12 @@ Current RoomModel has `room code, privateRoomMembers, roomType`
 ### What to do when first time someone messages someone[one to one chat]? should we create private rooms for all user combinations beforehand?
 
 Naive approach: one approach was as soon as someone clicks somebody's name, we create a pvt channel in backend(either frontend will emit socketio event or invoke backend API). but if person does not end up doing the chat, it would be redudnant chatroom creation in the database.
+Better Approach: create rooms on the go, only if the user1 sends message to user2 then. See the below step that covers both firt time chat and subsequent chats.
 
 ### How should we initiate/start private chats with socketIo room terminology?
 * Case 1: User1 is sending message to User2, **none of them chatted before**. We need to create a private room and messsages between user1 and user2 only should stay between them. But when should we make them join channels?
 
-    Solution: Backend Room model will have `RoomType, RoomCode, isPrivate, privateRoom Members`. 
+    Solution: Backend Room model will have `RoomType, RoomCode, isPrivate, privateRoom Members`. UserSocket Model `UserSocket: user, socketId[]`
     
     For first message user1 sends message to user2,  front end will send, 
 
@@ -73,7 +74,7 @@ Naive approach: one approach was as soon as someone clicks somebody's name, we c
     message content, 
     roomInfo[will be left empty for first private message]
     ```
-    backend sees there is no room info submitted and message type is one to one. Still it checks if there is a Room which is one to one type Room, where both user1, user2 is there as private members. if it is, then they already have a private room, if not, then backend creates such room. now in the backend we make the socket, reciver socket to the private [existing/created] room and sever send the message to that room. For the sender its a replay of his own message, and for the receiver he sees something new for the first time. Adding sockets to the room is idempotent, as its a set.We could do some optimization later that should we check if user is already there. 
+    backend sees there is no room info submitted and message type is one to one. Still it checks if there is a Room which is one to one type Room, where both user1, user2 is there as private members. if it is, then they already have a private room, if not, then backend creates such room. now in the backend we make the socket, reciver socket (backend retrieves socketIds from the UserSocket Model)join to the private [existing/created] room and sever send the message to that room. For the sender its a replay of his own message, and for the receiver he sees something new for the first time. Adding sockets to the room is idempotent, as its a set.We could do some optimization later that should we check if user is already there. 
 * **Case2 users chatted before**: For later messages
 frotnend sends the following with socketio emit
     ```
@@ -82,7 +83,13 @@ frotnend sends the following with socketio emit
     message content, 
     roomInfo(frotnend already has it)
     ```
-backend retrieves that room from db. Then backend creates a message object in DB, with Room reference. Backend also retrieves the socketIds from the UserSocket model, then from the socketIds it retrieves the sockets for both these users. Backend joins the two sockets to the room(to make sure sockets surely gets the messages, adding socket to room is an constant Set operation, but we can optimize it), then backend emits the messsage to the room so both the private users ge the instant messsage. When joining reciver, socket maybe invalid as receiver maybe offline, so ignore that error with try catch.
+backend retrieves that room from db. Then backend creates a message object in DB, with Room reference. Backend also retrieves the socketIds from the UserSocket model, then from the socketIds it retrieves the sockets for both these users. **Backend joins the two sockets** to the room(to make sure sockets surely gets the messages, adding socket to room is an constant Set operation, but we can optimize it), then backend emits the messsage to the room so both the private users ge the instant messsage. When joining reciver, socket maybe invalid as receiver maybe offline, so ignore that error with try catch.
+
+Issues faced before this redundant joining room was done: Before I only make the current usr join a private room(of DB) when he messaged another person. In that case, it left a bug, until both user started messaging each other, they wont be connected to the room, and both of them wont get instant messages, solution was to add receiver user to the privateRoom for each message sent from sender. 
+
+### How and when to keep track of user sockets in the server?
+I added API, addUserSocket [ deleting old sockets for the moment, have to later store all socketId until deleted, right now seeing socket disconnect is not fired at all], call API deleteUserSocket upon logout& socketDisconnect.
+
 
 ### Now how to use the previous section logic to start a new chat with Live Socket or previous chat from the UI(one to one)
 * **Case 1 users may or maynot have chatted before, but user has clicked another user contact to start chat**:
@@ -104,6 +111,12 @@ frontnend in this case sends
     message content, 
     roomInfo:have it, roomInfo was provided when recent chats api was called
     ```
+### How to design a Room Model such that we can keep the support the private chat& group chat?
+First naive implementation was: if user1 messages user2, we create a channel named as pvt-username1-username2.
+we sort the username so that either user1, user2 can access the same channel. With this system we know who are the private chat memmebers just from name. But this is too naive, and people can exploit the system by sending strings(pvt-username1-username2) like this to create as many as channels in the backend.
+Better approach:
+for roomtype one to one, we keep an array of privateRoomMembers:[user1,user2], for group chat it will be empty.
+for group chat privateRoomMembers will be empty and roommember model will have reference to all (user, room) combinations.
 
 ### How to retrive the chat history with a person(one to one) in backend?
 now how will getAllPrevious messages API work: 
@@ -329,3 +342,7 @@ export const router = createBrowserRouter([
 inside App component return this instead of Router definition,
 `<RouterProvider router={router} />`
 **Also get rid of other Router,Routes, Browser Router` definitions from the project**
+
+# Lessons
+
+- **backend frontend integration**: learnt about backend integration properly with frontend,especially which query to run, for which ui, which mongoose query to run, response. For example, I had Room(name,code, privateRoomMembers), Message(room, sender), User. Frotnend needed previous chat messages, for that i needed all rooms that logged in user are part of, those room's last messsage, and who is the other user that current user is chatting with. So I wrote mongoose aggregate query, created Typescript type, MessageWithRoom. I also had to aggreate lookup with the user table to send the info of the other person current user is chatting with.

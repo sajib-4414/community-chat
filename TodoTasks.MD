@@ -1,6 +1,7 @@
 # Project Todos
 
 ### FrontEnd
+- Learn Error Boundary and Implement.
 - split the ChatHome into recent container, contacts container, and Message container. with callback.
 - Fix the UI for login, registration pages.
 - Fix chat bubble padding when zooming in or out.
