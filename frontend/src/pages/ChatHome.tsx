@@ -7,8 +7,9 @@ import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER } from "../constants";
 import { LoggedInUser } from "../models/usermodels";
 import { axiosInstance } from "../utility/axiosInstance";
 import { IMessage, IRoom, IUser, MessagePayLoadToServer, MessageWithAlternateUser, MessageWithRoom, ROOM_TYPE } from "../interfaces/MessageInterfaces";
-import { ChatContainer } from "../components/ChatContainer";
-import { ChatFooterContainer } from "../components/ChatFooterContainer";
+import { ChatContainer } from "../components/Chat/ChatContainer";
+import { ChatFooterContainer } from "../components/Chat/ChatFooterContainer";
+import { SearchBar } from "../components/Chat/SearchBar";
 export  const ChatHome = ()=>{
     
     
@@ -301,6 +302,7 @@ export  const ChatHome = ()=>{
             <div className="contacts-container">
                 <div className="chat-contact-search-div">
                     <h3>Chats</h3>
+                    <SearchBar/>
                     <input 
                     className="chat-contact-search"
                     placeholder="Search messages or users"/>

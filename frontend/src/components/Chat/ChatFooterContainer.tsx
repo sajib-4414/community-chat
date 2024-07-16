@@ -1,4 +1,4 @@
-import { IUser } from "../interfaces/MessageInterfaces"
+import { IUser } from "../../interfaces/MessageInterfaces"
 
 interface ChatFooterContainerProps{
     currentlyChattingWith:IUser,

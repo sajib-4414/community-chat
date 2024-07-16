@@ -3,7 +3,7 @@ import { Login } from "./pages/Login";
 import { Register } from "./pages/Register";
 import { ChatHome } from "./pages/ChatHome";
 import Container from "./common/Container";
-import GuardedHOC from "./components/GuardedComponent";
+import GuardedHOC from "./components/Chat/GuardedComponent";
 
 
 const HOCWithContainer = (OriginalComponent:any) => {

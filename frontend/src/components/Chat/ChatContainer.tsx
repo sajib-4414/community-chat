@@ -1,8 +1,8 @@
 import React, { useEffect, useRef } from "react";
-import { LoggedInUser } from "../models/usermodels"
-import { useAppSelector } from "../store/store"
-import avatarImage from './../assets/test_avatar_image.jpg';
-import { IMessage } from "../interfaces/MessageInterfaces";
+import { LoggedInUser } from "../../models/usermodels"
+import { useAppSelector } from "../../store/store"
+import avatarImage from './../../assets/test_avatar_image.jpg';
+import { IMessage } from "../../interfaces/MessageInterfaces";
 interface ChatContainerProps{
     currentChatMessages: IMessage[];
 }
@@ -10,8 +10,6 @@ export const ChatContainer:React.FC<ChatContainerProps> = ({currentChatMessages}
     const loggedinUser:LoggedInUser|null = useAppSelector(
         (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
     )
-
-
 
 
     return(

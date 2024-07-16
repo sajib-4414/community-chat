@@ -1,7 +1,7 @@
 import  { useEffect } from "react";
-import { LoggedInUser } from "../models/usermodels";
-import { useAppSelector } from "../store/store";
-import { router } from "../router";
+import { LoggedInUser } from "../../models/usermodels";
+import { useAppSelector } from "../../store/store";
+import { router } from "../../router";
 const GuardedHOC = (OriginalComponent:any) => {
   function NewComponent(props:any) {
   //render OriginalComponent and pass on its props.

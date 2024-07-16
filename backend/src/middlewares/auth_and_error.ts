@@ -34,9 +34,7 @@ export const authorizedRequest = async(req:any, res:Response, next:NextFunction)
 export const globalErrorHandler = (err:Error, req:Request, res:Response, next:NextFunction)=>{
     console.log('error intercepted..................................')
     console.log(err)
-    if(err instanceof NotAuthenticatedError || err instanceof NotAuthorizedError || err instanceof ResourceNotFoundError 
-        || err instanceof BadRequestError || err instanceof InternalServerError
-    ){
+    if(err instanceof CustomErrorResponse){
         console.log("its coming here")
         res.status(err.statusCode).send({
             errors: err.formattedErrors()
