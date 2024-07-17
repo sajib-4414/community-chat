@@ -8,7 +8,8 @@
 
 ### Backend
 - Socketio middleware for authentication
-- Search API for autocomplete. Optimize it with caching, indexing. Maybe add apache elastic search. Advanced: search in messages as well
+- Search API for autocomplete: Done
+- Optimize Search it with caching, indexing. Maybe add apache elastic search. Advanced: search in messages as well
 - Search messages in the current chat window
 - Current window chat messages should be paginated, recent chat should be too.
 - Adding profile images

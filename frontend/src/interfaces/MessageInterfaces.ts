@@ -2,6 +2,7 @@
 export interface IUser{
     username:string,
     _id?:string,
+    id?:string,
     name:string,
     email:string,
 }

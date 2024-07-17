@@ -7,7 +7,7 @@ export const getAllDBUsers = async ()=>{
 
 //return upto 4 results only for autocomplete search
 export const getUserAutoCompleteSearchResult = async (keyword:string)=>{
-    console.log('coming here')
+    console.log('coming here with keyword=',keyword)
     const users = await User.find(
         {
             name: {'$regex' : keyword, '$options' : 'i'} //means search with contains or like *keyword*

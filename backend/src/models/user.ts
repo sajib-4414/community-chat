@@ -55,9 +55,16 @@ userSchema.methods.getSignedToken = function(){
 }
 
 userSchema.methods.matchPassword = async function (enteredPassword:string) {
-    return await bcrypt.compare(enteredPassword, this.password)
-    
+    return await bcrypt.compare(enteredPassword, this.password) 
 }
+
+userSchema.set('toJSON', {
+    transform: function (doc, ret, options) {
+        ret.id = ret._id;
+        // delete ret._id; wil delete it soon, need to update backend and frotnend for that
+        delete ret.__v;
+    }
+}); 
 
 interface IUserMethods extends mongoose.Model<IUser>{
     //we can add static methods here for the model

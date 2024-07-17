@@ -78,13 +78,22 @@ export  const ChatHome = ()=>{
         const messageWithRooms:MessageWithRoom[] = response.data
         if(loggedinUser){
             const pastChatData:MessageWithAlternateUser[] = messageWithRooms.map((imessage)=>{
-                const alternateUser:IUser = imessage.room.privateRoomMembers.find(user=>user._id !== loggedinUser.user._id)
+                const alternateUser:IUser|undefined = imessage.room.privateRoomMembers.find(user=>user._id !== loggedinUser.user._id)
                 if(alternateUser){
                     return {
                         latest_message:imessage.message,
                         user_chatting_with:alternateUser,
                         room:imessage.room
                     }
+                }
+                else{
+                      // Handle the case where no alternate user is found, if necessary
+                    // For now, returning an empty object to ensure the return type matches
+                    return {
+                        latest_message: imessage.message,
+                        user_chatting_with: {} as IUser,  // Example of handling an empty user
+                        room: imessage.room
+                    };
                 }
                 
                 
@@ -209,12 +218,12 @@ export  const ChatHome = ()=>{
                 //and then add
                 
                 console.log('here3')
-                const alternateUser:IUser = messagePayload.room.privateRoomMembers.find(user=>user._id !== loggedinUser.user._id)
+                const alternateUser:IUser|undefined = messagePayload.room.privateRoomMembers.find(user=>user._id !== loggedinUser.user._id)
                 
                 
                 const newMessageWithUser:MessageWithAlternateUser = {
                     latest_message:messagePayload.message,
-                    user_chatting_with:alternateUser,
+                    user_chatting_with:alternateUser!,
                     room:messagePayload.room
                 }
                 console.log("new message with user is  ", newMessageWithUser)
@@ -302,10 +311,9 @@ export  const ChatHome = ()=>{
             <div className="contacts-container">
                 <div className="chat-contact-search-div">
                     <h3>Chats</h3>
-                    <SearchBar/>
-                    <input 
-                    className="chat-contact-search"
-                    placeholder="Search messages or users"/>
+                    <SearchBar
+                    onSearchResultContactSelected={handleContactClick}
+                    />
                 </div>
                 <div className="chat-contacts">
                     <h4> Contacts</h4>
