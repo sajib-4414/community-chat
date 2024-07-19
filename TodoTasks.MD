@@ -6,10 +6,10 @@
 - Fix the UI for login, registration pages.
 - Fix chat bubble padding when zooming in or out.
 - See a better implementation of socket, like in useeffect or where its best.
+- React Add memo for listview items
 
 ### Backend
 - Socketio middleware for authentication
-- Add namespace such that typescript recognizes req.user
 - use a Websocket file for better implementation
 - Add online, offline functionality.
 - Search API for autocomplete: Done
@@ -31,7 +31,7 @@
 - Message Reactions
 - Add end to end encryption
 - Message Notifications: Implement push notifications for new messages when users are not actively using the app.
-
+- Add namespace such that typescript recognizes req.user (Done)
 ### Devops
 - Add github workflow
 - Add Docker with docker entry point sh file, docker compose, multi stage build,docker run command, mongodb local instance.

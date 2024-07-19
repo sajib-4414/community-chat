@@ -227,7 +227,7 @@ export  const ChatHome = ()=>{
                     room:messagePayload.room
                 }
                 console.log("new message with user is  ", newMessageWithUser)
-                const existingchatIndex = pastChats.findIndex((ps:MessageWithAlternateUser)=> ps.user_chatting_with._id === alternateUser._id)
+                const existingchatIndex = pastChats.findIndex((ps:MessageWithAlternateUser)=> ps.user_chatting_with._id === alternateUser!._id)
                 if(existingchatIndex !=-1){
                     //there is already chat of the new message sender at this moment
                     //so we need to pop it first, we dont want to show duplicate item
