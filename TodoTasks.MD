@@ -11,13 +11,13 @@
 - Socketio middleware for authentication
 - Add namespace such that typescript recognizes req.user
 - use a Websocket file for better implementation
+- Add online, offline functionality.
 - Search API for autocomplete: Done
 - Optimize Search it with caching, indexing. Maybe add apache elastic search. Advanced: search in messages as well
 - Search messages in the current chat window
 - Current window chat messages should be paginated, recent chat should be too.
 - Adding profile images
 - Being able to upload images
-- Add online, offline functionality.
 - User Blocking: Allow users to block/unblock other users.
 - Message read/seen functionality.
 - Add message delete functionality.
