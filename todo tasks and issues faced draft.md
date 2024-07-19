@@ -56,3 +56,24 @@ Library to add
 * something for jwt
 * route creating library
 
+online, offline implementation:
+
+User Profile field: online:boolean, default false.
+
+as soon as someone logins, and their socket is sent to the addToUser API, we mark them as online, with this API call we mark them as online.
+
+although right now the on disconnect is not firing, we have to troubleshoot why.
+on disconnect we are calling the api to delte socket. with that api we will mark online=false. so right now, user will be offline
+if they logout
+
+or
+onconnect frontend can send the userInfo, from that backend can add socket and mark online.
+ondisconnect backend can send userInfo, from that backend can delete the socket and mark as offline.
+
+Also have to broadcast the status of online persons to all persons, so that UI gets updated
+
+Implement logic to detect disconnections (e.g., window closing, browser refresh).
+Broadcast an updated 'online-users' event to all connected clients, reflecting the user's offline status.
+
+Client-Side Optimization: Consider using a heartbeat mechanism to periodically send a 'ping' event from the client to the server. This can help identify inactive clients that haven't explicitly disconnected and update their online status accordingly. On the server side, implement a timeout to mark clients as offline if no 'ping' events are received within a reasonable time frame.
+Session Management: If you're using sessions, associate the user's ID or other relevant information with the Socket.io connection. This streamlines identifying the user during socket interactions.
