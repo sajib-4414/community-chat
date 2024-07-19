@@ -6,10 +6,10 @@ import express from 'express'
 import { createServer } from "http";
 import cookieParser from 'cookie-parser';
 import { connectToMongoDB } from './config/db';
-import { authRouter } from './routes/auth_user_routes';
-import { messageRouter } from './routes/message_routes';
+import { authRouter, userRouter } from './routes/auth.user.routes';
+import { messageRouter } from './routes/message.routes';
 import { initializeSocketIoServer } from './config/socketInstance';
-import { globalErrorHandler } from './middlewares/auth_and_error';
+import { globalErrorHandler } from './middlewares/auth.error';
 //initializaing a socket and express server
 const app = express()
 
@@ -29,6 +29,7 @@ app.use(cors())//using default settings, CORS-> Allow all server
 const router = express.Router(); // Create a new root router for mounting
 // Mount auth and all routers onto the nested router
 router.use('/auth', authRouter);
+router.use('/users', userRouter);
 router.use('/messages', messageRouter);
 
 app.use('/api',router)

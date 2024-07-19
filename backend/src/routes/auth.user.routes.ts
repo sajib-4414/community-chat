@@ -3,18 +3,20 @@ import { Login, Register } from "../controllers/auth_controller";
 import { getAllUsers, searchUsers } from "../controllers/user_controller";
 import { loginValidators, registrationValidators, userSearchValidators } from "../helpers/auth_validators";
 import { validateValidators } from "../middlewares/validator";
-const router = express.Router()
+const authRouter = express.Router()
 
-router.route('/register')
+authRouter.route('/register')
 .post(registrationValidators, validateValidators, Register)
 
-router.route('/login')
+authRouter.route('/login')
 .post(loginValidators, validateValidators, Login)
 
-router.route('/users/all')
+const userRouter = express.Router()
+
+userRouter.route('/all')
 .get(getAllUsers)
 
-router.route('/users/find')
+userRouter.route('/find')
 .get(userSearchValidators, validateValidators,searchUsers)
 
-export {router as authRouter}
+export {authRouter, userRouter}

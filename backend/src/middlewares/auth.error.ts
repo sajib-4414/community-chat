@@ -1,10 +1,18 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { User } from "../models/user";
-import { BadRequestError, CustomErrorResponse, InternalServerError, NotAuthenticatedError, NotAuthorizedError, ResourceNotFoundError } from "../definitions/error_definitions";
+import { IUser, User } from "../models/user";
+import { CustomErrorResponse, NotAuthenticatedError } from "../definitions/error_definitions";
 import { MongoServerError } from 'mongodb';
+// This is a global namespace modification, so any request will be modified and will have set a currentUser
+declare global {
+    namespace Express {
+      interface Request {
+        user: IUser;
+      }
+    }
+}
 
-export const authorizedRequest = async(req:any, res:Response, next:NextFunction)=>{
+export const authorizedRequest = async(req:Request, res:Response, next:NextFunction)=>{
     let token:any;
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer ')){
         //set token from bearer token in header
@@ -22,7 +30,9 @@ export const authorizedRequest = async(req:any, res:Response, next:NextFunction)
         //verify the token
         const decoded:JwtPayload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload
         console.log(decoded)
-        req.user = await User.findById(decoded.id)
+        const user = await User.findById(decoded.id)
+        if (user)
+            req.user = user
         next()
     }
     catch(err){

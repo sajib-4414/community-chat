@@ -1,6 +1,6 @@
 import express from 'express'
 import { addUserSocket, deleteUserSocket, getChatMessagesInRoom, getPastChatsOfUser, joinAllRooms, sendFirstMessage } from '../controllers/message_controller'
-import { authorizedRequest } from '../middlewares/auth_and_error'
+import { authorizedRequest } from '../middlewares/auth.error'
 const router = express.Router()
 
 //fetch all messges of a current chat user is doing, either within a group or with a contact

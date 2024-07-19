@@ -64,7 +64,7 @@ export  const ChatHome = ()=>{
         }  
     }
     const fetchContacts = async()=>{
-        const response = await axiosInstance.get('/auth/users/all')
+        const response = await axiosInstance.get('/users/all')
         const allUsers = response.data
         const usersExceptLoggedInUser = allUsers.filter((user:any)=> user.username!=loggedinUser?.user?.username)
         setContacts(usersExceptLoggedInUser)

@@ -21,7 +21,7 @@ function SearchBar(
     },[searchTerm])
     const fetchAndSetSuggestions = async(searchTerm:string)=>{
       try{
-        const response = await axiosInstance.get(`/auth/users/find?keyword=${searchTerm}`)
+        const response = await axiosInstance.get(`/users/find?keyword=${searchTerm}`)
         const users = response.data;
         setSuggestions(users)
       }catch(err){
