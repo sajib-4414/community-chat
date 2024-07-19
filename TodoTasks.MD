@@ -5,9 +5,12 @@
 - split the ChatHome into recent container, contacts container, and Message container. with callback.
 - Fix the UI for login, registration pages.
 - Fix chat bubble padding when zooming in or out.
+- See a better implementation of socket, like in useeffect or where its best.
 
 ### Backend
 - Socketio middleware for authentication
+- Add namespace such that typescript recognizes req.user
+- use a Websocket file for better implementation
 - Search API for autocomplete: Done
 - Optimize Search it with caching, indexing. Maybe add apache elastic search. Advanced: search in messages as well
 - Search messages in the current chat window
