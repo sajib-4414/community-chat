@@ -10,6 +10,7 @@ import { IMessage, IRoom, IUser, MessagePayLoadToServer, MessageWithAlternateUse
 import { ChatContainer } from "../components/Chat/ChatContainer";
 import { ChatFooterContainer } from "../components/Chat/ChatFooterContainer";
 import { SearchBar } from "../components/Chat/SearchBar";
+import { SOCKET_CONNECTED, SOCKET_CONNECTION_ERROR, SOCKET_DISCONNECTED } from "../utility/constants";
 export  const ChatHome = ()=>{
     
     
@@ -261,12 +262,16 @@ export  const ChatHome = ()=>{
         fetchPastMessages();
         
         if(socket){
-            socket.on('connect', onConnect.bind(null));
+            socket.connect()
+            socket.on(SOCKET_CONNECTED, onConnect.bind(null));
 
             socket.on('foo', (value) => {
                 console.log('on foo event value',value)
             });
-            socket.on('disconnect',onDisconnect)
+            socket.on(SOCKET_DISCONNECTED,onDisconnect)
+            socket.on(SOCKET_CONNECTION_ERROR, (err) => {
+                console.log(err.message); // prints the message associated with the error
+            });
         }
         else{
             console.log('socket is maybe null')

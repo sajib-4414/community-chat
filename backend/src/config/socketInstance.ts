@@ -4,6 +4,8 @@ import { IMessage, Message } from "../models/message";
 import { MESSAGE_TYPES, MessagePayLoadToServer, MessageWithRoom, ROOM_TYPE } from "../definitions/room_message_types";
 import { IRoom, Room } from "../models/room";
 import { User, UserSocket } from "../models/user";
+import jwt, { JwtPayload } from "jsonwebtoken";
+import { NotAuthenticatedError } from "../definitions/error_definitions";
 
 let io:any = null;
 
@@ -13,6 +15,30 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
           origin: "http://localhost:5173"
         }
     })
+    // authentication related middlware
+    io.use(async(socket:Socket, next:any)=>{
+
+        try{
+            //check if the authentication token valid.
+            const token = socket.handshake.auth.token;
+            if(!token)
+                next(new NotAuthenticatedError('Socket Authentication error'))
+            const decoded:JwtPayload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload
+            const user = await User.findById(decoded.id)
+            if(!user)
+                next(new NotAuthenticatedError('Socket authentication error'))
+            // socket.user = user;
+            next()
+            }catch(err){
+                console.log("error authenticating socket")
+                next(new NotAuthenticatedError('Socket authentication error'))
+            }
+        
+    })
+
+
+
+
     //when a new socket joins to the server
     //or when a new client connects
     io.on("connection", (socket: Socket) => {

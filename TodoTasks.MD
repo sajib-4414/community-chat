@@ -15,6 +15,7 @@
 - Search API for autocomplete: Done
 - Optimize Search it with caching, indexing. Maybe add apache elastic search. Advanced: search in messages as well
 - Search messages in the current chat window
+- Add Logging
 - Current window chat messages should be paginated, recent chat should be too.
 - Adding profile images
 - Being able to upload images

@@ -41,7 +41,9 @@ const Header:FC = ()=>{
             //user token, but sometime token is invalid. thats why getting a token invalid
             //is ok, and we safely ignore that exception
             console.log(err)
+
         }finally{
+            socket.disconnect()//forcefully disconnecting user
             dispatch(resetUser())
             router.navigate('/login')
         }

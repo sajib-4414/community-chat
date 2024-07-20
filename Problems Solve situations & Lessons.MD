@@ -232,6 +232,45 @@ Object.setPrototypeOf(this, CustomErrorResponse.prototype); this make sure the o
 when we will use `instanceof ClassName`, js engine will detect correctly that object is of this type,
 without this its a hit and miss sometime.
 
+### Authenticate sockets with Middleware and ensuring each socket belongs to one user:
+* i added socketio middleware in server, that will check if token object is there in socket handshake.
+```
+# in the server side
+ io = new Server(httpExpressServer,{
+        cors: {
+          origin: "http://localhost:5173"
+        }
+    })
+    // authentication related middlware
+    io.use(async(socket:Socket, next:any)=>{
+
+        try{
+            const token = socket.handshake.auth.token;
+            ....
+            if(!user)
+                next(new NotAuthenticatedError('Socket authentication error'))
+            next()
+            }catch(err){
+                console.log("error authenticating socket")
+                next(new NotAuthenticatedError('Socket authentication error'))
+            }
+        
+    })
+
+    # in the client side
+    const headers = {
+    auth: {
+        token: authToken
+    }
+  }
+  export const socket = authToken ? io(URI, headers) : io(URI);
+```
+**Now the problem is**, socket only get disconnected when page refreses, with react page never refreshes.
+and this way each socket is termed authenticated by a token, if someone logs out, token is gone from frotnend.
+but the socket is still connected.
+next person logs in, and as the socket is already connected, socket will not be connected again.
+therefore the second person is connected+authenticated to server with the token of first user.
+Therefore on logout i invoked `socket.disconnect()` such that second person connects and authentiactes with his own token. Now socket is disconnected and wont connect i refresh page which starts everything new, but with react page never refreshes. so i called `socket.connect()` in the chat page. now it connects with the authenticated token.
 
 # Frontnend related
 
