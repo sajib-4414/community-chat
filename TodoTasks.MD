@@ -9,11 +9,10 @@
 - React Add memo for listview items
 
 ### Backend
-- Socketio middleware for authentication
+
 - use a Websocket file for better implementation
 - Add online, offline functionality.
-- Search API for autocomplete: Done
-- Optimize Search it with caching, indexing. Maybe add apache elastic search. Advanced: search in messages as well
+- Optimize Searching contact it with caching, indexing. Maybe add apache elastic search. Advanced: search in messages as well
 - Search messages in the current chat window
 - Add Logging
 - Current window chat messages should be paginated, recent chat should be too.
@@ -33,6 +32,8 @@
 - Add end to end encryption
 - Message Notifications: Implement push notifications for new messages when users are not actively using the app.
 - Add namespace such that typescript recognizes req.user (Done)
+- Socketio middleware for authentication(Done)
+- Search API for autocomplete: (Done)
 ### Devops
 - Add github workflow
 - Add Docker with docker entry point sh file, docker compose, multi stage build,docker run command, mongodb local instance.
