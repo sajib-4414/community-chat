@@ -1,0 +1,75 @@
+[
+    {
+      "message": "Hello Jane, how are you?",
+      "sender": "607f1f77bcf86cd799439011",
+      "receiver": "607f1f77bcf86cd799439012",
+      "room": "607f1f77bcf86cd799439021",
+      "messageType": "user_message",
+      "messageRoomType": "one_to_one",
+      "isUnread": true
+    },
+    {
+      "message": "Hi John! I'm doing well, thanks!",
+      "sender": "607f1f77bcf86cd799439012",
+      "receiver": "607f1f77bcf86cd799439011",
+      "room": "607f1f77bcf86cd799439021",
+      "messageType": "user_message",
+      "messageRoomType": "one_to_one",
+      "isUnread": true
+    },
+    {
+      "message": "How's everything going?",
+      "sender": "607f1f77bcf86cd799439013",
+      "receiver": "607f1f77bcf86cd799439014",
+      "room": "607f1f77bcf86cd799439024",
+      "messageType": "user_message",
+      "messageRoomType": "one_to_one",
+      "isUnread": true
+    },
+    {
+      "message": "Everything is good. Thanks for checking in!",
+      "sender": "607f1f77bcf86cd799439014",
+      "receiver": "607f1f77bcf86cd799439013",
+      "room": "607f1f77bcf86cd799439024",
+      "messageType": "user_message",
+      "messageRoomType": "one_to_one",
+      "isUnread": true
+    },
+    {
+      "message": "Hey Alice, are you available for a quick call?",
+      "sender": "607f1f77bcf86cd799439011",
+      "receiver": "607f1f77bcf86cd799439013",
+      "room": "607f1f77bcf86cd799439022",
+      "messageType": "user_message",
+      "messageRoomType": "one_to_one",
+      "isUnread": true
+    },
+    {
+      "message": "Sure, I’m free this afternoon. Let’s set up a time.",
+      "sender": "607f1f77bcf86cd799439013",
+      "receiver": "607f1f77bcf86cd799439011",
+      "room": "607f1f77bcf86cd799439022",
+      "messageType": "user_message",
+      "messageRoomType": "one_to_one",
+      "isUnread": true
+    },
+    {
+      "message": "Are you free to discuss the new project?",
+      "sender": "607f1f77bcf86cd799439012",
+      "receiver": "607f1f77bcf86cd799439014",
+      "room": "607f1f77bcf86cd799439023",
+      "messageType": "user_message",
+      "messageRoomType": "one_to_one",
+      "isUnread": true
+    },
+    {
+      "message": "Yes, I’m available. Let’s talk about it.",
+      "sender": "607f1f77bcf86cd799439014",
+      "receiver": "607f1f77bcf86cd799439012",
+      "room": "607f1f77bcf86cd799439023",
+      "messageType": "user_message",
+      "messageRoomType": "one_to_one",
+      "isUnread": true
+    }
+]
+  

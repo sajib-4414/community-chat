@@ -7,6 +7,7 @@ interface IUser extends mongoose.Document{
     name:string,
     email:string,
     password:string,
+    isOnline?:boolean,
     getSignedToken:()=>string,
     matchPassword: (password:string) => boolean;
 }
@@ -34,6 +35,11 @@ const userSchema = new mongoose.Schema<IUser>({
         required: [true, 'Please enter a password'],
         minlength:4,
         select:false
+    },
+    isOnline:{
+        type:Boolean,
+        default:false,
+        required:false,
     }
 })
 

@@ -4,8 +4,8 @@ import { Link } from 'react-router-dom';
 import { useDispatch } from "react-redux";
 import { storeUser } from "../store/UserSlice";
 import { axiosInstance } from "../utility/axiosInstance";
-import { LoggedInUser } from "../models/usermodels";
-import { socket } from "../socket";
+import { LoggedInUser } from "../models/user.models";
+import { refreshSocket, socket } from "../socket";
 import { router } from "../router";
 import { ErrorParser } from "../utility/errorParser";
 export const Login:FC = ()=>{
@@ -35,7 +35,8 @@ export const Login:FC = ()=>{
             const registedUser:LoggedInUser = response.data
             const userJSON = JSON.stringify(registedUser);
             localStorage.setItem('user', userJSON);
-
+            refreshSocket();
+            socket.connect();
             const socketId = socket.id
             const headers = {
                 headers: { Authorization: `Bearer ${registedUser?.token}` }

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { LoggedInUser } from "../../models/usermodels"
+import { LoggedInUser } from "../../models/user.models"
 import { useAppSelector } from "../../store/store"
 import avatarImage from './../../assets/test_avatar_image.jpg';
 import { IMessage } from "../../interfaces/MessageInterfaces";

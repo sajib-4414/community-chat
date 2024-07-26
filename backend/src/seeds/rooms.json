@@ -1,0 +1,47 @@
+[
+    {
+      "_id": "607f1f77bcf86cd799439021",
+      "name": "Private Chat between John and Jane",
+      "code": "pvt-john_doe-jane_smith",
+      "roomType": "one_to_one",
+      "createdBy": "607f1f77bcf86cd799439011",
+      "privateRoomMembers": [
+        "607f1f77bcf86cd799439011",
+        "607f1f77bcf86cd799439012"
+      ]
+    },
+    {
+      "_id": "607f1f77bcf86cd799439022",
+      "name": "Private Chat between John and Alice",
+      "code": "pvt-john_doe-alice_johnson",
+      "roomType": "one_to_one",
+      "createdBy": "607f1f77bcf86cd799439011",
+      "privateRoomMembers": [
+        "607f1f77bcf86cd799439011",
+        "607f1f77bcf86cd799439013"
+      ]
+    },
+    {
+      "_id": "607f1f77bcf86cd799439023",
+      "name": "Private Chat between John and Bob",
+      "code": "pvt-john_doe-bob_brown",
+      "roomType": "one_to_one",
+      "createdBy": "607f1f77bcf86cd799439011",
+      "privateRoomMembers": [
+        "607f1f77bcf86cd799439011",
+        "607f1f77bcf86cd799439014"
+      ]
+    },
+    {
+      "_id": "607f1f77bcf86cd799439024",
+      "name": "Private Chat between Jane and Alice",
+      "code": "pvt-jane_smith-alice_johnson",
+      "roomType": "one_to_one",
+      "createdBy": "607f1f77bcf86cd799439012",
+      "privateRoomMembers": [
+        "607f1f77bcf86cd799439012",
+        "607f1f77bcf86cd799439013"
+      ]
+    }
+  ]
+  

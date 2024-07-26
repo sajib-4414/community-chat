@@ -4,13 +4,18 @@ import { socket } from "../socket";
 import avatarImage from './../assets/test_avatar_image.jpg';
 import { useAppSelector } from "../store/store";
 import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER } from "../constants";
-import { LoggedInUser } from "../models/usermodels";
+import { LoggedInUser } from "../models/user.models";
 import { axiosInstance } from "../utility/axiosInstance";
 import { IMessage, IRoom, IUser, MessagePayLoadToServer, MessageWithAlternateUser, MessageWithRoom, ROOM_TYPE } from "../interfaces/MessageInterfaces";
 import { ChatContainer } from "../components/Chat/ChatContainer";
 import { ChatFooterContainer } from "../components/Chat/ChatFooterContainer";
 import { SearchBar } from "../components/Chat/SearchBar";
-import { SOCKET_CONNECTED, SOCKET_CONNECTION_ERROR, SOCKET_DISCONNECTED } from "../utility/constants";
+import { SOCKET_CONNECTED, SOCKET_CONNECTION_ERROR, SOCKET_DISCONNECTED, USER_CAME_ONLINE } from "../utility/constants";
+import { ChatRecentRow } from "../components/Chat/RecentChatRow";
+import { AxiosError } from "axios";
+import { useDispatch } from "react-redux";
+import { resetUser } from "../store/UserSlice";
+import { router } from "../router";
 export  const ChatHome = ()=>{
     
     
@@ -26,6 +31,7 @@ export  const ChatHome = ()=>{
     const [currentChatMessages, setCurrentChatMessages] = useState<IMessage[]>([])
     const [currentMessage, setCurrentMessage] = useState("")
     const [pastChats, setPastChats] = useState<MessageWithAlternateUser[]>([])
+    const dispatch = useDispatch()
 
     //Functions and listeners
     const getAuthHeader = ()=>{
@@ -64,6 +70,10 @@ export  const ChatHome = ()=>{
             await deleteSocketFromUser(socket.id);
         }  
     }
+    async function onUserCameOnline(payload) {
+        console.log("some user came online is triggerted on frontnend")
+        console.log("payload is ",payload)
+    }
     const fetchContacts = async()=>{
         const response = await axiosInstance.get('/users/all')
         const allUsers = response.data
@@ -72,7 +82,8 @@ export  const ChatHome = ()=>{
     }
     //fetching all past conversations for showing inthe chat history
     const fetchPastMessages = async()=>{
-        const response = await axiosInstance.get('/messages/past-chats', getAuthHeader())
+        try{
+            const response = await axiosInstance.get('/messages/past-chats', getAuthHeader())
         console.log("past messages response is",response)
         //from server we get an array that just has message and room info, for one to one chat
         //we have to find the alternate user(to which user current usr is chatting with), to show it in the recents
@@ -101,6 +112,18 @@ export  const ChatHome = ()=>{
             })
             setPastChats(pastChatData)
         }
+        }catch(err){
+            console.log("cannot fetch past messages..., err=",err)
+            if(err instanceof AxiosError){
+                if(err!=null && err?.response?.status === 401){
+                    // console.log('401 error happened.............')
+                    localStorage.removeItem("user");
+                    dispatch(resetUser()) //to log out the user
+                    router.navigate('/login')
+                  }
+            }
+        }
+        
         
     }
     const joinAllRoomsOfUser = async (socketId:string)=>{
@@ -269,8 +292,9 @@ export  const ChatHome = ()=>{
                 console.log('on foo event value',value)
             });
             socket.on(SOCKET_DISCONNECTED,onDisconnect)
+            socket.on(USER_CAME_ONLINE,onUserCameOnline)
             socket.on(SOCKET_CONNECTION_ERROR, (err) => {
-                console.log(err.message); // prints the message associated with the error
+                console.log("Socket connection error", err.message); // prints the message associated with the error
             });
         }
         else{
@@ -284,6 +308,8 @@ export  const ChatHome = ()=>{
             socket.off('foo');
             socket.off(MESSAGE_FROM_SERVER);
             socket.off(MESSAGE_TO_SERVER);
+            socket.off(SOCKET_CONNECTED)
+            socket.off(SOCKET_DISCONNECTED)
         }
 
     },[])
@@ -340,11 +366,15 @@ export  const ChatHome = ()=>{
                     <h4>Recent</h4>
                     <ul>
                         {
-                            pastChats.map((imessage:MessageWithAlternateUser,index)=><li 
+                            pastChats.map((imessage:MessageWithAlternateUser,index)=>
+                            <li 
                             key={index}
                             onClick={()=>handleRecentChatItemClick(imessage)}
                             >
-                                <div className="chat-row">
+                                <ChatRecentRow
+                                imessage={imessage}
+                                />
+                                {/* <div className="chat-row">
                                     <img 
                                     className="chat-avatar-small"
                                     src={avatarImage}/>
@@ -352,7 +382,7 @@ export  const ChatHome = ()=>{
                                         <strong><span>{imessage.user_chatting_with.name && imessage.user_chatting_with.name!==""?imessage.user_chatting_with.name:imessage.user_chatting_with.username}</span></strong>
                                         <p>{imessage.latest_message.message}</p>
                                     </div>
-                                </div>
+                                </div> */}
                             </li>)
                             
                         }

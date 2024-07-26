@@ -74,6 +74,14 @@ Also have to broadcast the status of online persons to all persons, so that UI g
 
 Implement logic to detect disconnections (e.g., window closing, browser refresh).
 Broadcast an updated 'online-users' event to all connected clients, reflecting the user's offline status.
+we will also need react memo based recent chat row component, so that not each row updates.
 
+later we will do the broadcast of online users periodically not to burden the system
 Client-Side Optimization: Consider using a heartbeat mechanism to periodically send a 'ping' event from the client to the server. This can help identify inactive clients that haven't explicitly disconnected and update their online status accordingly. On the server side, implement a timeout to mark clients as offline if no 'ping' events are received within a reasonable time frame.
 Session Management: If you're using sessions, associate the user's ID or other relevant information with the Socket.io connection. This streamlines identifying the user during socket interactions.
+
+Later we can put the online status in Cache only, so we do not hit the database for this. we will retrieve and update it only the ram only. on starting a seervice will check which users have socket id, they will be marked online, but later based on socket on connect on disonnect only cache will be updated.
+
+**about authentication:**
+we are currently doing it with middlware, that authenticates only when first connection is established.
+should update it such that every message to server via socket is authenticated instead of first.

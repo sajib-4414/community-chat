@@ -102,7 +102,7 @@ export const createFirstMessage = async(senderUser:IUser, messagePayload:any)=>{
 
 export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:any)=>{
     //todo in future check current user authorized to get chat data of this room
-    console.log('requet to get message of current room',requestPayload)
+    // console.log('requet to get message of current room',requestPayload)
     let {targetUser, messageRoomType, room:payloadRoom} = requestPayload
     // console.log("room name requested is ",roomName)
 
@@ -150,7 +150,7 @@ export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:a
         //   targetUser._id
         // ]
       })
-      console.log('room finding done')
+      // console.log('room finding done')
       if(!room){
         console.log('room does not exist')
         //room was never created, means they never chatted before
@@ -161,13 +161,13 @@ export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:a
 
     //case2 targetUser is also not Null[as UI can see private room members and fuind out the target User], but room is Not null, means user clicked a recent one to one chat, and requesting history
     //coming here means room is there, either we find it from db or from API request
-    console.log('here target user is',targetUser)
+    // console.log('here target user is',targetUser)
     if(room  && targetUser._id !=""
     ){
       messages = await Message.find({
         room:room
       }).populate('sender')
-      console.log('messages are',messages)
+      // console.log('messages are',messages)
     }
     
     return messages;
@@ -258,7 +258,7 @@ export const getPastOneToOneChats = async (user:IUser)=>{
     )
     const modified_past_one_to_one_chats:MessageWithRoom[] = pastChatsOfUser.map((psitem)=>{
       const room:IRoom = psitem.room;
-      console.log("inside room is, ",room)
+      // console.log("inside room is, ",room)
       room.privateRoomMembers = [psitem.user_detail, user]
       const message = psitem.message
       return {
@@ -266,7 +266,7 @@ export const getPastOneToOneChats = async (user:IUser)=>{
         message
       }
     })
-    console.log("past chats are....",modified_past_one_to_one_chats)
+    // console.log("past chats are....",modified_past_one_to_one_chats)
     return modified_past_one_to_one_chats;
 }
 

@@ -318,6 +318,43 @@ const GuardedChatHome = GuardedHOC(WrappedChatHome)
 #### How to use Env variables from .env files in Vite?
 Vite has by default support for .env files.
 How to use: https://stackoverflow.com/a/77102955
+#### Socketio event listeners on frotnend is fired too many times redundantly.
+Solution, in the useeffect you must have used `socketio.on("connect", onConnectListener)`
+for all such listeners, remove those listeners with socket.off
+```
+useEffect(()=>{
+        fetchContacts();
+        fetchPastMessages();
+        
+        if(socket){
+            socket.connect()
+            socket.on(SOCKET_CONNECTED, onConnect.bind(null));
+
+            socket.on('foo', (value) => {
+                console.log('on foo event value',value)
+            });
+            socket.on(SOCKET_DISCONNECTED,onDisconnect)
+            socket.on(SOCKET_CONNECTION_ERROR, (err) => {
+                console.log("Socket connection error", err.message); // prints the message associated with the error
+            });
+        }
+        else{
+            console.log('socket is maybe null')
+            console.log('still printing it', socket)
+        }
+        
+    
+        //this return function works as a cleanup method
+        return()=>{
+            socket.off('foo');
+            socket.off(MESSAGE_FROM_SERVER);
+            socket.off(MESSAGE_TO_SERVER);
+            socket.off(SOCKET_CONNECTED)
+            socket.off(SOCKET_DISCONNECTED)
+        }
+
+    },[])
+```
 
 ### How to use axios interceptor to track special error codes like 401 to redirect user to login page And also have a base Server URL?
 to have a base url for all axios request, and intercept all api response errors, and customizing it

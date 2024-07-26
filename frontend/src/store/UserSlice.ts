@@ -1,5 +1,5 @@
 import {  createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { LoggedInUser } from "../models/usermodels";
+import { LoggedInUser } from "../models/user.models";
 
 export interface LoggedInUserState {
     loggedInUser: LoggedInUser | null;

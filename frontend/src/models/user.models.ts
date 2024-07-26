@@ -7,5 +7,6 @@ export interface User{
     _id: string,
     email:string,
     username:string,
-    name:string
+    name:string,
+    isOnline:boolean;
 }
