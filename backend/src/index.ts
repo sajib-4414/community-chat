@@ -11,6 +11,9 @@ import { messageRouter } from './routes/message.routes';
 import { initializeSocketIoServer } from './config/socketInstance';
 import { globalErrorHandler } from './middlewares/auth.error';
 import * as cron from 'node-cron'
+import { redisClient } from './config/redisClient';
+import { broadcastOnlineStatus, loadOnlineStatusToCache, updateUserOnlineStatus } from './services/socket.services';
+
 
 //for env file confiugration
 dotenv.config();
@@ -34,8 +37,28 @@ app.use(express.static('public'))
 app.use(cookieParser())
 
 //running cronjob
-cron.schedule('*/5 * * * * *', () => {
-    console.log('running a task every 5 seconds');
+cron.schedule('*/10 * * * * *', async() => {
+    console.log('running a task every 20 seconds');
+    //updates whether user is online or not in DB every 20s. it updates from cache,
+    //its write back cache
+    await updateUserOnlineStatus();
+    //then we broadcast the online status to all users via socketio
+    //later it wil have logic, to only push to friends
+    await broadcastOnlineStatus();
+    // try {
+    //     // Check if the key exists
+    //     const reply = await redisClient.exists('key');
+        
+    //     if (reply === 1) {
+    //       console.log('Key exists');
+    //     } else {
+    //       console.log('Key does not exist, putting the key');
+    //       await redisClient.setEx('key',6,'hello')
+    //     }
+    //   } catch (err) {
+    //     console.error('Error checking key existence:', err);
+    // }
+    
 });
 
 const cors = require('cors')
@@ -61,6 +84,10 @@ const PORT = process.env.PORT || 3001;
 //we are using .then and .error 
 connectToMongoDB()
 .then(() => {
+    //load online status from db to cache
+    //we will update this cache frequently on every user connect or disconnect
+    //and update db from this caceh only every 20s
+    loadOnlineStatusToCache()
     server.listen(PORT, () => {
         console.log('HTTP server is running at port 3001');
     });

@@ -322,9 +322,11 @@ export const addNewSocketIdToUser = async (user:IUser, socketId:string)=>{
     { $set: { socketIds: [socketId] } },
     { new: true, upsert: true } // Options: new returns updated document, upsert creates new if not found
   );
+  
 }
 
 export const deleteSocketIdFromUser = async (user:IUser, socketId:string)=>{
+  //htis also updates user's online status to false
   let userSocket:IUserSocket|null = await UserSocket.findOne({
         user
     })
@@ -337,5 +339,8 @@ export const deleteSocketIdFromUser = async (user:IUser, socketId:string)=>{
         userSocket.socketIds.splice(index,1)
       }
     }
+    user.isOnline = false
+    await user.save()
+
     //also make the socket leave all rooms user is in.
 }

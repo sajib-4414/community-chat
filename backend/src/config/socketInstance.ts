@@ -1,8 +1,8 @@
 import { Server,Socket } from "socket.io";
-import {  MESSAGE_TO_SERVER, SOCKET_CONNECTED, USER_JOINED_ROOM, USER_ROOM_JOIN_REQUEST } from "../definitions/event_types";
+import {  MESSAGE_TO_SERVER, SOCKET_CONNECTED, SOCKET_DISCONNECTED, USER_JOINED_ROOM, USER_ROOM_JOIN_REQUEST } from "../definitions/event_types";
 import {  MessagePayLoadToServer } from "../definitions/room_message_types";
 import {  UserSocket } from "../models/user";
-import { broadCastOnlineStatus, CustomSocket, onMessageReceivedHandler, socketAuthenticationMiddleware } from "../services/socket.services";
+import { CustomSocket, onMessageReceivedHandler, processUserConnected, processUserDisconnected, socketAuthenticationMiddleware } from "../services/socket.services";
 
 let io:any = null;
 
@@ -20,9 +20,14 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
     //or when a new client connects
     io.on(SOCKET_CONNECTED, (socket: CustomSocket) => {
         console.log('new socket client just joined, socket id=', socket.id,',user=', socket.user)
-        broadCastOnlineStatus(socket)
+        //pushes the update to cache, that user came online, it will be broadcasted soon.
+        processUserConnected(socket)
         socket.on(USER_JOINED_ROOM,()=>{
             console.log('Client joined')
+        })
+        socket.on(SOCKET_DISCONNECTED,(reason)=>{
+            console.log("socket with id", socket.id,"disconnected,. reason=",reason)
+            processUserDisconnected(socket)
         })
         socket.on(USER_ROOM_JOIN_REQUEST,({roomName})=>{
             socket.join(roomName);

@@ -5,6 +5,7 @@ export interface IUser{
     id?:string,
     name:string,
     email:string,
+    isOnline:boolean;
 }
 
 export enum ROOM_TYPE {

@@ -6,7 +6,8 @@ import { MESSAGE_TYPES, MessagePayLoadToServer, MessageWithRoom, ROOM_TYPE } fro
 import { IRoom, Room } from "../models/room";
 import { IMessage, Message } from "../models/message";
 import { getIoInstance } from "../config/socketInstance";
-import { MESSAGE_FROM_SERVER, USER_CAME_ONLINE } from "../definitions/event_types";
+import { MESSAGE_FROM_SERVER, ONLINE_STATUS_BROADCAST_FROM_SERVER, USER_CAME_ONLINE } from "../definitions/event_types";
+import { redisClient } from "../config/redisClient";
 export interface CustomSocket extends Socket {
     user: IUser|null; // Replace User with your actual user interface
 }
@@ -124,12 +125,70 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
 
 }
 
-export const broadCastOnlineStatus = (socket:CustomSocket)=>{
+export const processUserConnected = async (socket:CustomSocket)=>{
     //first attempt notify everyone that I came online.
     //to revise I will try to notify everyone with who I am friend with.
     //then revising, this broadcasting will be done in every one minute, not just when i connect
+    // const io = getIoInstance();
+    // io.emit(USER_CAME_ONLINE, {
+    //     user: socket.user
+    // })
+
+    //implementing approach with cache and periodic broadcast
+    //so when someone came online we just put in cache true
+    const EXPIRES_IN_SEC = 20;
+    console.log('putting user', socket?.user?.name, ' in cache','putting connected....')
+    await redisClient.setEx(socket.user?.id,EXPIRES_IN_SEC,String(true))
+}
+
+//uodates data into cachhe when user is disconnected
+export const processUserDisconnected = async (socket:CustomSocket)=>{
+    const EXPIRES_IN_SEC = 20;
+    await redisClient.setEx(socket.user?.id,EXPIRES_IN_SEC,String(false))
+}
+
+//runs periodically with node cron
+//updates user online status from cache to db 
+export const updateUserOnlineStatus = async()=>{
+    console.log("updating users online status from cache...")
+    //finds all users, only select their onlinestatus
+    //for each of them checks the status in Redis, and update them on the db, the online status
+    const allUsers:IUser[] = await User.find({}).select("isOnline name")
+    for(const user of allUsers){
+        const status =  await redisClient.get(user.id);
+        console.log('statuss from cache, for ',user.name,'=',status)
+            //skip if for a user we dont have any status in redis, its ok, in next refresh redis will have it
+            //we only update if something found.
+        if(!(status === null || status === undefined)){
+            user.isOnline = status==='true'?true:false //status is either 'true' or 'false'
+            console.log('saving data for..',user.name, 'status=',user.isOnline)
+            await user.save()
+        }
+    }
+    
+}
+
+export const loadOnlineStatusToCache  = async ()=>{
+    console.log("loading alll users to online..")
+    const allUsers:IUser[] = await User.find({}).select("isOnline")
+    Promise.allSettled(allUsers.map(async (user)=> await redisClient.setEx(user.id,60,String(user.isOnline))))
+    .then((result)=>{
+        console.log("all loading uesrs finishes, result=",result)
+    })
+    .catch((err)=>{
+        console.log("all loading users could not finished, error=",err)
+    })
+}
+
+
+//this will be run periodically with node cron
+//it will broadcast to all users the statuses of users whether they are online.
+//later we will broadcast to each peoeple only the updates thye need, i.e if their friends came online
+export const broadcastOnlineStatus = async ()=>{
+    console.log("broadcasting users status to frotneend......")
+    const allUsers:IUser[] = await User.find({}).select("isOnline name")
     const io = getIoInstance();
-    io.emit(USER_CAME_ONLINE, {
-        user: socket.user
+    io.emit(ONLINE_STATUS_BROADCAST_FROM_SERVER, {
+        users: allUsers
     })
 }

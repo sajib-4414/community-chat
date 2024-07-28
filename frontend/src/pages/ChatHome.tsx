@@ -10,7 +10,7 @@ import { IMessage, IRoom, IUser, MessagePayLoadToServer, MessageWithAlternateUse
 import { ChatContainer } from "../components/Chat/ChatContainer";
 import { ChatFooterContainer } from "../components/Chat/ChatFooterContainer";
 import { SearchBar } from "../components/Chat/SearchBar";
-import { SOCKET_CONNECTED, SOCKET_CONNECTION_ERROR, SOCKET_DISCONNECTED, USER_CAME_ONLINE } from "../utility/constants";
+import { ONLINE_STATUS_BROADCAST_FROM_SERVER, SOCKET_CONNECTED, SOCKET_CONNECTION_ERROR, SOCKET_DISCONNECTED, USER_CAME_ONLINE } from "../utility/constants";
 import { ChatRecentRow } from "../components/Chat/RecentChatRow";
 import { AxiosError } from "axios";
 import { useDispatch } from "react-redux";
@@ -32,6 +32,7 @@ export  const ChatHome = ()=>{
     const [currentMessage, setCurrentMessage] = useState("")
     const [pastChats, setPastChats] = useState<MessageWithAlternateUser[]>([])
     const dispatch = useDispatch()
+    let pastChatList:MessageWithAlternateUser[];
 
     //Functions and listeners
     const getAuthHeader = ()=>{
@@ -110,7 +111,9 @@ export  const ChatHome = ()=>{
                 
                 
             })
+            console.log('past chat data is',pastChatData)
             setPastChats(pastChatData)
+            pastChatList = pastChatData
         }
         }catch(err){
             console.log("cannot fetch past messages..., err=",err)
@@ -296,6 +299,33 @@ export  const ChatHome = ()=>{
             socket.on(SOCKET_CONNECTION_ERROR, (err) => {
                 console.log("Socket connection error", err.message); // prints the message associated with the error
             });
+            //it will update users online status online, in the recent chat window and later on current chat window as well
+            socket.on(ONLINE_STATUS_BROADCAST_FROM_SERVER, ({users}:{users:IUser[]})=>{
+                console.log("all users online status received....", users)
+                const userMap = new Map();
+                users.forEach((user)=>{
+                    userMap.set(user.id,user.isOnline)
+                })
+                console.log(userMap)
+                //
+                const currentPastMessages = structuredClone(pastChats)
+                console.log('current past chats=',currentPastMessages)
+                console.log('witout state=', pastChatList)
+                // //lets update users online status.
+                const currentpastChats = pastChatList.map((ps)=>{
+                    return{
+                        ...ps,
+                        user_chatting_with:{
+                            ...ps.user_chatting_with,
+                            isOnline:userMap.get(ps.user_chatting_with._id)||false
+                        }
+                    }
+                })
+                console.log('updated past chats')
+                // console.log(currentpastChats)
+                setPastChats(currentpastChats)
+
+            })
         }
         else{
             console.log('socket is maybe null')
@@ -310,12 +340,14 @@ export  const ChatHome = ()=>{
             socket.off(MESSAGE_TO_SERVER);
             socket.off(SOCKET_CONNECTED)
             socket.off(SOCKET_DISCONNECTED)
+            socket.off(ONLINE_STATUS_BROADCAST_FROM_SERVER)
         }
 
     },[])
 
     const handleRecentChatItemClick = (imessage:MessageWithAlternateUser)=>{
         console.log('clicked')
+        console.log(imessage.user_chatting_with)
         // handleContactClick(imessage.receiver)
         const room:IRoom|null|string = imessage.room
         let targetUser;
@@ -402,7 +434,14 @@ export  const ChatHome = ()=>{
                         className="chat-avatar"
                         src={avatarImage}/>
                         <strong><span>{currentlyChatContact?currentlyChatContact.username:''}</span></strong>
-                        <span className="chat-active">&#8203;</span>
+
+                        {currentlyChatContact.isOnline===false 
+                || currentlyChatContact.isOnline ===undefined ?
+                <span className="chat-status-header chat-inactive">&#8203;</span>:
+                <span className="chat-status-header chat-active">&#8203;</span>
+                } 
+
+                        {/* <span className="chat-active">&#8203;</span> */}
                         
                     </div>
                     <div className="message-search-more-container">

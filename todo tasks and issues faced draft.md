@@ -81,6 +81,7 @@ Client-Side Optimization: Consider using a heartbeat mechanism to periodically s
 Session Management: If you're using sessions, associate the user's ID or other relevant information with the Socket.io connection. This streamlines identifying the user during socket interactions.
 
 Later we can put the online status in Cache only, so we do not hit the database for this. we will retrieve and update it only the ram only. on starting a seervice will check which users have socket id, they will be marked online, but later based on socket on connect on disonnect only cache will be updated.
+So I am trying to do cache, but for how long useronline status will be true in redis cache? should I do 20s? then if the user is not disconnected in say 1hr, then how to keep checkig if user is still connected? do i need some heartbit
 
 **about authentication:**
 we are currently doing it with middlware, that authenticates only when first connection is established.
