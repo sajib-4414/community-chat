@@ -7,6 +7,7 @@ export interface RowProps{
 const RowComp:React.FC<RowProps> = ({imessage})=>{
     useEffect(()=>{
         console.log('props=',imessage)
+        console.log('i am created...')
     },[])
     return(
         <div className="chat-row">

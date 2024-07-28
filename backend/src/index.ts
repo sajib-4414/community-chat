@@ -15,6 +15,7 @@ import { redisClient } from './config/redisClient';
 import { broadcastOnlineStatus, loadOnlineStatusToCache, updateUserOnlineStatus } from './services/socket.services';
 
 
+
 //for env file confiugration
 dotenv.config();
 
@@ -84,6 +85,7 @@ const PORT = process.env.PORT || 3001;
 //we are using .then and .error 
 connectToMongoDB()
 .then(() => {
+    
     //load online status from db to cache
     //we will update this cache frequently on every user connect or disconnect
     //and update db from this caceh only every 20s

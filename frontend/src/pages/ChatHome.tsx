@@ -313,6 +313,7 @@ export  const ChatHome = ()=>{
                 console.log('witout state=', pastChatList)
                 // //lets update users online status.
                 const currentpastChats = pastChatList.map((ps)=>{
+                    ps.room.privateRoomMembers
                     return{
                         ...ps,
                         user_chatting_with:{
@@ -351,9 +352,10 @@ export  const ChatHome = ()=>{
         // handleContactClick(imessage.receiver)
         const room:IRoom|null|string = imessage.room
         let targetUser;
-        if(room && typeof room === 'object'){
-            targetUser = room.privateRoomMembers.find(user=> user._id !== loggedinUser?.user._id)
-        }
+        // if(room && typeof room === 'object'){
+        //     targetUser = room.privateRoomMembers.find(user=> user._id !== loggedinUser?.user._id)
+        // }
+        targetUser = imessage.user_chatting_with;
 
         //someone wants to do a private chat, and just clicked a recent chats with another person
         //1. set currentChat to the contact

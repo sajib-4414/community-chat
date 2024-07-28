@@ -272,6 +272,20 @@ next person logs in, and as the socket is already connected, socket will not be 
 therefore the second person is connected+authenticated to server with the token of first user.
 Therefore on logout i invoked `socket.disconnect()` such that second person connects and authentiactes with his own token. Now socket is disconnected and wont connect i refresh page which starts everything new, but with react page never refreshes. so i called `socket.connect()` in the chat page. now it connects with the authenticated token.
 
+
+### How to do a heartbeat from backend to frotnend in socketio?
+its to check if the user is still connected. it is useful if you want to build a chat app,
+and show on the UI that those users are online. socketio will ping after each given interval, then if frotned client
+does not return a ping response(called pong), that means that client is offline. with a chatapp, you may want to update that users status to offline.
+export const initializeSocketIoServer = (httpExpressServer:any)=>{
+    io = new Server(httpExpressServer,{
+        cors: {
+          origin: "http://localhost:5173"
+        },
+        //this means socketio will do a ping to do a hearbeat request to the client
+        pingInterval: 5000,
+        pingTimeout:4000
+    })
 # Frontnend related
 
 ### How to design a routeguard in React, so that particular page cannot be accesssed without authentication ?

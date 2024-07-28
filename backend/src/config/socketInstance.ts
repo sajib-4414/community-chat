@@ -1,16 +1,21 @@
-import { Server,Socket } from "socket.io";
+import { Server } from "socket.io";
 import {  MESSAGE_TO_SERVER, SOCKET_CONNECTED, SOCKET_DISCONNECTED, USER_JOINED_ROOM, USER_ROOM_JOIN_REQUEST } from "../definitions/event_types";
 import {  MessagePayLoadToServer } from "../definitions/room_message_types";
 import {  UserSocket } from "../models/user";
 import { CustomSocket, onMessageReceivedHandler, processUserConnected, processUserDisconnected, socketAuthenticationMiddleware } from "../services/socket.services";
+import dotenv from 'dotenv'
 
+dotenv.config()
 let io:any = null;
 
 export const initializeSocketIoServer = (httpExpressServer:any)=>{
     io = new Server(httpExpressServer,{
         cors: {
-          origin: "http://localhost:5173"
-        }
+          origin: process.env.ALLOWED_FRONTEND
+        },
+        //this means socketio will do a ping to do a hearbeat request to the client
+        pingInterval: 5000,
+        pingTimeout:4000
     })
     // authentication related middlware
     io.use(socketAuthenticationMiddleware)

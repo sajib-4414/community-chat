@@ -150,10 +150,23 @@ export const processUserDisconnected = async (socket:CustomSocket)=>{
 //runs periodically with node cron
 //updates user online status from cache to db 
 export const updateUserOnlineStatus = async()=>{
-    console.log("updating users online status from cache...")
+    console.log("updating users online status from cache to db...")
     //finds all users, only select their onlinestatus
     //for each of them checks the status in Redis, and update them on the db, the online status
-    const allUsers:IUser[] = await User.find({}).select("isOnline name")
+    // const allUsers:IUser[] = await User.find({}).select("isOnline name")
+    //we will get these users from redis, if not redis then we will get from db and then put into cache
+    let allUsers;
+    const reply = await redisClient.get('allUsers')
+    if(reply){
+        console.log("found in cache the user list/..//../.")
+        allUsers = JSON.parse(reply)
+    }
+    else{
+        allUsers = await User.find({}).select("isOnline name")
+        const jsonString = JSON.stringify(allUsers);
+        await redisClient.setEx('allUsers',300,jsonString)
+    }
+
     for(const user of allUsers){
         const status =  await redisClient.get(user.id);
         console.log('statuss from cache, for ',user.name,'=',status)
@@ -169,8 +182,18 @@ export const updateUserOnlineStatus = async()=>{
 }
 
 export const loadOnlineStatusToCache  = async ()=>{
-    console.log("loading alll users to online..")
-    const allUsers:IUser[] = await User.find({}).select("isOnline")
+    console.log("loading alll users to cache..")
+    const allUsers:IUser[] = await User.find({}).select("name isOnline")
+    //initially marking them as offline as server just started
+    for(const user of allUsers){
+        user.isOnline = false;
+        await user.save()
+    }
+    //also putting all users cache, so that we dont have to hit
+    const jsonString = JSON.stringify(allUsers);
+    await redisClient.setEx('allUsers',300,jsonString)
+
+    //now putting the status of all users as false(as the server is starting)
     Promise.allSettled(allUsers.map(async (user)=> await redisClient.setEx(user.id,60,String(user.isOnline))))
     .then((result)=>{
         console.log("all loading uesrs finishes, result=",result)
