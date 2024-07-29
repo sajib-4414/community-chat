@@ -11,7 +11,6 @@ import { messageRouter } from './routes/message.routes';
 import { initializeSocketIoServer } from './config/socketInstance';
 import { globalErrorHandler } from './middlewares/auth.error';
 import * as cron from 'node-cron'
-import { redisClient } from './config/redisClient';
 import { broadcastOnlineStatus, loadOnlineStatusToCache, updateUserOnlineStatus } from './services/socket.services';
 
 
@@ -46,19 +45,6 @@ cron.schedule('*/10 * * * * *', async() => {
     //then we broadcast the online status to all users via socketio
     //later it wil have logic, to only push to friends
     await broadcastOnlineStatus();
-    // try {
-    //     // Check if the key exists
-    //     const reply = await redisClient.exists('key');
-        
-    //     if (reply === 1) {
-    //       console.log('Key exists');
-    //     } else {
-    //       console.log('Key does not exist, putting the key');
-    //       await redisClient.setEx('key',6,'hello')
-    //     }
-    //   } catch (err) {
-    //     console.error('Error checking key existence:', err);
-    // }
     
 });
 

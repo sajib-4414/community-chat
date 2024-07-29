@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import './chathome.css'
 import { socket } from "../socket";
 import avatarImage from './../assets/test_avatar_image.jpg';
@@ -11,11 +11,7 @@ import { ChatContainer } from "../components/Chat/ChatContainer";
 import { ChatFooterContainer } from "../components/Chat/ChatFooterContainer";
 import { SearchBar } from "../components/Chat/SearchBar";
 import { ONLINE_STATUS_BROADCAST_FROM_SERVER, SOCKET_CONNECTED, SOCKET_CONNECTION_ERROR, SOCKET_DISCONNECTED, USER_CAME_ONLINE } from "../utility/constants";
-import { ChatRecentRow } from "../components/Chat/RecentChatRow";
-import { AxiosError } from "axios";
-import { useDispatch } from "react-redux";
-import { resetUser } from "../store/UserSlice";
-import { router } from "../router";
+import { RecentChats } from "../components/Chat/RecentChatContainer";
 export  const ChatHome = ()=>{
     
     
@@ -31,7 +27,7 @@ export  const ChatHome = ()=>{
     const [currentChatMessages, setCurrentChatMessages] = useState<IMessage[]>([])
     const [currentMessage, setCurrentMessage] = useState("")
     const [pastChats, setPastChats] = useState<MessageWithAlternateUser[]>([])
-    const dispatch = useDispatch()
+    const recentChatRef = useRef();
     let pastChatList:MessageWithAlternateUser[];
 
     //Functions and listeners
@@ -81,53 +77,9 @@ export  const ChatHome = ()=>{
         const usersExceptLoggedInUser = allUsers.filter((user:any)=> user.username!=loggedinUser?.user?.username)
         setContacts(usersExceptLoggedInUser)
     }
-    //fetching all past conversations for showing inthe chat history
-    const fetchPastMessages = async()=>{
-        try{
-            const response = await axiosInstance.get('/messages/past-chats', getAuthHeader())
-        console.log("past messages response is",response)
-        //from server we get an array that just has message and room info, for one to one chat
-        //we have to find the alternate user(to which user current usr is chatting with), to show it in the recents
-        const messageWithRooms:MessageWithRoom[] = response.data
-        if(loggedinUser){
-            const pastChatData:MessageWithAlternateUser[] = messageWithRooms.map((imessage)=>{
-                const alternateUser:IUser|undefined = imessage.room.privateRoomMembers.find(user=>user._id !== loggedinUser.user._id)
-                if(alternateUser){
-                    return {
-                        latest_message:imessage.message,
-                        user_chatting_with:alternateUser,
-                        room:imessage.room
-                    }
-                }
-                else{
-                      // Handle the case where no alternate user is found, if necessary
-                    // For now, returning an empty object to ensure the return type matches
-                    return {
-                        latest_message: imessage.message,
-                        user_chatting_with: {} as IUser,  // Example of handling an empty user
-                        room: imessage.room
-                    };
-                }
-                
-                
-            })
-            console.log('past chat data is',pastChatData)
-            setPastChats(pastChatData)
-            pastChatList = pastChatData
-        }
-        }catch(err){
-            console.log("cannot fetch past messages..., err=",err)
-            if(err instanceof AxiosError){
-                if(err!=null && err?.response?.status === 401){
-                    // console.log('401 error happened.............')
-                    localStorage.removeItem("user");
-                    dispatch(resetUser()) //to log out the user
-                    router.navigate('/login')
-                  }
-            }
-        }
-        
-        
+    const setPastChatList= (data:MessageWithAlternateUser[])=>{
+        console.log('pastlist is being set... with data=',data)
+        pastChatList = data;
     }
     const joinAllRoomsOfUser = async (socketId:string)=>{
         const payload = {
@@ -243,39 +195,10 @@ export  const ChatHome = ()=>{
             if(loggedinUser){
                 //check if some message is there already from the sender user, then remove it, 
                 //and then add
-                
-                console.log('here3')
-                const alternateUser:IUser|undefined = messagePayload.room.privateRoomMembers.find(user=>user._id !== loggedinUser.user._id)
-                
-                
-                const newMessageWithUser:MessageWithAlternateUser = {
-                    latest_message:messagePayload.message,
-                    user_chatting_with:alternateUser!,
-                    room:messagePayload.room
+                if(recentChatRef.current){
+                    recentChatRef.current.updateRecentChatContainer(messagePayload)
                 }
-                console.log("new message with user is  ", newMessageWithUser)
-                const existingchatIndex = pastChats.findIndex((ps:MessageWithAlternateUser)=> ps.user_chatting_with._id === alternateUser!._id)
-                if(existingchatIndex !=-1){
-                    //there is already chat of the new message sender at this moment
-                    //so we need to pop it first, we dont want to show duplicate item
-                    //in the recent chats UI
-                    const currentPastMessages = structuredClone(pastChats)
-                    currentPastMessages.splice(existingchatIndex,1)
-                    currentPastMessages.push(newMessageWithUser)
-                    currentPastMessages.sort((a,b)=>{
-                        return(new Date(b.latest_message.createdAt).getTime()-new Date(a.latest_message.createdAt).getTime())
-                    })
-                    setPastChats(currentPastMessages)
-                }
-                else{
-                    //there is no existing chat in the pastchat array from the new message sender
-                    const currentPastMessages = structuredClone(pastChats)
-                    currentPastMessages.push(newMessageWithUser)
-                    currentPastMessages.sort((a,b)=>{
-                        return(new Date(b.latest_message.createdAt).getTime()-new Date(a.latest_message.createdAt).getTime())
-                    })
-                    setPastChats(currentPastMessages)
-                }
+                
                 
             }
             
@@ -285,7 +208,7 @@ export  const ChatHome = ()=>{
     });
     useEffect(()=>{
         fetchContacts();
-        fetchPastMessages();
+        // fetchPastMessages();
         
         if(socket){
             socket.connect()
@@ -301,30 +224,9 @@ export  const ChatHome = ()=>{
             });
             //it will update users online status online, in the recent chat window and later on current chat window as well
             socket.on(ONLINE_STATUS_BROADCAST_FROM_SERVER, ({users}:{users:IUser[]})=>{
-                console.log("all users online status received....", users)
-                const userMap = new Map();
-                users.forEach((user)=>{
-                    userMap.set(user.id,user.isOnline)
-                })
-                console.log(userMap)
-                //
-                const currentPastMessages = structuredClone(pastChats)
-                console.log('current past chats=',currentPastMessages)
-                console.log('witout state=', pastChatList)
-                // //lets update users online status.
-                const currentpastChats = pastChatList.map((ps)=>{
-                    ps.room.privateRoomMembers
-                    return{
-                        ...ps,
-                        user_chatting_with:{
-                            ...ps.user_chatting_with,
-                            isOnline:userMap.get(ps.user_chatting_with._id)||false
-                        }
-                    }
-                })
-                console.log('updated past chats')
-                // console.log(currentpastChats)
-                setPastChats(currentpastChats)
+                if (recentChatRef.current) {
+                    recentChatRef.current.setRecentChatData(users);
+                }
 
             })
         }
@@ -396,34 +298,12 @@ export  const ChatHome = ()=>{
                     </ul>
                 </div>
                 
-                <div className="recent-messages">
-                    <h4>Recent</h4>
-                    <ul>
-                        {
-                            pastChats.map((imessage:MessageWithAlternateUser,index)=>
-                            <li 
-                            key={index}
-                            onClick={()=>handleRecentChatItemClick(imessage)}
-                            >
-                                <ChatRecentRow
-                                imessage={imessage}
-                                />
-                                {/* <div className="chat-row">
-                                    <img 
-                                    className="chat-avatar-small"
-                                    src={avatarImage}/>
-                                    <div>
-                                        <strong><span>{imessage.user_chatting_with.name && imessage.user_chatting_with.name!==""?imessage.user_chatting_with.name:imessage.user_chatting_with.username}</span></strong>
-                                        <p>{imessage.latest_message.message}</p>
-                                    </div>
-                                </div> */}
-                            </li>)
-                            
-                        }
-                        
-
-                    </ul>
-                </div>
+                <RecentChats
+                ref={recentChatRef}
+                setPastChatList={setPastChatList}
+                handleRecentChatItemClick={handleRecentChatItemClick}
+                />
+                
                 
             </div>
              {/* right side message container  */}

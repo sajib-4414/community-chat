@@ -42,19 +42,20 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
             console.log('got message from socket=',socket.id)
             console.log('got a message from client via socket',payload)
 
-            //first verify if the current socket belongs to sender user,
-            //because we are not checking authentication token
-            const senderUserSocket = await UserSocket.findOne({
-                user:payload.senderUser,
-                socketIds:[socket.id]
-            })
-            if (!senderUserSocket){
-                //TODO have to fix this, throwing error like this crashes the node server
-                //express async error does not cover this
-                throw new Error("this socket does not belong to this user")
-                // // console.log('')
-                // return;
-            }
+            //not needed as we are checking authentication with socket handsharek
+            // //first verify if the current socket belongs to sender user,
+            // //because we are not checking authentication token
+            // const senderUserSocket = await UserSocket.findOne({
+            //     user:payload.senderUser,
+            //     socketIds:[socket.id]
+            // })
+            // if (!senderUserSocket){
+            //     //TODO have to fix this, throwing error like this crashes the node server
+            //     //express async error does not cover this
+            //     throw new Error("this socket does not belong to this user")
+            //     // // console.log('')
+            //     // return;
+            // }
 
             await onMessageReceivedHandler(socket, payload)
         })

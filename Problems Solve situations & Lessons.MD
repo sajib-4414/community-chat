@@ -433,6 +433,47 @@ inside App component return this instead of Router definition,
 `<RouterProvider router={router} />`
 **Also get rid of other Router,Routes, Browser Router` definitions from the project**
 
+### Calling method of child component from parent.
+```
+const ChildComponent = forwardRef((props, ref) => {
+    const [data, setData] = useState(null);
+
+    useImperativeHandle(ref, () => ({
+        setData(newData) {
+            setData(newData);
+        }
+    }));
+
+    return (
+        <div>
+            {data ? <p>Data: {data}</p> : <p>No data yet</p>}
+        </div>
+    );
+});
+
+export default ChildComponent;
+
+const ParentComponent = () => {
+    const childRef = useRef();
+
+    const handleEvent = () => {
+        const newData = 'Some data from event';
+        if (childRef.current) {
+            childRef.current.setData(newData);
+        }
+    };
+
+    return (
+        <div>
+            <button onClick={handleEvent}>Send Data to Child</button>
+            <ChildComponent ref={childRef} />
+        </div>
+    );
+};
+
+export default ParentComponent;
+```
+
 # Lessons
 
 - **backend frontend integration**: learnt about backend integration properly with frontend,especially which query to run, for which ui, which mongoose query to run, response. For example, I had Room(name,code, privateRoomMembers), Message(room, sender), User. Frotnend needed previous chat messages, for that i needed all rooms that logged in user are part of, those room's last messsage, and who is the other user that current user is chatting with. So I wrote mongoose aggregate query, created Typescript type, MessageWithRoom. I also had to aggreate lookup with the user table to send the info of the other person current user is chatting with.
