@@ -7,6 +7,7 @@
 - Fix chat bubble padding when zooming in or out.
 - See a better implementation of socket, like in useeffect or where its best.
 - React Add memo for listview items
+- add suspense for loading, add useMemo
 
 ### Backend
 
