@@ -298,6 +298,7 @@ But We also have to update the recent chat and current chat both if user is curr
 
 		<div className="card">
 			<div className="row g-0">
+				
 				<div className="col-12 col-lg-5 col-xl-3 border-right">
 
 					<div className="px-4 d-none d-md-block">
@@ -307,84 +308,43 @@ But We also have to update the recent chat and current chat both if user is curr
 							</div>
 						</div>
 					</div>
+					<h5 className="pl-3">Contacts</h5>
+					                
+					<div className="overflow-auto" style={{height:"40vh"}}>
+					{contacts.map((contact:any,index:number)=>{
+                         return (
+							<div onClick={handleContactClick.bind(this,contact)} key={index}>
+								<a href="#" className="list-group-item list-group-item-action border-0">
+							
+							<div className="d-flex align-items-start">
+								<img src="https://bootdey.com/img/Content/avatar/avatar5.png" className="rounded-circle mr-1" alt="Vanessa Tucker" width="40" height="40"/>
+								<div className="flex-grow-1 ml-3">
+								{contact.username}
+								{contact.isOnline?
+								<div className="small"><span className="fas fa-circle chat-online"></span> Online</div>
+								:
+								<div className="small"><span className="fas fa-circle chat-offline"></span> Offline</div>
+								}
+									
+								</div>
+							</div>
+						</a>
+							</div>
+                         )
+                    })}
 
-					<a href="#" className="list-group-item list-group-item-action border-0">
-						<div className="badge bg-success float-right">5</div>
-						<div className="d-flex align-items-start">
-							<img src="https://bootdey.com/img/Content/avatar/avatar5.png" className="rounded-circle mr-1" alt="Vanessa Tucker" width="40" height="40"/>
-							<div className="flex-grow-1 ml-3">
-								Vanessa Tucker
-								<div className="small"><span className="fas fa-circle chat-online"></span> Online</div>
-							</div>
-						</div>
-					</a>
-					<a href="#" className="list-group-item list-group-item-action border-0">
-						<div className="badge bg-success float-right">2</div>
-						<div className="d-flex align-items-start">
-							<img src="https://bootdey.com/img/Content/avatar/avatar2.png" className="rounded-circle mr-1" alt="William Harris" width="40" height="40"/>
-							<div className="flex-grow-1 ml-3">
-								William Harris
-								<div className="small"><span className="fas fa-circle chat-online"></span> Online</div>
-							</div>
-						</div>
-					</a>
-					<a href="#" className="list-group-item list-group-item-action border-0">
-						<div className="d-flex align-items-start">
-							<img src="https://bootdey.com/img/Content/avatar/avatar3.png" className="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40"/>
-							<div className="flex-grow-1 ml-3">
-								Sharon Lessman
-								<div className="small"><span className="fas fa-circle chat-online"></span> Online</div>
-							</div>
-						</div>
-					</a>
-					<a href="#" className="list-group-item list-group-item-action border-0">
-						<div className="d-flex align-items-start">
-							<img src="https://bootdey.com/img/Content/avatar/avatar4.png" className="rounded-circle mr-1" alt="Christina Mason" width="40" height="40"/>
-							<div className="flex-grow-1 ml-3">
-								Christina Mason
-								<div className="small"><span className="fas fa-circle chat-offline"></span> Offline</div>
-							</div>
-						</div>
-					</a>
-					<a href="#" className="list-group-item list-group-item-action border-0">
-						<div className="d-flex align-items-start">
-							<img src="https://bootdey.com/img/Content/avatar/avatar5.png" className="rounded-circle mr-1" alt="Fiona Green" width="40" height="40"/>
-							<div className="flex-grow-1 ml-3">
-								Fiona Green
-								<div className="small"><span className="fas fa-circle chat-offline"></span> Offline</div>
-							</div>
-						</div>
-					</a>
-					<a href="#" className="list-group-item list-group-item-action border-0">
-						<div className="d-flex align-items-start">
-							<img src="https://bootdey.com/img/Content/avatar/avatar2.png" className="rounded-circle mr-1" alt="Doris Wilder" width="40" height="40"/>
-							<div className="flex-grow-1 ml-3">
-								Doris Wilder
-								<div className="small"><span className="fas fa-circle chat-offline"></span> Offline</div>
-							</div>
-						</div>
-					</a>
-					<a href="#" className="list-group-item list-group-item-action border-0">
-						<div className="d-flex align-items-start">
-							<img src="https://bootdey.com/img/Content/avatar/avatar4.png" className="rounded-circle mr-1" alt="Haley Kennedy" width="40" height="40"/>
-							<div className="flex-grow-1 ml-3">
-								Haley Kennedy
-								<div className="small"><span className="fas fa-circle chat-offline"></span> Offline</div>
-							</div>
-						</div>
-					</a>
-					<a href="#" className="list-group-item list-group-item-action border-0">
-						<div className="d-flex align-items-start">
-							<img src="https://bootdey.com/img/Content/avatar/avatar3.png" className="rounded-circle mr-1" alt="Jennifer Chang" width="40" height="40"/>
-							<div className="flex-grow-1 ml-3">
-								Jennifer Chang
-								<div className="small"><span className="fas fa-circle chat-offline"></span> Offline</div>
-							</div>
-						</div>
-					</a>
+					</div>
 
+					<RecentChats 
+					ref={recentChatRef}
+					 handleRecentChatItemClick={handleRecentChatItemClick}
+					/>
+
+					
+					
 					<hr className="d-block d-lg-none mt-1 mb-0"/>
 				</div>
+
 				<div className="col-12 col-lg-7 col-xl-9">
 					<div className="py-2 px-4 border-bottom d-none d-lg-block">
 						<div className="d-flex align-items-center py-1">

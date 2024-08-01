@@ -112,25 +112,23 @@ export const RecentChats = React.forwardRef((props:RecentChatContainerProps, ref
     }
 
     return (
-        <div className="recent-messages">
-        <h4>Recent</h4>
-        <ul>
-            {
-                pastChats.map((imessage:RecentChatItem,index)=>
-                <li 
-                key={index}
-                onClick={()=>props.handleRecentChatItemClick(imessage)}
-                >
-                    <ChatRecentRow
-                    imessage={imessage}
-                    />
-                </li>)
-                
-            }
-            
-    
-        </ul>
-    </div>
+
+    <>
+        <h5 className="pl-3 mt-5">Recent Chats</h5>
+					<div className="overflow-auto" style={{height:"40vh"}}>
+                    {pastChats.map((imessage:RecentChatItem, index)=>{
+                        return(
+                            <div key={index}
+                            onClick={()=>props.handleRecentChatItemClick(imessage)}>
+                                <ChatRecentRow                   
+                                    imessage={imessage}
+                                                    />
+                            </div>
+                            
+                        )
+                    })}
+					</div>
+    </>
     )
 
 })

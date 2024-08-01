@@ -42,3 +42,14 @@
 .border-top {
     border-top: 1px solid #dee2e6!important;
 }
+
+.circle-custom{
+    content: "";
+    display: inline-block;
+    height: 8px; /* Equal to width for a perfect circle */
+    width: 8px; /* Equal to height for a perfect circle */
+    border-radius: 50%; /* Makes the shape a circle */
+    position: relative;
+    left:5px;
+    top:8px;
+}
