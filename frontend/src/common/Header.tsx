@@ -46,9 +46,6 @@ const Header:FC = ()=>{
             dispatch(resetUser())
             router.navigate('/login')
         }
-        
-    
-        
         }
     }
     
@@ -56,23 +53,65 @@ const Header:FC = ()=>{
     //that time we will fetch from just state in header
     // const userStore = useSelector((state:IRootState)=>state.userSlice)
     return(
-        <header>
-            <nav className="container">
-                <h2><Link className="header-link-styles" to="/">Dev chat application</Link></h2>
-                <ul>
-                    <li>Option1</li>
-                    <li>Option2</li>
-                    {loggedinUser && loggedinUser?.user ?
-                        <>
-                            <li><strong>{loggedinUser?.user?.name}</strong></li>
-                            <li style={{cursor:"pointer"}} onClick={handleLogout}>Logout</li>
-                        </>
-                        :
-                        <li> <Link to="/register" className="header-link-styles" >Signup</Link></li>
-                    }
-                </ul>
-            </nav>
-        </header>
+        // <header classNameNameName="p-3 text-bg-dark">
+        //     <div classNameNameName="container">
+        //         <div classNameNameName="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        //             <nav>
+        //                 <h2><Link classNameNameName="d-flex align-items-center mb-2 mb-lg-0 text-dark text-decoration-none" to="/">Dev chat application</Link></h2>
+        //                 <ul classNameNameName="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+        //                     <li>
+        //                         <Link to="#" classNameNameName="nav-link px-2 link-secondary">Overview</Link>
+        //                     </li>
+        //                     <li>
+        //                         <Link to="#" classNameNameName="nav-link px-2 text-secondary">Overview</Link>
+        //                     </li>
+        //                     {loggedinUser && loggedinUser?.user ?
+        //                         <>
+        //                             <li><strong>{loggedinUser?.user?.name}</strong></li>
+        //                             <li style={{cursor:"pointer"}} onClick={handleLogout}>Logout</li>
+        //                         </>
+        //                         :
+        //                         <li> <Link to="/register" classNameNameName="header-link-styles" >Signup</Link></li>
+        //                     }
+        //                 </ul>
+        //             </nav>
+        //         </div>
+                
+        //     </div>
+            
+        // </header>
+        <header className="p-3 bg-dark">
+    <div className="container">
+      <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
+        <Link to="/" className="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
+          <h4> Dev chat application</h4>
+        </Link>
+
+        <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+          <li><a href="#" className="nav-link px-2 text-secondary">Home</a></li>
+          <li><a href="#" className="nav-link px-2 text-white">Features</a></li>
+          <li><a href="#" className="nav-link px-2 text-white">Pricing</a></li>
+          <li><a href="#" className="nav-link px-2 text-white">FAQs</a></li>
+          <li><a href="#" className="nav-link px-2 text-white">About</a></li>
+        </ul>
+
+        <form className="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+          <input type="search" className="form-control form-control-dark text-bg-dark" placeholder="Search..." aria-label="Search"/>
+        </form>
+
+        <div className="text-end">
+          
+          {loggedinUser && loggedinUser?.user ?
+          <button type="button" className="btn btn-warning" onClick={handleLogout}>Logout</button>
+          :
+          <>
+        <Link to="/login" className="btn btn-outline-light mr-3">Login</Link>
+        <Link to="/register" className="btn btn-warning">Sign-up</Link>
+          </>}
+        </div>
+      </div>
+    </div>
+  </header>
     )
 }
 export {Header}

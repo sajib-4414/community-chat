@@ -7,7 +7,10 @@ const Container: React.FC<ContainerProps>= ({children})=>{
         <>
             <Header/>
             
+            <div className="content p-3">
                 {children}
+            </div>
+                
           
             <Footer/>
         </>

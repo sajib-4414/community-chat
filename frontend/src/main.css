@@ -8,14 +8,5 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-html, body {
-  height: 100%;
-}
-
-body{
-  min-height: 100vh;
-  padding: 0;
-  margin: 0;
-}
 
 

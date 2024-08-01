@@ -58,25 +58,41 @@ export const Login:FC = ()=>{
         
     }
     return(
-        <>
-            <form className="login-form" onSubmit={submitForm}>
-            <input
-            value={username}
-            onChange={e=>setUserName(e.target.value)}
-            placeholder="Username"/>
-            <input
-            value={password}
-            type="password"
-            onChange={e=>setPassword(e.target.value)}
-            placeholder="Password"/>
-            <button>Login</button>
-            <p>
-            <span>Dont have an account? <Link to="/register">Register here.</Link> </span>
-            </p>
+
+           
+        <div className="my-3 container w-50 border rounded">
+            <form onSubmit={submitForm}>
+            <div className="form-group">
+                <label htmlFor="name">Username</label>
+                <input type="text" 
+                className="form-control"
+                 id="name" 
+                 aria-describedby="emailHelp"
+                 value={username}
+                 onChange={e=>setUserName(e.target.value)}
+                 placeholder="Username"
+                  />
+            </div>
+            <div className="form-group">
+                <label htmlFor="exampleInputPassword1">Password</label>
+                <input 
+                className="form-control" 
+                id="exampleInputPassword1" 
+                value={password}
+                type="password"
+                onChange={e=>setPassword(e.target.value)}
+                placeholder="Password"/>
+            </div>
+            
+            <button type="submit" className="btn btn-primary mb-2">Submit</button>
+
+            <p>Dont have an account? <Link to="/register">Register here.</Link> </p>
             <p className="form-error">{errorLine}</p>
-            </form>
+        </form>
+        </div>
+        
             
-            
-        </>
     )
 }
+
+ 

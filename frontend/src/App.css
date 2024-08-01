@@ -1,51 +1,3 @@
-
-footer{
-  width:100%;
-  height:8%;
-  background: #000000;
-  color: white;
-  display:flex;
-  position: fixed;
-  bottom: 0px;
-  /* top: 9px; a hotfix as i cannot make the footer to extreme bottom, withjout making it absolute */
-  
-}
-footer p {
-  align-self:center;
-  width:100%;
-  text-align:center;
-}
-
-header{
-  height:4rem;
-  width:100%;
-  background: black;
-  color: white;
-  position: sticky;
-  top: 0px;
-  left:0px;
-  right:0px;
-}
-header nav{
-  display:flex;
-  justify-content: space-between;
-}
-header nav h2{
-  margin-top:auto;
-  margin-bottom:auto;
-}
-header nav ul {
-  list-style-type: none;
-  display:flex;
-  column-gap:10px;
-}
-
-.container{
-  max-width: 960px;
-  margin-left:auto;
-  margin-right: auto;
-}
-
 #root{
   /* display: flex;
   flex-direction: column;
@@ -59,4 +11,15 @@ header nav ul {
 }
 .header-link-styles:hover{
   color:lightgray;
+}
+
+.text-decoration-none {
+  text-decoration: none;
+}
+
+.content{
+  min-height: calc(100vh - 30vh); /*to adjust for both header and footer, we can also use js to calculate right height */
+}
+footer {
+  height: 12vh; 
 }

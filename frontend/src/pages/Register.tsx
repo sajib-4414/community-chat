@@ -7,6 +7,7 @@ import { LoggedInUser } from "../models/user.models";
 import { router } from "../router";
 import { socket } from "../socket";
 import { ErrorParser } from "../utility/errorParser";
+import { Link } from "react-router-dom";
 export const Register:FC = ()=>{
 
     const [username, setUserName] = useState("");
@@ -75,29 +76,82 @@ export const Register:FC = ()=>{
         
     }
     return(
-        <>
-            <form className="login-form" onSubmit={submitForm}>
-            <input
-            value={name}
-            onChange={e=>setName(e.target.value)}
-            placeholder="Your name"/>
-            <input
-            value={email}
-            onChange={e=>setEmail(e.target.value)}
-            placeholder="Your email"/>
-            <input
-            value={username}
-            onChange={e=>setUserName(e.target.value)}
-            placeholder="Username"/>
-            <input
-            value={password}
-            type="password"
-            onChange={e=>setPassword(e.target.value)}
-            placeholder="Password"/>
-            <button>Register</button>
-            <p className="form-error">{errorLine}</p>
-            </form>
+        // <>
+        //     <form className="login-form" onSubmit={submitForm}>
+        //     <input
+        //     value={name}
+        //     onChange={e=>setName(e.target.value)}
+        //     placeholder="Your name"/>
+        //     <input
+        //     value={email}
+        //     onChange={e=>setEmail(e.target.value)}
+        //     placeholder="Your email"/>
+        //     <input
+        //     value={username}
+        //     onChange={e=>setUserName(e.target.value)}
+        //     placeholder="Username"/>
+        //     <input
+        //     value={password}
+        //     type="password"
+        //     onChange={e=>setPassword(e.target.value)}
+        //     placeholder="Password"/>
+        //     <button>Register</button>
+        //     <p className="form-error">{errorLine}</p>
+        //     </form>
             
-        </>
+        // </>
+
+        <div className="my-3 container w-50 border rounded">
+            <form onSubmit={submitForm}>
+            <div className="form-group">
+                <label htmlFor="name">Name</label>
+                <input type="text" 
+                className="form-control"
+                 id="name" 
+                 aria-describedby="emailHelp"
+                 value={name}
+                 onChange={e=>setName(e.target.value)}
+                 placeholder="Your Name"
+                  />
+            </div>
+            <div className="form-group">
+                <label htmlFor="email">Email address</label>
+                <input type="email" 
+                className="form-control"
+                 id="email" 
+                 aria-describedby="emailHelp"
+                 value={email}
+                 onChange={e=>setEmail(e.target.value)}
+                 placeholder="Email"
+                  />
+            </div>
+            <div className="form-group">
+                <label htmlFor="name">Username</label>
+                <input type="text" 
+                className="form-control"
+                 id="name" 
+                 aria-describedby="emailHelp"
+                 value={username}
+                 onChange={e=>setUserName(e.target.value)}
+                 placeholder="Username"
+                  />
+            </div>
+            <div className="form-group">
+                <label htmlFor="exampleInputPassword1">Password</label>
+                <input 
+                className="form-control" 
+                id="exampleInputPassword1" 
+                value={password}
+                type="password"
+                onChange={e=>setPassword(e.target.value)}
+                placeholder="Password"/>
+            </div>
+            
+            <button type="submit" className="btn btn-primary mb-2">Submit</button>
+
+            <p>Already have an account? <Link to="/login">Login here.</Link> </p>
+            <p className="form-error">{errorLine}</p>
+        </form>
+        </div>
     )
 }
