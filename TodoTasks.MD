@@ -12,18 +12,18 @@
 
 ### Backend
 
-- use a Websocket file for better implementation
-- Add online, offline functionality.
-- Optimize Searching contact it with caching, indexing. Maybe add apache elastic search. Advanced: search in messages as well
-- Search messages in the current chat window
-- Add Logging
-- Current window chat messages should be paginated, recent chat should be too.
-- Adding profile images
-- Being able to upload images
-- User Blocking: Allow users to block/unblock other users.
 - Message read/seen functionality.
 - Add message delete functionality.
-- Add message sent/Not sent functionality[auto append sender's message, then update with socket response]
+- Adding profile images
+- Current window chat messages should be paginated, recent chat should be too.
+- Search messages in the current chat window
+- use a Websocket file for better implementation
+- Add online, offline functionality. (done)
+- Optimize Searching contact it with caching, indexing. Maybe add apache elastic search. Advanced: search in messages as well
+- Add Logging
+- Being able to upload images as message
+- User Blocking: Allow users to block/unblock other users.
+- Add message sent/Not sent functionality[auto append sender's message, then update with socket response] (done)
 - Add functionality to accept one to one chat request and then. Maybe add a friend request or something, use a graph database also.
 - Add testing.
 - Add Postal code, and postal code based radius based searching.
@@ -36,7 +36,8 @@
 - Add namespace such that typescript recognizes req.user (Done)
 - Socketio middleware for authentication(Done)
 - Search API for autocomplete: (Done)
-- Add seeder, and use superseeder/some library for mocking data.
+- Add seeder, (done)
+- and use superseeder/some library for mocking data.
 ### Devops
 - Add github workflow
 - Add Docker with docker entry point sh file, docker compose, multi stage build,docker run command, mongodb local instance.
