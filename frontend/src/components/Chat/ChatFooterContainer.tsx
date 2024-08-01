@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { MessagePayLoadToServer, Room } from "../../models/message.models";
+import { Message, MessagePayLoadToServer, Room } from "../../models/message.models";
 import { LoggedInUser, User } from "../../models/user.models";
-import { ROOM_TYPE } from "../../utility/constants";
+import { MESSAGE_TYPES, ROOM_TYPE } from "../../utility/constants";
 import { useAppSelector } from "../../store/store";
 import { socket } from "../../socket";
 import { MESSAGE_TO_SERVER } from "../../constants";
@@ -9,6 +9,7 @@ import { MESSAGE_TO_SERVER } from "../../constants";
 interface ChatFooterContainerProps{
     currentlyChattingWith:User,
     currentRoom:Room|null,
+    notifyChatContainer:(msg:Message)=>void;
 }
 export const ChatFooterContainer:React.FC<ChatFooterContainerProps> = (props)=>{
     const [currentMessage, setCurrentMessage] = useState("")
@@ -17,6 +18,15 @@ export const ChatFooterContainer:React.FC<ChatFooterContainerProps> = (props)=>{
     )
 
     const sendCurrentMessage = async()=>{
+        //first create a dummy message to show in the UI as 'Sending'
+        const unpublishedMessage:Message = {
+            message:currentMessage,
+            sender:loggedinUser?.user,
+            room:props.currentRoom!,
+            oneToOne:true,
+            messageType:MESSAGE_TYPES.USER_MSG
+        }
+        props.notifyChatContainer(unpublishedMessage)
 
         //then emit the mesasge
         const messagePayload:MessagePayLoadToServer = {

@@ -2,11 +2,12 @@
 
 ### FrontEnd
 - Learn Error Boundary and Implement.
-- split the ChatHome into recent container, contacts container, and Message container. with callback.
-- Fix the UI for login, registration pages.
+- split the ChatHome into recent container, contacts container, and Message container. with callback.(done)
+- Fix the UI for login, registration pages (almost done)
 - Fix chat bubble padding when zooming in or out.
 - See a better implementation of socket, like in useeffect or where its best.
-- React Add memo for listview items
+- React Add memo for listview items(done)
+- Added message sending, status to show that message is being sent (done)
 - add suspense for loading, add useMemo
 
 ### Backend

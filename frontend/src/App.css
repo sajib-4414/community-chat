@@ -5,8 +5,9 @@ footer{
   background: #000000;
   color: white;
   display:flex;
-  position: relative;
-  top: 9px; /* a hotfix as i cannot make the footer to extreme bottom, withjout making it absolute */
+  position: fixed;
+  bottom: 0px;
+  /* top: 9px; a hotfix as i cannot make the footer to extreme bottom, withjout making it absolute */
   
 }
 footer p {
@@ -20,8 +21,8 @@ header{
   width:100%;
   background: black;
   color: white;
-  /* position: sticky; */
-  top: 0;
+  position: sticky;
+  top: 0px;
   left:0px;
   right:0px;
 }
@@ -46,11 +47,10 @@ header nav ul {
 }
 
 #root{
-  display: flex;
+  /* display: flex;
   flex-direction: column;
-  justify-content: space-around;
+  justify-content: space-around; */
   height: 100vh;
-
 }
 
 .header-link-styles{

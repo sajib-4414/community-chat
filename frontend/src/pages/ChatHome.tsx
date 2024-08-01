@@ -11,7 +11,7 @@ import { ChatFooterContainer } from "../components/Chat/ChatFooterContainer";
 import { SearchBar } from "../components/Chat/SearchBar";
 import { ONLINE_STATUS_BROADCAST_FROM_SERVER, ROOM_TYPE, SOCKET_CONNECTED, SOCKET_CONNECTION_ERROR, SOCKET_DISCONNECTED } from "../utility/constants";
 import { RecentChats, RecentChatsRef } from "../components/Chat/RecentChatContainer";
-import {  RecentChatItem, Room, ServerMessagePayload } from "../models/message.models";
+import {  Message, RecentChatItem, Room, ServerMessagePayload } from "../models/message.models";
 import { getAuthHeader } from "../utility/authenticationHelper";
 export  const ChatHome = ()=>{
     
@@ -26,6 +26,7 @@ export  const ChatHome = ()=>{
     
     const recentChatRef = useRef();
     const chatContainerRef = useRef()
+    
 
 
     //Functions and listeners
@@ -66,6 +67,15 @@ export  const ChatHome = ()=>{
         await axiosInstance.post('/messages/add-socket', {
             socketId
         },getAuthHeader(loggedinUser))
+    }
+    const notifyChatContainer = (unpublishedMessage:Message)=>{
+        //this was invoked by the message footer component with the current message as dummy
+        //we will send it to the message container
+        if(chatContainerRef.current){
+            const chatCointainerReference = chatContainerRef.current as ChatContainerRef
+            chatCointainerReference.pushDummyMessage(unpublishedMessage)
+            // fetchCurrentChatMessage(ROOM_TYPE.ONE_TO_ONE, contact)
+        }
     }
 
 
@@ -268,6 +278,7 @@ But We also have to update the recent chat and current chat both if user is curr
                 <ChatFooterContainer
                 currentlyChattingWith={currentlyChatContact}
                 currentRoom={currentChatRoom}
+                notifyChatContainer={notifyChatContainer}
                 />
                 </>
                 :

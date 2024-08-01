@@ -1,23 +1,37 @@
 import React, { useEffect, useImperativeHandle, useRef, useState } from "react";
 import { LoggedInUser } from "../../models/user.models"
 import { useAppSelector } from "../../store/store"
-import avatarImage from './../../assets/test_avatar_image.jpg';
 import { Message, Room, ServerMessagePayload } from "../../models/message.models";
 import { axiosInstance } from "../../utility/axiosInstance";
 import { ROOM_TYPE } from "../../utility/constants";
 import { getAuthHeader } from "../../utility/authenticationHelper";
+import { ChatRow } from "./ChatRow";
 export interface ChatContainerRef {
     updateChatUponSocketMessage: (messagePayload:ServerMessagePayload) => void;
     fetchCurrentChatMessage: (roomOrMessageType:ROOM_TYPE, targetUser?:any,room?:Room|null) => void;
+    pushDummyMessage:(unpublishedMessage:Message)=>void;
 }
 
 export const ChatContainer = React.forwardRef((props, ref)=>{
     useImperativeHandle(ref, () => ({
         updateChatUponSocketMessage(messagePayload:ServerMessagePayload){
-            setCurrentChatMessages([...currentChatMessages, messagePayload.message])
+            //checks if the message list has a dummy message, a message shown by UI
+            //if yes, and the socket message is sme, we pop the dummy message and push the server message
+            if(currentChatMessages.at(-1)?.message === messagePayload.message.message){
+                const serverMessages = currentChatMessages.filter((msg)=> msg.message !== messagePayload.message.message)
+                serverMessages.push(messagePayload.message)
+                setCurrentChatMessages(serverMessages)
+            }
+            else{
+                setCurrentChatMessages([...currentChatMessages, messagePayload.message])
+            }
+            
         },
         fetchCurrentChatMessage(roomOrMessageType:ROOM_TYPE, targetUser?:any,room?:Room|null){
             fetchChatMessagesForCurrentChat(roomOrMessageType, targetUser,room)
+        },
+        pushDummyMessage(unpublishedMessage:Message){
+            setCurrentChatMessages([...currentChatMessages, unpublishedMessage])
         }
         
     }));
@@ -59,35 +73,8 @@ export const ChatContainer = React.forwardRef((props, ref)=>{
                     <ul 
                     className="chat-message-class-demo"
                     >
-                        {currentChatMessages.map((message:any,index:number)=>{
-                            if(message.sender.username === loggedinUser?.user.username){
-                                return(<li key={index} className="own-message">
-                                    <img 
-                                        className="chat-avatar"
-                                        src={avatarImage}/>
-                                    <div className="talk-bubble tri-right left-in">
-                                        <div className="talktext">
-                                            <p>{message.message}</p>
-                                            <small>Sent by - {message.sender.name}</small>
-                                        </div>
-                                    </div>
-                                    
-                                </li>)
-                            }
-                            else{
-                                return(<li key={index} className="arrived-message">
-                                    <div className="talk-bubble tri-right btm-right">
-                                        <div className="talktext">
-                                        <p>{message.message}</p>
-                                        <small>Sent by - {message.sender.username}</small>
-                                        </div>
-                                    </div>
-                                    <img 
-                                        className="chat-avatar"
-                                        src={avatarImage}/>
-                                    
-                                </li>)
-                            }
+                        {currentChatMessages.map((message:any)=>{
+                            return <ChatRow message={message}/>
                             
                         })}
                     <AlwaysScrollToBottom />

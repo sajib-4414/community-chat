@@ -286,6 +286,13 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
         pingInterval: 5000,
         pingTimeout:4000
     })
+
+### How did I implement online, offline feature?
+on login I kept all user list to cache.
+then on socket connect and disconnect
+i updated the cache.
+then every 20s i did a node-cron task that sends just the user list and their oneline status to the froitnend.
+Now frotnend if updates the recent chat item, then the entire list all rows in recent chat will be refreshed, too many rerendered. so in the frotnend I used React.memo, and provided a function isEqual. so only if the isOnline status gets updated that will referesh some row, it will not rerender the other rows.
 # Frontnend related
 
 ### How to design a routeguard in React, so that particular page cannot be accesssed without authentication ?

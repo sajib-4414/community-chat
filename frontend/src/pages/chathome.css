@@ -193,12 +193,26 @@
 .own-message{
     position: relative;
     left:1vw;
+    height: 2rem;
+    /* background-color: red; */
+}
+li.own-message{
+    margin-bottom: 200px;
+}
+li.arrived-message{
+    margin-bottom: 150px;
 }
 
 .arrived-message{
     position: relative;
     right:-13.5vw;
+    padding: 0px;
+    margin: 0px;
+    height: 2rem;
+    /* background-color: blue; */
 }
+
+
 
 /* CSS talk bubble */
 .talk-bubble {
