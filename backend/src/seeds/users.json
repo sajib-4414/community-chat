@@ -1,0 +1,35 @@
+[
+    {
+      "_id": "607f1f77bcf86cd799439011",
+      "username": "jon",
+      "name": "John Doe",
+      "email": "john.doe@example.com",
+      "password": "1234",
+      "isOnline": false
+    },
+    {
+      "_id": "607f1f77bcf86cd799439012",
+      "username": "jane",
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "password": "1234",
+      "isOnline": false
+    },
+    {
+      "_id": "607f1f77bcf86cd799439013",
+      "username": "alice",
+      "name": "Alice Johnson",
+      "email": "alice.johnson@example.com",
+      "password": "1234",
+      "isOnline": false
+    },
+    {
+      "_id": "607f1f77bcf86cd799439014",
+      "username": "bob",
+      "name": "Bob Brown",
+      "email": "bob.brown@example.com",
+      "password": "1234",
+      "isOnline": false
+    }
+  ]
+  

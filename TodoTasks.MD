@@ -35,6 +35,7 @@
 - Add namespace such that typescript recognizes req.user (Done)
 - Socketio middleware for authentication(Done)
 - Search API for autocomplete: (Done)
+- Add seeder, and use superseeder/some library for mocking data.
 ### Devops
 - Add github workflow
 - Add Docker with docker entry point sh file, docker compose, multi stage build,docker run command, mongodb local instance.

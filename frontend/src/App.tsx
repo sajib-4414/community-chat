@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 
 import { store, useAppDispatch } from "./store/store";
 import { useEffect } from 'react';
-import { LoggedInUser } from './models/usermodels';
+import { LoggedInUser } from './models/user.models';
 import { resetUser, storeUser } from './store/UserSlice';
 import { router } from './router';
 const AppWrapper = ()=>{

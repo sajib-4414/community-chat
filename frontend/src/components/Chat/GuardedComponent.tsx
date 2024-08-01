@@ -1,5 +1,5 @@
 import  { useEffect } from "react";
-import { LoggedInUser } from "../../models/usermodels";
+import { LoggedInUser } from "../../models/user.models";
 import { useAppSelector } from "../../store/store";
 import { router } from "../../router";
 const GuardedHOC = (OriginalComponent:any) => {

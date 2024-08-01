@@ -1,6 +1,6 @@
 import { FC } from "react";
 import { Link } from "react-router-dom";
-import { LoggedInUser } from "../models/usermodels";
+import { LoggedInUser } from "../models/user.models";
 import { useAppDispatch, useAppSelector } from "../store/store";
 import { resetUser } from "../store/UserSlice";
 import { axiosInstance } from "../utility/axiosInstance";
@@ -31,7 +31,6 @@ const Header:FC = ()=>{
 
 
     const handleLogout = async()=>{
-    console.log("deleting my socket to user after logging out")
     if(socket.id){
         const socketId = socket.id
         try{

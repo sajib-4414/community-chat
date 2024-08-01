@@ -272,6 +272,20 @@ next person logs in, and as the socket is already connected, socket will not be 
 therefore the second person is connected+authenticated to server with the token of first user.
 Therefore on logout i invoked `socket.disconnect()` such that second person connects and authentiactes with his own token. Now socket is disconnected and wont connect i refresh page which starts everything new, but with react page never refreshes. so i called `socket.connect()` in the chat page. now it connects with the authenticated token.
 
+
+### How to do a heartbeat from backend to frotnend in socketio?
+its to check if the user is still connected. it is useful if you want to build a chat app,
+and show on the UI that those users are online. socketio will ping after each given interval, then if frotned client
+does not return a ping response(called pong), that means that client is offline. with a chatapp, you may want to update that users status to offline.
+export const initializeSocketIoServer = (httpExpressServer:any)=>{
+    io = new Server(httpExpressServer,{
+        cors: {
+          origin: "http://localhost:5173"
+        },
+        //this means socketio will do a ping to do a hearbeat request to the client
+        pingInterval: 5000,
+        pingTimeout:4000
+    })
 # Frontnend related
 
 ### How to design a routeguard in React, so that particular page cannot be accesssed without authentication ?
@@ -318,6 +332,43 @@ const GuardedChatHome = GuardedHOC(WrappedChatHome)
 #### How to use Env variables from .env files in Vite?
 Vite has by default support for .env files.
 How to use: https://stackoverflow.com/a/77102955
+#### Socketio event listeners on frotnend is fired too many times redundantly.
+Solution, in the useeffect you must have used `socketio.on("connect", onConnectListener)`
+for all such listeners, remove those listeners with socket.off
+```
+useEffect(()=>{
+        fetchContacts();
+        fetchPastMessages();
+        
+        if(socket){
+            socket.connect()
+            socket.on(SOCKET_CONNECTED, onConnect.bind(null));
+
+            socket.on('foo', (value) => {
+                console.log('on foo event value',value)
+            });
+            socket.on(SOCKET_DISCONNECTED,onDisconnect)
+            socket.on(SOCKET_CONNECTION_ERROR, (err) => {
+                console.log("Socket connection error", err.message); // prints the message associated with the error
+            });
+        }
+        else{
+            console.log('socket is maybe null')
+            console.log('still printing it', socket)
+        }
+        
+    
+        //this return function works as a cleanup method
+        return()=>{
+            socket.off('foo');
+            socket.off(MESSAGE_FROM_SERVER);
+            socket.off(MESSAGE_TO_SERVER);
+            socket.off(SOCKET_CONNECTED)
+            socket.off(SOCKET_DISCONNECTED)
+        }
+
+    },[])
+```
 
 ### How to use axios interceptor to track special error codes like 401 to redirect user to login page And also have a base Server URL?
 to have a base url for all axios request, and intercept all api response errors, and customizing it
@@ -381,6 +432,47 @@ export const router = createBrowserRouter([
 inside App component return this instead of Router definition,
 `<RouterProvider router={router} />`
 **Also get rid of other Router,Routes, Browser Router` definitions from the project**
+
+### Calling method of child component from parent.
+```
+const ChildComponent = forwardRef((props, ref) => {
+    const [data, setData] = useState(null);
+
+    useImperativeHandle(ref, () => ({
+        setData(newData) {
+            setData(newData);
+        }
+    }));
+
+    return (
+        <div>
+            {data ? <p>Data: {data}</p> : <p>No data yet</p>}
+        </div>
+    );
+});
+
+export default ChildComponent;
+
+const ParentComponent = () => {
+    const childRef = useRef();
+
+    const handleEvent = () => {
+        const newData = 'Some data from event';
+        if (childRef.current) {
+            childRef.current.setData(newData);
+        }
+    };
+
+    return (
+        <div>
+            <button onClick={handleEvent}>Send Data to Child</button>
+            <ChildComponent ref={childRef} />
+        </div>
+    );
+};
+
+export default ParentComponent;
+```
 
 # Lessons
 

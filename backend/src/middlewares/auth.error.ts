@@ -29,7 +29,6 @@ export const authorizedRequest = async(req:Request, res:Response, next:NextFunct
     try{
         //verify the token
         const decoded:JwtPayload = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload
-        console.log(decoded)
         const user = await User.findById(decoded.id)
         if (user)
             req.user = user
@@ -42,10 +41,8 @@ export const authorizedRequest = async(req:Request, res:Response, next:NextFunct
 }
 
 export const globalErrorHandler = (err:Error, req:Request, res:Response, next:NextFunction)=>{
-    console.log('error intercepted..................................')
     console.log(err)
     if(err instanceof CustomErrorResponse){
-        console.log("its coming here")
         res.status(err.statusCode).send({
             errors: err.formattedErrors()
         })

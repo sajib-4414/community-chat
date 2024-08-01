@@ -1,13 +1,11 @@
 import express from 'express'
-import { addUserSocket, deleteUserSocket, getChatMessagesInRoom, getPastChatsOfUser, joinAllRooms, sendFirstMessage } from '../controllers/message_controller'
+import { addUserSocket, deleteUserSocket, getChatMessagesInRoom, getPastChatsOfUser, joinAllRooms } from '../controllers/message_controller'
 import { authorizedRequest } from '../middlewares/auth.error'
 const router = express.Router()
 
 //fetch all messges of a current chat user is doing, either within a group or with a contact
 router.post('/all-messages', authorizedRequest, getChatMessagesInRoom)
 
-//for sending message via API, will be out of work soon
-router.post('/message', authorizedRequest, sendFirstMessage)
 
 //for the recent chat section on UI, retrieve all the room's[including private/group chat] last message and room info
 router.get('/past-chats', authorizedRequest, getPastChatsOfUser)

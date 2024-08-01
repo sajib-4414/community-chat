@@ -74,12 +74,29 @@
 .message-image-container > strong{
     margin-right: 0.5vw;
 }
-.chat-active{
+
+.flex-recent-contact-name{
+    display: flex;
+    align-items: center;
+}
+.chat-status-recent{
     display: inline-block;
     border-radius: 50%;
     width: 10px;
     height:10px;
-    background: red;
+    margin: 0.5rem;
+}
+.chat-active{
+    background: rgb(47, 231, 96);
+}
+.chat-inactive{
+    background: gray;
+}
+.chat-status-header{
+    display: inline-block;
+    border-radius: 50%;
+    width: 10px;
+    height:10px;
 }
 
 .chat-contact-search-div{
