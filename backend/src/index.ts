@@ -38,13 +38,12 @@ app.use(cookieParser())
 
 //running cronjob
 cron.schedule('*/10 * * * * *', async() => {
-    console.log('running a task every 20 seconds');
     //updates whether user is online or not in DB every 20s. it updates from cache,
     //its write back cache
     await updateUserOnlineStatus();
     //then we broadcast the online status to all users via socketio
     //later it wil have logic, to only push to friends
-    await broadcastOnlineStatus();
+    // await broadcastOnlineStatus();
     
 });
 

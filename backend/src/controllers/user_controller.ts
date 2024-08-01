@@ -12,7 +12,6 @@ export const getAllUsers = async (req:Request, res:Response)=>{
 //search users
 export const searchUsers = async (req:Request, res:Response)=>{
     const {keyword} = req.query;
-    console.log("original keyword is",keyword)
     if(typeof keyword !== 'string'){
         throw new BadRequestError("Invalid keyword format")
     }

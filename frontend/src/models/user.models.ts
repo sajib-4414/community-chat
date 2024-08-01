@@ -4,7 +4,8 @@ export interface LoggedInUser{
 }
 
 export interface User{
-    _id: string,
+    _id?:string,
+    id?:string,
     email:string,
     username:string,
     name:string,

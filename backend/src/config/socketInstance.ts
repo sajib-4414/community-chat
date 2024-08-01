@@ -27,9 +27,6 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
         console.log('new socket client just joined, socket id=', socket.id,',user=', socket.user)
         //pushes the update to cache, that user came online, it will be broadcasted soon.
         processUserConnected(socket)
-        socket.on(USER_JOINED_ROOM,()=>{
-            console.log('Client joined')
-        })
         socket.on(SOCKET_DISCONNECTED,(reason)=>{
             console.log("socket with id", socket.id,"disconnected,. reason=",reason)
             processUserDisconnected(socket)
@@ -39,24 +36,7 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
             console.log('CLient want to join a room')
         })
         socket.on(MESSAGE_TO_SERVER,async (payload:MessagePayLoadToServer)=>{
-            console.log('got message from socket=',socket.id)
-            console.log('got a message from client via socket',payload)
-
-            //not needed as we are checking authentication with socket handsharek
-            // //first verify if the current socket belongs to sender user,
-            // //because we are not checking authentication token
-            // const senderUserSocket = await UserSocket.findOne({
-            //     user:payload.senderUser,
-            //     socketIds:[socket.id]
-            // })
-            // if (!senderUserSocket){
-            //     //TODO have to fix this, throwing error like this crashes the node server
-            //     //express async error does not cover this
-            //     throw new Error("this socket does not belong to this user")
-            //     // // console.log('')
-            //     // return;
-            // }
-
+            console.log('got message from socket=',socket.id, ", message=", payload)
             await onMessageReceivedHandler(socket, payload)
         })
     });

@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { ReactSearchAutocomplete } from "react-search-autocomplete";
 import { axiosInstance } from "../../utility/axiosInstance";
-import { IUser } from "../../interfaces/MessageInterfaces";
+import { User } from "../../models/user.models";
+
 
 function SearchBar(
     {onSearchResultContactSelected}
@@ -37,7 +38,7 @@ function SearchBar(
         // Triggered when the user hovers over an item in the suggestions list
         console.log('Item hovered:', item);
     };
-    const handleOnSelect = (item:IUser) => {
+    const handleOnSelect = (item:User) => {
         // Triggered when the user selects an item from the suggestions list
         console.log('Item selected:', item);
         onSearchResultContactSelected(item)

@@ -1,13 +1,12 @@
 import React, { memo, useEffect } from "react";
 import avatarImage from './../../assets/test_avatar_image.jpg';
-import { MessageWithAlternateUser } from "../../interfaces/MessageInterfaces";
+import { RecentChatItem } from "../../models/message.models";
 export interface RowProps{
-    imessage: MessageWithAlternateUser
+    imessage: RecentChatItem
 }
 const RowComp:React.FC<RowProps> = ({imessage})=>{
     useEffect(()=>{
         console.log('props=',imessage)
-        console.log('i am created...')
     },[])
     return(
         <div className="chat-row">
@@ -17,20 +16,24 @@ const RowComp:React.FC<RowProps> = ({imessage})=>{
             <div>
                 <p className="flex-recent-contact-name">
                 <strong>
-                <span>{imessage.user_chatting_with.name && imessage.user_chatting_with.name!==""?imessage.user_chatting_with.name:imessage.user_chatting_with.username}</span>
+                <span>{imessage.secondUser.name && imessage.secondUser.name!==""?imessage.secondUser.name:imessage.secondUser.username}</span>
+                
             </strong>
-
-                {imessage.user_chatting_with.isOnline===false 
-                || imessage.user_chatting_with.isOnline ===undefined ?
+                
+                {imessage.secondUser.isOnline===false 
+                || imessage.secondUser.isOnline ===undefined ?
                 <span className="chat-status-recent chat-inactive">&#8203;</span>:
                 <span className="chat-status-recent chat-active">&#8203;</span>
                 } 
-                
                 </p>
             
-            <p>{imessage.latest_message.message}</p>
+            <p>{imessage.latestMessage.message}</p>
                                     </div>
         </div>
     )
 }
-export const ChatRecentRow = memo(RowComp)
+const areEqual = (prevProps:RowProps, nextProps:RowProps) => {
+    // Only re-render if count has changed
+    return prevProps.imessage.secondUser.isOnline === nextProps.imessage.secondUser.isOnline;
+};
+export const ChatRecentRow = memo(RowComp,areEqual)

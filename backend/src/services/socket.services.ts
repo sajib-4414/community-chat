@@ -38,15 +38,13 @@ export const socketAuthenticationMiddleware = async(socket:CustomSocket, next:an
 
 export const onMessageReceivedHandler = async (socket: CustomSocket, payload:MessagePayLoadToServer)=>{
     const io = getIoInstance();
-    console.log('some message received.........')
-    console.log("socket user is, ",socket.user)
     //Handle both case, if this is the first chat , or it is a already started chat
 
             
             let room;
             //case1: Its a first time sent message
             if(!payload.room && payload.targetUser && payload.senderUser && payload.messageRoomType === ROOM_TYPE.ONE_TO_ONE){
-                console.log("here333..........")
+
                 room = await Room.findOne({
                     roomType:payload.messageRoomType,
                     privateRoomMembers:[
@@ -54,7 +52,7 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
                         payload.senderUser
                     ]
                 })
-                console.log('room exists......')
+
                 //if we find any room then its good. if not we create it now.
                 if(!room){
                     room = await Room.create({
@@ -68,11 +66,9 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
                         code:`pvt-${payload.senderUser.username}-${payload.targetUser.username}`
 
                     })
-                    console.log('room does not exist')
                 }
             }
             else{
-                console.log("here4..........")
                 //room is there just need to pick it up
                 room = await Room.findById(payload.room?._id)
             }
@@ -86,7 +82,6 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
                 messageRoomType:payload.messageRoomType,
                 messageType:MESSAGE_TYPES.USER_MSG
             })
-            console.log('db message created')
             const receiverUserSocket = await UserSocket.findOne({
                 user:payload.targetUser
             })
@@ -104,13 +99,9 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
                 else
                     console.log("reciver is not online, just db message this time....")
             }catch(err){
-                console.log("reciver is Maybe not online or registered, just db message this time....")
-                console.log()
                 console.log(err)
             }
             
-
-            console.log('both sockets have joined the room')
 
             //retireve the updated message from DB
             const storedMessage:IMessage|null = await Message.findById(dbMessage._id).populate('sender')
@@ -120,7 +111,6 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
                 room:storedRoom!
             } 
 
-            console.log('now emitting to the room')
             io.to(payload.room?.code).emit(MESSAGE_FROM_SERVER,messagePayloadToFrotnend)
 
 }
@@ -136,13 +126,14 @@ export const processUserConnected = async (socket:CustomSocket)=>{
 
     //implementing approach with cache and periodic broadcast
     //so when someone came online we just put in cache true
-    const EXPIRES_IN_SEC = 20;
-    console.log('putting user', socket?.user?.name, ' in cache','putting connected....')
+    const EXPIRES_IN_SEC = 120;
+    console.log('putting the user ', socket.user?.name,", as true")
     await redisClient.setEx(socket.user?.id,EXPIRES_IN_SEC,String(true))
 }
 
 //uodates data into cachhe when user is disconnected
 export const processUserDisconnected = async (socket:CustomSocket)=>{
+    console.log('priocess user disconnected is fired for user', socket?.user?.name)
     const EXPIRES_IN_SEC = 20;
     await redisClient.setEx(socket.user?.id,EXPIRES_IN_SEC,String(false))
 }
@@ -158,7 +149,6 @@ export const updateUserOnlineStatus = async()=>{
     let allUsers;
     const reply = await redisClient.get('allUsers')
     if(reply){
-        console.log("found in cache the user list/..//../.")
         allUsers = JSON.parse(reply)
     }
     else{
@@ -167,36 +157,60 @@ export const updateUserOnlineStatus = async()=>{
         await redisClient.setEx('allUsers',300,jsonString)
     }
 
+    console.log('retrieved all users are', allUsers)
+    const newUserList = []
     for(const user of allUsers){
         const status =  await redisClient.get(user.id);
-        console.log('statuss from cache, for ',user.name,'=',status)
-            //skip if for a user we dont have any status in redis, its ok, in next refresh redis will have it
-            //we only update if something found.
+        console.log('for user ',user.name,', cached status is', status)
+        //skip if for a user we dont have any status in redis, its ok, in next refresh redis will have it
+        //we only update if something found. I mean if user logs in or logs out we will have some status in the cache
         if(!(status === null || status === undefined)){
-            user.isOnline = status==='true'?true:false //status is either 'true' or 'false'
-            console.log('saving data for..',user.name, 'status=',user.isOnline)
-            await user.save()
+            // user.isOnline = status==='true'?true:false //status is either 'true' or 'false'
+            // console.log('saving user ',user.name,' , as=',user.isOnline)
+            // await user.save()
+            const updatedUser = await User.findOneAndUpdate(
+                {
+                    _id: user._id
+                },
+                {
+                    $set:{ isOnline:status==='true' }
+                },
+                {
+                    new: true
+                }
+            )
+            newUserList.push(updatedUser)
+        }
+        else{
+            newUserList.push(user)
         }
     }
-    
+
+    //now broadcast to frontnend
+    console.log('sending the broadcast to frontend')
+    const io = getIoInstance();
+    io.emit(ONLINE_STATUS_BROADCAST_FROM_SERVER, {
+        users: newUserList
+    })
 }
 
 export const loadOnlineStatusToCache  = async ()=>{
     console.log("loading alll users to cache..")
     const allUsers:IUser[] = await User.find({}).select("name isOnline")
-    //initially marking them as offline as server just started
-    for(const user of allUsers){
-        user.isOnline = false;
-        await user.save()
-    }
+    // //initially marking them as offline as server just started
+    // for(const user of allUsers){
+    //     user.isOnline = false;
+    //     await user.save()
+    // }
     //also putting all users cache, so that we dont have to hit
     const jsonString = JSON.stringify(allUsers);
     await redisClient.setEx('allUsers',300,jsonString)
+     console.log('all users are,...',allUsers)
 
     //now putting the status of all users as false(as the server is starting)
-    Promise.allSettled(allUsers.map(async (user)=> await redisClient.setEx(user.id,60,String(user.isOnline))))
+    Promise.allSettled(allUsers.map(async (user)=> await redisClient.setEx(user.id,120,String(user.isOnline))))
     .then((result)=>{
-        console.log("all loading uesrs finishes, result=",result)
+       console.log('promise result of putting all users to cache initially', result)
     })
     .catch((err)=>{
         console.log("all loading users could not finished, error=",err)
@@ -208,7 +222,7 @@ export const loadOnlineStatusToCache  = async ()=>{
 //it will broadcast to all users the statuses of users whether they are online.
 //later we will broadcast to each peoeple only the updates thye need, i.e if their friends came online
 export const broadcastOnlineStatus = async ()=>{
-    console.log("broadcasting users status to frotneend......")
+    console.log("periodic broadcasting users status to frotneend......")
     const allUsers:IUser[] = await User.find({}).select("isOnline name")
     const io = getIoInstance();
     io.emit(ONLINE_STATUS_BROADCAST_FROM_SERVER, {

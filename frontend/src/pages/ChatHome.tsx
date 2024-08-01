@@ -4,141 +4,73 @@ import { socket } from "../socket";
 import avatarImage from './../assets/test_avatar_image.jpg';
 import { useAppSelector } from "../store/store";
 import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER } from "../constants";
-import { LoggedInUser } from "../models/user.models";
+import { LoggedInUser, User } from "../models/user.models";
 import { axiosInstance } from "../utility/axiosInstance";
-import { IMessage, IRoom, IUser, MessagePayLoadToServer, MessageWithAlternateUser, MessageWithRoom, ROOM_TYPE } from "../interfaces/MessageInterfaces";
-import { ChatContainer } from "../components/Chat/ChatContainer";
+import { ChatContainer, ChatContainerRef } from "../components/Chat/ChatContainer";
 import { ChatFooterContainer } from "../components/Chat/ChatFooterContainer";
 import { SearchBar } from "../components/Chat/SearchBar";
-import { ONLINE_STATUS_BROADCAST_FROM_SERVER, SOCKET_CONNECTED, SOCKET_CONNECTION_ERROR, SOCKET_DISCONNECTED, USER_CAME_ONLINE } from "../utility/constants";
-import { RecentChats } from "../components/Chat/RecentChatContainer";
+import { ONLINE_STATUS_BROADCAST_FROM_SERVER, ROOM_TYPE, SOCKET_CONNECTED, SOCKET_CONNECTION_ERROR, SOCKET_DISCONNECTED } from "../utility/constants";
+import { RecentChats, RecentChatsRef } from "../components/Chat/RecentChatContainer";
+import {  RecentChatItem, Room, ServerMessagePayload } from "../models/message.models";
+import { getAuthHeader } from "../utility/authenticationHelper";
 export  const ChatHome = ()=>{
     
-    
-
     //All States
     const loggedinUser:LoggedInUser|null = useAppSelector(
         (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
     )
     const [contacts, setContacts] = useState<any>([])
-    const [currentlyChatContact, setCurrentlyChatContact] = useState<IUser|null>(null)
+    const [currentlyChatContact, setCurrentlyChatContact] = useState<User|null>(null)
     const [currentMessageRoomType, setCurrentMessageRoomType] = useState("")
-    const [currentChatRoom, setCurrentChatRoom] = useState<IRoom|null>(null)
-    const [currentChatMessages, setCurrentChatMessages] = useState<IMessage[]>([])
-    const [currentMessage, setCurrentMessage] = useState("")
-    const [pastChats, setPastChats] = useState<MessageWithAlternateUser[]>([])
+    const [currentChatRoom, setCurrentChatRoom] = useState<Room|null>(null)
+    
     const recentChatRef = useRef();
-    let pastChatList:MessageWithAlternateUser[];
+    const chatContainerRef = useRef()
+
 
     //Functions and listeners
-    const getAuthHeader = ()=>{
-        let user:LoggedInUser|null = loggedinUser
-        if(!user){
-            const storedUserData = localStorage.getItem("user");
-            if(storedUserData){
-                user = JSON.parse(
-                    storedUserData,
-                ) as LoggedInUser;
-            }
-            
-        }
-        return {
-            headers: { Authorization: `Bearer ${user?.token}` }
-        }
-    };
+
     async function deleteSocketFromUser(socketId:string) {
         //we dont need to show any error for this, we can silenty call this api
         await axiosInstance.post('/messages/delete-socket', {
             socketId
-        },getAuthHeader())
+        },getAuthHeader(loggedinUser))
     }
     async function onConnect() {
-        console.log('socket connected, socketid=',socket.id)
-        console.log('on Connect auth header is',getAuthHeader())
         if(socket.id){
             await joinAllRoomsOfUser(socket.id);
             await addSocketToUser(socket.id);
         }     
     }
     async function onDisconnect() {
-        console.log('socket got disconnected')
-        console.log('on disconnect auth header is',getAuthHeader())
         if(socket.id){
             await deleteSocketFromUser(socket.id);
         }  
     }
-    async function onUserCameOnline(payload) {
-        console.log("some user came online is triggerted on frontnend")
-        console.log("payload is ",payload)
-    }
+
     const fetchContacts = async()=>{
         const response = await axiosInstance.get('/users/all')
         const allUsers = response.data
         const usersExceptLoggedInUser = allUsers.filter((user:any)=> user.username!=loggedinUser?.user?.username)
         setContacts(usersExceptLoggedInUser)
     }
-    const setPastChatList= (data:MessageWithAlternateUser[])=>{
-        console.log('pastlist is being set... with data=',data)
-        pastChatList = data;
-    }
     const joinAllRoomsOfUser = async (socketId:string)=>{
         const payload = {
             socketId
         }
         console.log(payload)
-        await axiosInstance.post('/messages/join-all',payload, getAuthHeader())
+        await axiosInstance.post('/messages/join-all',payload, getAuthHeader(loggedinUser))
     }
     const addSocketToUser = async(socketId:string)=>{
-        console.log("adding my socket to user")
+
         await axiosInstance.post('/messages/add-socket', {
             socketId
-        },getAuthHeader())
-    }
-    const sendCurrentMessage = async()=>{
-
-            //then emit the mesasge
-            const messagePayload:MessagePayLoadToServer = {
-                // sender:loggedinUser?.user,//todo this will come from authentiation
-                // room:roomName,
-                // message: currentMessage
-                messageRoomType: ROOM_TYPE.ONE_TO_ONE,
-                targetUser: currentlyChatContact,//it will be empty for groupchats
-                senderUser:loggedinUser?.user,
-                message:currentMessage,
-                room:currentChatRoom! //backend will handle if its null
-            }
-            socket.emit(MESSAGE_TO_SERVER, messagePayload )
-            setCurrentMessage("")
-        // }
+        },getAuthHeader(loggedinUser))
     }
 
-    const fetchChatMessagesForCurrentChat = async (roomOrMessageType:ROOM_TYPE, targetUser?:any,room?:IRoom|null )=>{
 
-        const payload:any = {}
-        //send whatever info we have to the server
-       
-         //case 1: one to one chat, user clicked a contact, we dont know the room
-        //ensures its the case 1
-        if(!room && targetUser){
-            payload.targetUser = targetUser //we just know target user, we want to fetch chat info with that user one to one
-            payload.messageRoomType = roomOrMessageType//we know for sure what kind of message we want to fetch
-            // payload.room=room//for one to one chat when someone clicked contact, room will be None/undefined
-        }
 
-        //case 2 user clicked a recent one to one chat, we know the room
-        //we also know the target user, that is another user from the room
-        if(room && targetUser){
-            payload.targetUser = targetUser //target user will be xtracted from the room
-            payload.messageRoomType = roomOrMessageType
-            payload.room=room//for one to one chat when someone reent chat, we know the room
-        }
-
-        //fetch all the past messages for this chat with this person/group
-        const response = await axiosInstance.post('/messages/all-messages',payload,getAuthHeader())
-        console.log('fetching current chat messages via api, response=',response)
-        setCurrentChatMessages(response.data)
-    }
-    const handleContactClick = (contact?:IUser)=>{
+    const handleContactClick = (contact?:User)=>{
         if(contact){
             //someone wants to do a private chat, and just clicked a contact of a private person
             //1. set currentChat to the contact
@@ -149,7 +81,11 @@ export  const ChatHome = ()=>{
             setCurrentChatRoom(null)
 
             //4. Now fecth the previous messages of this chat
-            fetchChatMessagesForCurrentChat(ROOM_TYPE.ONE_TO_ONE, contact)
+            if(chatContainerRef.current){
+                const chatCointainerReference = chatContainerRef.current as ChatContainerRef
+                chatCointainerReference.fetchCurrentChatMessage(ROOM_TYPE.ONE_TO_ONE, contact)
+            }
+            // fetchChatMessagesForCurrentChat(ROOM_TYPE.ONE_TO_ONE, contact)
         }
         else{
             //someone clicked a group chat name, no contact to send the message to.
@@ -157,49 +93,47 @@ export  const ChatHome = ()=>{
         }
         
     }
-    socket.on(MESSAGE_FROM_SERVER, (messagePayload:MessageWithRoom) => {
-        //TODO also now check if the message should go to current chat message or past chat message.
-        console.log("new message received",messagePayload)
-
+    socket.on(MESSAGE_FROM_SERVER, (messagePayload:ServerMessagePayload) => {
         //check if the message belong to curent opened(ifopened) chat window or the recent chats
 
-        //this means we have to update the current chat window
-        // user clicked a contact, we dont know the room, we just know contact and its a one to one chat
-        //get the other contact from the room, check out of two parties who is the other one
-            //if they are the one user clicked to chat, then we know we have to update the current chat window
-        if(currentChatRoom===null && currentMessageRoomType===ROOM_TYPE.ONE_TO_ONE && currentlyChatContact){
-            console.log('here')
-            const room:IRoom = messagePayload.room;
-            const targetUserFromPayload = room.privateRoomMembers.find(user=>user._id!== loggedinUser?.user._id)
-            if(targetUserFromPayload?._id === currentlyChatContact._id){
-                console.log('maybe not here')
-                //update current messages
-                setCurrentChatMessages([...currentChatMessages, messagePayload.message])
+/* this means we have to update the current chat window
+user clicked a contact, we dont know the room, we just know contact and its a one to one chat
+get the other contact from the room, check out of two parties who is the other one
+if they are the one user clicked to chat, then we know we have to update the current chat window */
+
+    if(currentChatRoom===null && currentMessageRoomType===ROOM_TYPE.ONE_TO_ONE && currentlyChatContact){
+        const room:Room = messagePayload.room;
+        const targetUserFromPayload = room.privateRoomMembers.find(user=>user._id!== loggedinUser?.user._id)
+        if(targetUserFromPayload?._id === currentlyChatContact._id){
+            if(chatContainerRef.current){
+                const chatCointainerReference = chatContainerRef.current as ChatContainerRef
+                chatCointainerReference.updateChatUponSocketMessage(messagePayload)
             }
         }
-        //user clicked a recent chat[which has room, message both], so we know the chatroom, chat contact[for one to one we can retreive from the room, chcking who is the other prtyy]
-        else if(currentChatRoom!==null && currentMessageRoomType===ROOM_TYPE.ONE_TO_ONE && currentlyChatContact){
-            // we check is it sure this is the room we got from server
-            console.log('here2')
-            if(currentChatRoom._id === messagePayload.room._id){
-                //update current messages
-                setCurrentChatMessages([...currentChatMessages, messagePayload.message])
+    }
+
+/*user clicked a recent chat[which has room, message both], so we know the chatroom, chat contact[for one to one we can
+ retreive from the room, chcking who is the other prtyy]. This case also means we have to update the current chat window*/
+    else if(currentChatRoom!==null && currentMessageRoomType===ROOM_TYPE.ONE_TO_ONE && currentlyChatContact){
+        // we check is it sure this is the room we got from server
+        if(currentChatRoom._id === messagePayload.room._id){
+            if(chatContainerRef.current){
+                const chatCointainerReference = chatContainerRef.current as ChatContainerRef
+                chatCointainerReference.updateChatUponSocketMessage(messagePayload)
             }
-        }
-        //user has not clicked any contact/recent chat, or the incoming message's room/contact does not 
-        //match with the currently opened chat window's cotnact/room
-        //so we update the recent chat.
-        //But We also have to update the recent chat and current chat both if user is currently chatting with someone
-        
+        }     
+    }
+
+    
+/*user has not clicked any contact/recent chat, or the incoming message's room/contact does not 
+match with the currently opened chat window's cotnact/room, so we update the recent chat Items.
+But We also have to update the recent chat and current chat both if user is currently chatting with someone*/
         else{
             if(loggedinUser){
-                //check if some message is there already from the sender user, then remove it, 
-                //and then add
                 if(recentChatRef.current){
-                    recentChatRef.current.updateRecentChatContainer(messagePayload)
+                    const recentChatReference = recentChatRef.current as RecentChatsRef
+                    recentChatReference.updateRecentChatContainer(messagePayload)
                 }
-                
-                
             }
             
         }
@@ -208,7 +142,6 @@ export  const ChatHome = ()=>{
     });
     useEffect(()=>{
         fetchContacts();
-        // fetchPastMessages();
         
         if(socket){
             socket.connect()
@@ -218,21 +151,21 @@ export  const ChatHome = ()=>{
                 console.log('on foo event value',value)
             });
             socket.on(SOCKET_DISCONNECTED,onDisconnect)
-            socket.on(USER_CAME_ONLINE,onUserCameOnline)
             socket.on(SOCKET_CONNECTION_ERROR, (err) => {
                 console.log("Socket connection error", err.message); // prints the message associated with the error
             });
             //it will update users online status online, in the recent chat window and later on current chat window as well
-            socket.on(ONLINE_STATUS_BROADCAST_FROM_SERVER, ({users}:{users:IUser[]})=>{
+            socket.on(ONLINE_STATUS_BROADCAST_FROM_SERVER, ({users}:{users:User[]})=>{
                 if (recentChatRef.current) {
-                    recentChatRef.current.setRecentChatData(users);
+                    console.log('recent chat reff is not null sending online braodcast')
+                    const recentChatReference = recentChatRef.current as RecentChatsRef
+                    recentChatReference.setRecentChatData(users)
                 }
 
             })
         }
         else{
-            console.log('socket is maybe null')
-            console.log('still printing it', socket)
+            console.log('socket is undefined in Chat container, socket=',socket)
         }
         
     
@@ -248,16 +181,10 @@ export  const ChatHome = ()=>{
 
     },[])
 
-    const handleRecentChatItemClick = (imessage:MessageWithAlternateUser)=>{
-        console.log('clicked')
-        console.log(imessage.user_chatting_with)
-        // handleContactClick(imessage.receiver)
-        const room:IRoom|null|string = imessage.room
+    const handleRecentChatItemClick = (imessage:RecentChatItem)=>{
+        const room:Room|null|string = imessage.room
         let targetUser;
-        // if(room && typeof room === 'object'){
-        //     targetUser = room.privateRoomMembers.find(user=> user._id !== loggedinUser?.user._id)
-        // }
-        targetUser = imessage.user_chatting_with;
+        targetUser = imessage.secondUser;
 
         //someone wants to do a private chat, and just clicked a recent chats with another person
         //1. set currentChat to the contact
@@ -267,10 +194,14 @@ export  const ChatHome = ()=>{
             setCurrentMessageRoomType(ROOM_TYPE.ONE_TO_ONE)
             //3. set the current room, we cannot get the room info from the contact only, so set it to null
             if(room)
-                setCurrentChatRoom(room as IRoom)
+                setCurrentChatRoom(room as Room)
 
         //4. Now fecth the previous messages of this chat
-        fetchChatMessagesForCurrentChat(ROOM_TYPE.ONE_TO_ONE, targetUser)
+        // fetchChatMessagesForCurrentChat(ROOM_TYPE.ONE_TO_ONE, targetUser)
+        if(chatContainerRef.current){
+            const chatCointainerReference = chatContainerRef.current as ChatContainerRef
+            chatCointainerReference.fetchCurrentChatMessage(ROOM_TYPE.ONE_TO_ONE, targetUser)
+        }
     }
 
     return <div className="full container">
@@ -300,7 +231,6 @@ export  const ChatHome = ()=>{
                 
                 <RecentChats
                 ref={recentChatRef}
-                setPastChatList={setPastChatList}
                 handleRecentChatItemClick={handleRecentChatItemClick}
                 />
                 
@@ -332,14 +262,12 @@ export  const ChatHome = ()=>{
                     </div>
                 </div>
                 <ChatContainer
-                currentChatMessages={currentChatMessages}
+                ref={chatContainerRef}
                 />
                 
                 <ChatFooterContainer
                 currentlyChattingWith={currentlyChatContact}
-                currentMessage={currentMessage}
-                setCurrentMessage={setCurrentMessage}
-                sendCurrentMessage={sendCurrentMessage}
+                currentRoom={currentChatRoom}
                 />
                 </>
                 :
