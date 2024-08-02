@@ -101,8 +101,9 @@ export const Register:FC = ()=>{
             
         // </>
 
-        <div className="my-3 container w-50 border rounded">
-            <form onSubmit={submitForm}>
+        <div className="my-3 row justify-content-center align-items-center">
+
+            <form className="col-md-4 border rounded" onSubmit={submitForm}>
             <div className="form-group">
                 <label htmlFor="name">Name</label>
                 <input type="text" 

@@ -49,18 +49,41 @@ function SearchBar(
       console.log('The search input is cleared');
       setSuggestions([]);
     };
+
+    // Bootstrap form-control height
+    const styling = {
+      border: "1px solid #ced4da",
+      borderRadius: ".25rem",
+      backgroundColor: "#fff",
+      boxShadow: "none",
+      fontSize: "1rem",
+      lineHeight: "1.5",
+      color: "#495057",
+      fontFamily: "inherit",
+      width: "100%",
+      zIndex:1000
+    }
       return (
-        <div className="search-bar-container">
-          <ReactSearchAutocomplete
-            items={suggestions}
-            onSearch={handleOnSearch}
-            onHover={handleOnHover}
-            onSelect={handleOnSelect}
-            onClear={handleOnClear}
-            placeholder="Type to search"
-            inputSearchString={searchTerm}
-          />
-        </div>
+        <div className="px-4 d-none d-md-block mt-3">
+						<div className="d-flex align-items-center">
+				 			<div className="flex-grow-1">
+              <ReactSearchAutocomplete
+                // className="form-control my-3"
+                items={suggestions}
+                onSearch={handleOnSearch}
+                onHover={handleOnHover}
+                onSelect={handleOnSelect}
+                onClear={handleOnClear}
+                placeholder="Type to search"
+                inputSearchString={searchTerm}
+                styling={styling}
+              />
+							
+					 		</div>
+						</div>
+					 </div>
+          
+       
       );
 }
 export {SearchBar}

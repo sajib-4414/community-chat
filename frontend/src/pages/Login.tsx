@@ -60,35 +60,37 @@ export const Login:FC = ()=>{
     return(
 
            
-        <div className="my-3 container w-50 border rounded">
-            <form onSubmit={submitForm}>
-            <div className="form-group">
-                <label htmlFor="name">Username</label>
-                <input type="text" 
-                className="form-control"
-                 id="name" 
-                 aria-describedby="emailHelp"
-                 value={username}
-                 onChange={e=>setUserName(e.target.value)}
-                 placeholder="Username"
-                  />
-            </div>
-            <div className="form-group">
-                <label htmlFor="exampleInputPassword1">Password</label>
-                <input 
-                className="form-control" 
-                id="exampleInputPassword1" 
-                value={password}
-                type="password"
-                onChange={e=>setPassword(e.target.value)}
-                placeholder="Password"/>
-            </div>
-            
-            <button type="submit" className="btn btn-primary mb-2">Submit</button>
+        <div className="my-3 row justify-content-center align-items-center">
 
-            <p>Dont have an account? <Link to="/register">Register here.</Link> </p>
-            <p className="form-error">{errorLine}</p>
-        </form>
+            <form className="col-md-4 border rounded" onSubmit={submitForm}>
+                <div className="form-group">
+                    <label htmlFor="name">Username</label>
+                    <input type="text" 
+                    className="form-control"
+                    id="name" 
+                    aria-describedby="emailHelp"
+                    value={username}
+                    onChange={e=>setUserName(e.target.value)}
+                    placeholder="Username"
+                    />
+                </div>
+                <div className="form-group">
+                    <label htmlFor="exampleInputPassword1">Password</label>
+                    <input 
+                    className="form-control" 
+                    id="exampleInputPassword1" 
+                    value={password}
+                    type="password"
+                    onChange={e=>setPassword(e.target.value)}
+                    placeholder="Password"/>
+                </div>
+                
+                <button type="submit" className="btn btn-primary mb-2">Submit</button>
+
+                <p>Dont have an account? <Link to="/register">Register here.</Link> </p>
+                <p className="form-error">{errorLine}</p>
+            </form>
+
         </div>
         
             

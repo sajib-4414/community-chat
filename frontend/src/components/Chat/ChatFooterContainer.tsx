@@ -41,26 +41,42 @@ export const ChatFooterContainer:React.FC<ChatFooterContainerProps> = (props)=>{
     }
 
     return(
-        <div className="message-container-footer">
-                    {props.currentlyChattingWith?
-                    <>
-                     <input 
-                        value={currentMessage}
-                        onChange={(e)=> setCurrentMessage(e.target.value)}
-                        className="message-input" 
-                        placeholder="Enter Message"
-                        onKeyDown={(e)=> e.key === 'Enter' ? sendCurrentMessage(): ''}
-                    />
-                    <div className="message-button-container">
-                        <i className="fa fa-image"></i>
+        // <div className="message-container-footer">
+        //             {props.currentlyChattingWith?
+        //             <>
+        //              <input 
+        //                 value={currentMessage}
+        //                 onChange={(e)=> setCurrentMessage(e.target.value)}
+        //                 className="message-input" 
+        //                 placeholder="Enter Message"
+        //                 onKeyDown={(e)=> e.key === 'Enter' ? sendCurrentMessage(): ''}
+        //             />
+        //             <div className="message-button-container">
+        //                 <i className="fa fa-image"></i>
                         
-                        <i 
-                        className="fa fa-paper-plane" aria-hidden="true"
-                        onClick={sendCurrentMessage}></i>
-                    </div>
-                    </>
-                    : ''}
+        //                 <i 
+        //                 className="fa fa-paper-plane" aria-hidden="true"
+        //                 onClick={sendCurrentMessage}></i>
+        //             </div>
+        //             </>
+        //             : ''}
                    
-                </div>
+        //         </div>
+        <div className="flex-grow-0 py-3 px-4 border-top">
+						<div className="input-group">
+							<input 
+                            type="text" 
+                            className="form-control" 
+                            placeholder="Type your message"
+                            value={currentMessage}
+                            onChange={(e)=> setCurrentMessage(e.target.value)}
+                            onKeyDown={(e)=> e.key === 'Enter' ? sendCurrentMessage(): ''}
+                            />
+							<button 
+                            className="btn btn-primary"
+                            onClick={sendCurrentMessage}
+                            >Send</button>
+						</div>
+					</div>
     )
 }

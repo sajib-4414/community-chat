@@ -2,16 +2,18 @@
 
 ### FrontEnd
 - Learn Error Boundary and Implement.
-- split the ChatHome into recent container, contacts container, and Message container. with callback.(done)
-- Fix the UI for login, registration pages (almost done)
-- Fix chat bubble padding when zooming in or out.
 - See a better implementation of socket, like in useeffect or where its best.
-- React Add memo for listview items(done)
-- Added message sending, status to show that message is being sent (done)
 - add suspense for loading, add useMemo
+- Added message sending, status to show that message is being sent (done)
+- split the ChatHome into recent container, contacts container, and Message container. with callback.(done)
+- Fix the UI for login, registration pages ( done)
+- Fix chat bubble padding when zooming in or out. ( done)
+- React Add memo for listview items(done)
 
 ### Backend
 
+- Zipcode based search
+- Add testing.
 - Message read/seen functionality.
 - Add message delete functionality.
 - Adding profile images
@@ -25,7 +27,6 @@
 - User Blocking: Allow users to block/unblock other users.
 - Add message sent/Not sent functionality[auto append sender's message, then update with socket response] (done)
 - Add functionality to accept one to one chat request and then. Maybe add a friend request or something, use a graph database also.
-- Add testing.
 - Add Postal code, and postal code based radius based searching.
 - Add group chat
 - Lock/Unlock users.

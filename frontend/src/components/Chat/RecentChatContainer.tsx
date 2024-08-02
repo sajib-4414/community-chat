@@ -114,8 +114,8 @@ export const RecentChats = React.forwardRef((props:RecentChatContainerProps, ref
     return (
 
     <>
-        <h5 className="pl-3 mt-5">Recent Chats</h5>
-					<div className="overflow-auto" style={{height:"40vh"}}>
+        <h5 className="pl-4 mt-5">Recent Chats</h5>
+					<div className="overflow-auto" style={{maxHeight:"40vh"}}>
                     {pastChats.map((imessage:RecentChatItem, index)=>{
                         return(
                             <div key={index}
