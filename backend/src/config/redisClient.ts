@@ -11,6 +11,7 @@ client.on('error',(err)=>{
     console.error('Redis connection error:', err);
 })
 
+
 client.connect()
 
 export {client as redisClient}

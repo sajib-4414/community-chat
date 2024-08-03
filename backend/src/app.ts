@@ -3,23 +3,17 @@
 require("express-async-errors");
 import dotenv from 'dotenv'
 import express from 'express'
-import { createServer } from "http";
 import cookieParser from 'cookie-parser';
-import { connectToMongoDB } from './config/db';
 import { authRouter, userRouter } from './routes/auth.user.routes';
 import { messageRouter } from './routes/message.routes';
-import { initializeSocketIoServer } from './config/socketInstance';
 import { globalErrorHandler } from './middlewares/auth.error';
-import * as cron from 'node-cron'
-import { broadcastOnlineStatus, loadOnlineStatusToCache, updateUserOnlineStatus } from './services/socket.services';
-
 
 
 //for env file confiugration
 dotenv.config();
 
 //initializaing a socket and express server
-const app = express()
+export const app = express()
 
 //parse JSON request body, maximum payload limit is 16kb, otherwise will throw error
 app.use(express.json({limit:"16kb"}))
@@ -36,19 +30,10 @@ app.use(express.static('public'))
 //cookie parser
 app.use(cookieParser())
 
-//running cronjob
-cron.schedule('*/10 * * * * *', async() => {
-    //updates whether user is online or not in DB every 20s. it updates from cache,
-    //its write back cache
-    await updateUserOnlineStatus();
-    //then we broadcast the online status to all users via socketio
-    //later it wil have logic, to only push to friends
-    // await broadcastOnlineStatus();
-    
-});
-
+//CORS settings, we are allowing all sites to access, we should modify it later
 const cors = require('cors')
 app.use(cors())//using default settings, CORS-> Allow all server
+
 
 const router = express.Router(); // Create a new root router for mounting
 // Mount auth and all routers onto the nested router
@@ -62,25 +47,3 @@ app.use('/api',router)
 //that intercept any error that happens in the request response cycle
 app.use(globalErrorHandler)
 
-const server = createServer(app)
-initializeSocketIoServer(server)
-
-const PORT = process.env.PORT || 3001;
-//this returns a promise. unless we are waiting with await, execution will not wait here
-//we are using .then and .error 
-connectToMongoDB()
-.then(() => {
-    
-    //load online status from db to cache
-    //we will update this cache frequently on every user connect or disconnect
-    //and update db from this caceh only every 20s
-    loadOnlineStatusToCache()
-    server.listen(PORT, () => {
-        console.log('HTTP server is running at port 3001');
-    });
-})
-.catch((error) => {
-    console.error('Error connecting to mongodb, server exiting');
-    console.error(error);
-    process.exit(1);
-});
