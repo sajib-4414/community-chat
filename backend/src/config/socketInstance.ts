@@ -1,7 +1,6 @@
 import { Server } from "socket.io";
-import {  MESSAGE_TO_SERVER, SOCKET_CONNECTED, SOCKET_DISCONNECTED, USER_JOINED_ROOM, USER_ROOM_JOIN_REQUEST } from "../definitions/event_types";
+import {  MESSAGE_TO_SERVER, SOCKET_CONNECTED, SOCKET_DISCONNECTED, USER_ROOM_JOIN_REQUEST } from "../definitions/event_types";
 import {  MessagePayLoadToServer } from "../definitions/room_message_types";
-import {  UserSocket } from "../models/user";
 import { CustomSocket, onMessageReceivedHandler, processUserConnected, processUserDisconnected, socketAuthenticationMiddleware } from "../services/socket.services";
 import dotenv from 'dotenv'
 

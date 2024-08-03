@@ -10,7 +10,7 @@ import { MESSAGE_TYPES, ROOM_TYPE, roomsListItemMongoResponse, MessageWithRoom, 
 export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:any)=>{
     //todo in future check current user authorized to get chat data of this room
 
-    let {targetUser, messageRoomType, room:payloadRoom} = requestPayload
+    const {targetUser, messageRoomType, room:payloadRoom} = requestPayload
 
 
     //we find a room where messagetype is one to one, and authenticated user, and targetUser is the privateRoomList
@@ -206,7 +206,7 @@ export const joinAllChatRooms = async (currentUser:IUser, socketId:string)=>{
 
 export const addNewSocketIdToUser = async (user:IUser, socketId:string)=>{
 
-  let updatedUserSocket: IUserSocket | null = await UserSocket.findOneAndUpdate(
+  const updatedUserSocket: IUserSocket | null = await UserSocket.findOneAndUpdate(
     { user },
     { $set: { socketIds: [socketId] } },
     { new: true, upsert: true } // Options: new returns updated document, upsert creates new if not found
@@ -216,7 +216,7 @@ export const addNewSocketIdToUser = async (user:IUser, socketId:string)=>{
 
 export const deleteSocketIdFromUser = async (user:IUser, socketId:string)=>{
   //htis also updates user's online status to false
-  let userSocket:IUserSocket|null = await UserSocket.findOne({
+  const userSocket:IUserSocket|null = await UserSocket.findOne({
         user
     })
     if(!userSocket){

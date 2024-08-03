@@ -1,5 +1,5 @@
 import dotenv from 'dotenv'
-import mongoose, { mongo } from 'mongoose';
+import mongoose from 'mongoose';
 import { DB_NAME } from '../definitions/db_constants';
 
 dotenv.config();
@@ -7,10 +7,10 @@ dotenv.config();
 const connectionString = `${process.env.CONNECTION_STRING}${DB_NAME}`
 
 const connectToMongoDB = async()=>{
-    let connectionInstance;
+
     try{
         if(connectionString !==null && connectionString!==undefined){
-            connectionInstance = await mongoose.connect(connectionString,{
+            await mongoose.connect(connectionString,{
                 autoIndex:true
             })
             console.info('Connected to mongodb atlas')
