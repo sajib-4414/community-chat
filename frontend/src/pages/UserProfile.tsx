@@ -1,8 +1,14 @@
-import { useEffect, useState } from "react"
+import { FormEvent, useEffect, useRef, useState } from "react"
 import { LoggedInUser, User } from "../models/user.models"
 import { useAppSelector } from "../store/store"
 import { getAuthHeader } from "../utility/authenticationHelper"
 import { axiosInstance } from "../utility/axiosInstance"
+import { useDispatch } from "react-redux"
+import { storeUser } from "../store/UserSlice"
+import { ErrorParser } from "../utility/errorParser"
+const env = await import.meta.env;
+
+const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001';
 
 export const UserProfile = ()=>{
     const loggedinUser:LoggedInUser|null = useAppSelector(
@@ -12,6 +18,11 @@ export const UserProfile = ()=>{
     // const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [file, setFile] = useState<File | null>(null);
+    const [errorLine, setErrorLine] = useState<string|null>(null);
+    const [profileImageSuccessMessage, setProfileImageSuccessMessage] = useState<string>("")
+    const dispatch = useDispatch()
+    const fileInputRef = useRef<HTMLInputElement>(null);
     
     const fetchUserProfile = async ()=>{
         const response = await axiosInstance.get('/auth/me',getAuthHeader(loggedinUser))
@@ -20,6 +31,80 @@ export const UserProfile = ()=>{
         setName(user.name)
         setEmail(user.email)
     }
+    const updateUserInSystem = (updatedUser:User)=>{
+        const storedUserData = localStorage.getItem("user");
+        if(storedUserData){
+            const storedUser: LoggedInUser = JSON.parse(
+                storedUserData,
+            ) as LoggedInUser;
+            storedUser.user = updatedUser
+
+            const userJSON = JSON.stringify(storedUser);
+            localStorage.setItem('user', userJSON);
+
+            dispatch(storeUser(storedUser))
+        }
+    }
+    const updateProfilePic = async (event: React.MouseEvent<HTMLButtonElement>)=>{
+        event.preventDefault()
+        if (!file) {
+            setErrorLine('No file chosen')
+            return;
+        }
+        // Create a FormData object
+        const formData = new FormData();
+        formData.append('image', file);
+        const headerData = getAuthHeader(loggedinUser)
+        headerData.headers['Content-Type'] = 'multipart/form-data'
+        try{
+            const response = await axiosInstance.post('/auth/updateprofileimage',formData, headerData)
+            const updatedUser = response.data
+
+            setProfileImageSuccessMessage('Profile image updated successfully')
+            updateUserInSystem(updatedUser)
+
+            
+
+            setFile(null)
+            if(fileInputRef.current)
+                fileInputRef.current.value = ''
+            
+        }catch(err){
+            console.log('image upload failed',err)
+            setErrorLine('Image upload failed, try again')
+        }
+    }
+
+
+    
+
+    const submitForm = (event:FormEvent<HTMLFormElement>)=>{
+        event.preventDefault();
+        if(name.length === 0){
+            setErrorLine("name is required")
+            return;
+        }
+        //make API call
+        axiosInstance.post('/auth/updateprofile',{
+            name,
+        },getAuthHeader(loggedinUser)).then(async(response)=>{
+            const updatedUser = response.data
+
+            setProfileImageSuccessMessage("")
+            updateUserInSystem(updatedUser)
+        }, (error)=>{
+            console.log("profile updated failed")
+            console.log(error)
+            const stringError = ErrorParser(error);
+            setErrorLine(stringError)
+        })
+        
+    }
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        // Check if files is not null
+        const selectedFile = event.target.files?.[0] || null;
+        setFile(selectedFile);
+    };
     useEffect(()=>{
         fetchUserProfile()
     },[])
@@ -33,7 +118,7 @@ export const UserProfile = ()=>{
             
 
             <form className="col-md-4 border rounded" 
-            // onSubmit={submitForm}
+            onSubmit={submitForm}
             >
             <div className="form-group">
                 <label htmlFor="name">Name</label>
@@ -62,7 +147,22 @@ export const UserProfile = ()=>{
             </div>
             <div className="form-group">
                 <label htmlFor="profileimage">Profile Image</label>
-                <input className="form-control" type="file" id="formFile"/>
+                <img 
+                    src={`${SERVER_URL}${loggedinUser?.user.profileImage}`}
+                    className="rounded-circle mr-1" 
+                    alt="photo" 
+                     
+                    style={{display:"block"}}
+                    />
+                
+                <input 
+                className="form-control" 
+                type="file"
+                onChange={handleFileChange}
+                ref={fileInputRef}
+                 id="image"/>
+                <button className="btn btn-primary" onClick={updateProfilePic}>Update profile picture</button>
+                <p><small>{profileImageSuccessMessage}</small></p>
             </div>
             {/* <div className="form-group">
                 <label htmlFor="exampleInputPassword1">Password</label>
@@ -78,7 +178,7 @@ export const UserProfile = ()=>{
             <button type="submit" className="btn btn-primary mb-2">Submit</button>
 
             {/* <p>Already have an account? <Link to="/login">Login here.</Link> </p> */}
-            {/* <p className="form-error">{errorLine}</p> */}
+            <p className="form-error">{errorLine}</p>
         </form>
         </div>
         

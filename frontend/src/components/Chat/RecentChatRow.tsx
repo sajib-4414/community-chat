@@ -1,5 +1,7 @@
 import React, { memo, useEffect, useState } from "react";
 import { RecentChatItem } from "../../models/message.models";
+const env = await import.meta.env;
+const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 export interface RowProps{
     imessage: RecentChatItem
     isCurrentlyChosen:boolean
@@ -37,7 +39,12 @@ const RowComp:React.FC<RowProps> = ({imessage,isCurrentlyChosen})=>{
             {/* <pre>{JSON.stringify(imessage, null, 2)}</pre> */}
 							
 							<div className={`d-flex align-items-start`+getBackGroundColor()}>
-								<img src="https://bootdey.com/img/Content/avatar/avatar2.png" className="rounded-circle mr-1" alt="William Harris" width="40" height="40"/>
+								<img 
+                                src={`${SERVER_URL}${imessage.secondUser.profileImage}`}
+                                className="rounded-circle mr-1" 
+                                alt="photo"
+                                width="40" 
+                                height="40"/>
 								<div className="flex-grow-1 ml-3">
                                     <span 
                                     

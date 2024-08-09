@@ -10,4 +10,5 @@ export interface User{
     username:string,
     name:string,
     isOnline:boolean;
+    profileImage:string;
 }

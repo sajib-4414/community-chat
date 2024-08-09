@@ -6,6 +6,8 @@ import { resetUser } from "../store/UserSlice";
 import { axiosInstance } from "../utility/axiosInstance";
 import { socket } from "../socket";
 import { router } from "../router";
+const env = await import.meta.env;
+const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 
 const Header:FC = ()=>{
     const loggedinUser:LoggedInUser|null = useAppSelector(
@@ -77,6 +79,13 @@ const Header:FC = ()=>{
           {loggedinUser && loggedinUser?.user ?
           <>
           <strong className="text-light mr-2">{loggedinUser?.user?.name}</strong>
+          <img
+            src={`${SERVER_URL}${loggedinUser?.user.profileImage}`}
+            className="rounded-circle mr-1"
+            alt="profile picture"
+            width="30"
+            height="30"
+          />
           <button type="button" className="btn btn-warning" onClick={handleLogout}>Logout</button>
           </>
           

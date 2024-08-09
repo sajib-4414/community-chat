@@ -3,6 +3,8 @@ import { useAppSelector } from "../../store/store";
 import Moment from "moment";
 import { Message } from "../../models/message.models";
 import { useState } from "react";
+const env = await import.meta.env;
+const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 
 interface ChatRowProps {
   message: Message;
@@ -22,15 +24,23 @@ export const ChatRow: React.FC<ChatRowProps> = (props: ChatRowProps) => {
   const [isSender] = useState(() => {
     return sender.username === loggedinUser?.user.username;
   });
+  const getProfileImageUrl = ()=>{
+    if (isSender)
+      return `${SERVER_URL}${loggedinUser?.user.profileImage}`
+    else{
+      const senderUser = props.message.sender as User
+      return `${SERVER_URL}${senderUser.profileImage}`
+    }
+  }
 
   return (
     // <>
       <div className={`${rowClassName}`}>
         <div>
           <img
-            src="https://bootdey.com/img/Content/avatar/avatar1.png"
+            src={getProfileImageUrl()}
             className="rounded-circle mr-1"
-            alt="Chris Wood"
+            alt="profile picture"
             width="40"
             height="40"
           />

@@ -45,7 +45,12 @@ export const getMe = async(req:Request, res:Response)=>{
 }
 
 export const updateProfile = async(req:Request, res:Response)=>{
-    res.json(req.user)
+    const {name} = req.body
+    const updatedUser:IUser|null = await User.findByIdAndUpdate(req.user._id,{
+        name
+    },{returnOriginal: false})
+
+    res.json(updatedUser)
 }
 
 export const updateProfileImage = async(req:Request, res:Response)=>{
