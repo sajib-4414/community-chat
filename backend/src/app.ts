@@ -7,7 +7,7 @@ import cookieParser from 'cookie-parser';
 import { authRouter, userRouter } from './routes/auth.user.routes';
 import { messageRouter } from './routes/message.routes';
 import { globalErrorHandler } from './middlewares/auth.error';
-
+import path from 'path';
 
 //for env file confiugration
 dotenv.config();
@@ -25,7 +25,7 @@ app.use(express.json({limit:"16kb"}));
 app.use(express.urlencoded({extended:true, limit:"16kb"}));
 
 //to serve images, static files
-app.use(express.static('public'));
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 //cookie parser
 app.use(cookieParser());

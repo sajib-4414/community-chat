@@ -4,6 +4,7 @@ import { Register } from "./pages/Register";
 import { ChatHome } from "./pages/ChatHome";
 import Container from "./common/Container";
 import GuardedHOC from "./components/Chat/GuardedComponent";
+import { UserProfile } from "./pages/UserProfile";
 
 
 const HOCWithContainer = (OriginalComponent:any) => {
@@ -19,9 +20,11 @@ const HOCWithContainer = (OriginalComponent:any) => {
   
 
 const WrappedChatHome = HOCWithContainer(ChatHome)
+const WrappedProfile = HOCWithContainer(UserProfile)
 const WrappedRegister = HOCWithContainer(Register)
 const WrappedLogin= HOCWithContainer(Login)
 const GuardedChatHome = GuardedHOC(WrappedChatHome)
+const GuardedProfile = GuardedHOC(WrappedProfile)
 
 
 export const router = createBrowserRouter([
@@ -36,5 +39,9 @@ export const router = createBrowserRouter([
       {
         path: "/login",
         element: <WrappedLogin/>,
+      },
+      {
+        element: <GuardedProfile />,
+        path: "/profile"
       }
  ])

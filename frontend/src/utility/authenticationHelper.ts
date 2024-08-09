@@ -11,7 +11,9 @@ export const getAuthHeader = (stateLoggedInUser:LoggedInUser|null)=>{
         }
         
     }
-    return {
-        headers: { Authorization: `Bearer ${user?.token}` }
-    }
+    const headers: Record<string, string> = {
+        Authorization: `Bearer ${user?.token || ''}`,
+      };
+    
+      return { headers };
 };

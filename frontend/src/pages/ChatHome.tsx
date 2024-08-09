@@ -12,6 +12,8 @@ import { ONLINE_STATUS_BROADCAST_FROM_SERVER, ROOM_TYPE, SOCKET_CONNECTED, SOCKE
 import { RecentChats, RecentChatsRef } from "../components/Chat/RecentChatContainer";
 import {  Message, RecentChatItem, Room, ServerMessagePayload } from "../models/message.models";
 import { getAuthHeader } from "../utility/authenticationHelper";
+const env = await import.meta.env;
+const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 export  const ChatHome = ()=>{
     
     //All States
@@ -292,7 +294,12 @@ But We also have to update the recent chat and current chat both if user is curr
 								<a href="#" className="list-group-item list-group-item-action border-0">
 							
 							<div className="d-flex align-items-start">
-								<img src="https://bootdey.com/img/Content/avatar/avatar5.png" className="rounded-circle mr-1" alt="Vanessa Tucker" width="40" height="40"/>
+								<img 
+                                src={`${SERVER_URL}${contact.profileImage}`}
+                                className="rounded-circle mr-1" 
+                                alt="photo" 
+                                width="40" 
+                                height="40"/>
 								<div className="flex-grow-1 ml-3">
 								{contact.username}
 								{contact.isOnline?
@@ -325,20 +332,28 @@ But We also have to update the recent chat and current chat both if user is curr
 						<div className="d-flex align-items-center py-1">
                             {currentlyChatContact?
                             <div className="position-relative">
-                            <img src="https://bootdey.com/img/Content/avatar/avatar3.png" className="rounded-circle mr-1" alt="Sharon Lessman" width="40" height="40"/>
+                            <img 
+                            alt='profile pic'
+                            src={`${SERVER_URL}${currentlyChatContact.profileImage}`}
+                            className="rounded-circle mr-1"
+                             width="40" 
+                             height="40"/>
                             </div>:''}
 							
 							<div className="flex-grow-1 pl-3">
-                            {currentlyChatContact?
-								<strong>{currentlyChatContact.name}</strong>
-                                :'Click a user to start chatting'} 
-                                {currentlyChatContact?.isOnline===false 
-                                    || currentlyChatContact?.isOnline ===undefined ? 
-                                    <span className="circle-custom bg-warning">&#8203;</span>
-                                    :
-                                    <div className="circle-custom bg-success">&#8203;</div>
-                                    }
-								{/* <div className="text-muted small"><em>Typing...</em></div> */}
+                            {currentlyChatContact ? (
+                            <>
+                                <strong>{currentlyChatContact.name}</strong>
+                                {currentlyChatContact.isOnline === false || currentlyChatContact.isOnline === undefined ? (
+                                <span className="circle-custom bg-warning">&#8203;</span>
+                                ) : (
+                                <div className="circle-custom bg-success">&#8203;</div>
+                                )}
+                            </>
+                            ) : (
+                            'Click a user to start chatting'
+                            )}
+								
 							</div>
 							
 						</div>

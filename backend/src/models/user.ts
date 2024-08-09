@@ -9,9 +9,12 @@ interface IUser extends mongoose.Document{
     email:string,
     password:string,
     isOnline?:boolean,
+    profileImage:string;
     getSignedToken:()=>string,
     matchPassword: (password:string) => boolean;
 }
+
+//its like we are implementing that inteface kind of
 const userSchema = new mongoose.Schema<IUser>({
     username:{
         type:String,
@@ -36,6 +39,10 @@ const userSchema = new mongoose.Schema<IUser>({
         required: [true, 'Please enter a password'],
         minlength:4,
         select:false
+    },
+    profileImage:{
+        type:String,
+        required:false
     },
     isOnline:{
         type:Boolean,
@@ -70,6 +77,7 @@ userSchema.set('toJSON', {
         ret.id = ret._id;
         // delete ret._id; wil delete it soon, need to update backend and frotnend for that
         delete ret.__v;
+        delete ret.password;
     }
 }); 
 

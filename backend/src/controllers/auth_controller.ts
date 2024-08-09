@@ -1,7 +1,10 @@
 import { Request, Response } from "express";
 import { login, register } from "../services/auth_service";
-import { InternalServerError, ResourceNotFoundError } from "../definitions/error_definitions";
-
+import { BadRequestError, InternalServerError, ResourceNotFoundError } from "../definitions/error_definitions";
+import sharp from "sharp";
+import fs from 'fs';
+import path from "path";
+import { IUser, User } from "../models/user";
 
 export const Register = async(req:Request, res:Response)=>{
 
@@ -32,10 +35,55 @@ export const Register = async(req:Request, res:Response)=>{
 
 
 export const Login = async(req:Request, res:Response)=>{
-
-    //validate payload
-    //todo add express validator library here
-
     const user = await login(req.body)
     res.json(user)
+}
+
+//get me, get current user
+export const getMe = async(req:Request, res:Response)=>{
+    res.json(req.user)
+}
+
+export const updateProfile = async(req:Request, res:Response)=>{
+    const {name} = req.body
+    const updatedUser:IUser|null = await User.findByIdAndUpdate(req.user._id,{
+        name
+    },{returnOriginal: false})
+
+    res.json(updatedUser)
+}
+
+export const updateProfileImage = async(req:Request, res:Response)=>{
+    if (!req.file) throw new BadRequestError("No file uploaded")
+    const inputPath = req.file.buffer;
+    const originalFilename = req.file.originalname;
+    const outputFilename = `${Date.now()}-${path.basename(originalFilename, path.extname(originalFilename))}.jpeg`;
+    const outputPath = `uploads/${outputFilename}`;
+    try {
+        // Compress the image using sharp
+        await sharp(inputPath)
+          .resize({ width: 100 }) // Resize image to width of 100px, maintaining aspect ratio
+          .jpeg({ quality: 80 }) // Compress and convert to JPEG with 80% quality
+          .toFile(outputPath);
+        //the path in server, such as /uploads/filename.jpg
+        const filePath = `/uploads/${outputFilename}`
+        const updatedUser:IUser|null = await User.findByIdAndUpdate(req.user._id,{
+            profileImage:filePath
+        },{returnOriginal: false})
+        // const fileUrl = `${req.protocol}://${req.get('host')}/uploads/${outputFilename}`;
+        // res.json({ url: fileUrl });
+        res.send(updatedUser)
+      } catch (error) {
+        console.error('error uploading image',error)
+        throw new BadRequestError('File upload error')
+      }
+    // res.json(req.user)
+}
+
+export const updatePassword = async(req:Request, res:Response)=>{
+    res.json(req.user)
+}
+
+export const resetPassword = async(req:Request, res:Response)=>{
+    res.json(req.user)
 }
