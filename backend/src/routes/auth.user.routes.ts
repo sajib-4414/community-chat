@@ -1,8 +1,9 @@
 import express from "express";
-import { Login, Register } from "../controllers/auth_controller";
+import { getMe, Login, Register } from "../controllers/auth_controller";
 import { getAllUsers, searchUsers } from "../controllers/user_controller";
 import { loginValidators, registrationValidators, userSearchValidators } from "../helpers/auth_validators";
 import { validateValidators } from "../middlewares/validator";
+import { authorizedRequest } from "../middlewares/auth.error";
 const authRouter = express.Router()
 
 authRouter.route('/register')
@@ -10,6 +11,9 @@ authRouter.route('/register')
 
 authRouter.route('/login')
 .post(loginValidators, validateValidators, Login)
+
+authRouter.route('/me')
+.get(authorizedRequest, getMe)
 
 const userRouter = express.Router()
 

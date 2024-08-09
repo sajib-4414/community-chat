@@ -32,10 +32,11 @@ export const Register = async(req:Request, res:Response)=>{
 
 
 export const Login = async(req:Request, res:Response)=>{
-
-    //validate payload
-    //todo add express validator library here
-
     const user = await login(req.body)
     res.json(user)
+}
+
+//get me, get current user
+export const getMe = async(req:Request, res:Response)=>{
+    res.json(req.user)
 }
