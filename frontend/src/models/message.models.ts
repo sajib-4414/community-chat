@@ -36,6 +36,19 @@ export interface ServerMessagePayload{
     message:Message,
 }
 
+export interface MessageUnreadItem{
+    _id:string;
+    user: User;
+    lastSeenAt:Date;
+    unread:boolean;
+    room:Room;
+}
+
+export interface pastChatResponse{
+    pastChats:ServerMessagePayload[],
+    unreadItems:MessageUnreadItem[]
+}
+
 //This is for the recent chats bar,will be used to show the other user
 //like user1 was chatting with user2
 //in the recent window it must show user2 when user1 sees the recent chats
@@ -44,4 +57,5 @@ export interface RecentChatItem{
     latestMessage:Message,
     secondUser:User;
     room:Room;
+    isUnread:boolean;
 }

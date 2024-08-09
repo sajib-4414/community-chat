@@ -53,3 +53,11 @@
     left:5px;
     top:8px;
 }
+
+.bground-dark-blue{
+    background: #7dd3ef;
+}
+
+.bground-selected{
+    background:rgba(211, 207, 207, 0.65)
+}

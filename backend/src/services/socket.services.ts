@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { NotAuthenticatedError } from "../definitions/error_definitions";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { IUser, User, UserSocket } from "../models/user";
+import { IUser, User, UserRoomLastSeen, UserSocket } from "../models/user";
 import { MESSAGE_TYPES, MessagePayLoadToServer, MessageWithRoom, ROOM_TYPE } from "../definitions/room_message_types";
 import { IRoom, Room } from "../models/room";
 import { IMessage, Message } from "../models/message";
@@ -82,10 +82,27 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
                 messageRoomType:payload.messageRoomType,
                 messageType:MESSAGE_TYPES.USER_MSG
             })
+            //also mark this as latest activity from that room
+            room!.lastMessageAt = new Date()
+            await room?.save()
             const receiverUserSocket = await UserSocket.findOne({
                 user:payload.targetUser
             })
-            
+            //also mark this as user's last seen of this room
+            await UserRoomLastSeen.updateOne(
+                //matching conditions
+                {
+                    user: payload.senderUser,
+                    room
+                },
+                //what to update
+                {
+                    lastSeenAt:new Date()
+                },
+                {
+                    upsert:true //create if does not exist
+                }
+            )
 
             //we will join both sender and receiver socke to the room
             //this is the sender socket
@@ -157,11 +174,11 @@ export const updateUserOnlineStatus = async()=>{
         await redisClient.setEx('allUsers',300,jsonString)
     }
 
-    console.log('retrieved all users are', allUsers)
+    // console.log('retrieved all users are', allUsers)
     const newUserList = []
     for(const user of allUsers){
         const status =  await redisClient.get(user.id);
-        console.log('for user ',user.name,', cached status is', status)
+        // console.log('for user ',user.name,', cached status is', status)
         //skip if for a user we dont have any status in redis, its ok, in next refresh redis will have it
         //we only update if something found. I mean if user logs in or logs out we will have some status in the cache
         if(!(status === null || status === undefined)){
@@ -205,7 +222,7 @@ export const loadOnlineStatusToCache  = async ()=>{
     //also putting all users cache, so that we dont have to hit
     const jsonString = JSON.stringify(allUsers);
     await redisClient.setEx('allUsers',300,jsonString)
-     console.log('all users are,...',allUsers)
+    //  console.log('all users are,...',allUsers)
 
     //now putting the status of all users as false(as the server is starting)
     Promise.allSettled(allUsers.map(async (user)=> await redisClient.setEx(user.id,120,String(user.isOnline))))
@@ -228,4 +245,23 @@ export const broadcastOnlineStatus = async ()=>{
     io.emit(ONLINE_STATUS_BROADCAST_FROM_SERVER, {
         users: allUsers
     })
+}
+
+export const markUserRead = async (roomId:string, user:IUser|null)=>{
+    if(user){
+        await UserRoomLastSeen.updateOne(
+            //matching conditions
+            {
+                user,
+                room:roomId
+            },
+            //what to update
+            {
+                lastSeenAt:new Date()
+            },
+            {
+                upsert:true //create if does not exist
+            }
+        )
+    }
 }

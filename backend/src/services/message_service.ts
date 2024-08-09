@@ -2,9 +2,8 @@ import { getIoInstance } from "../config/socketInstance"
 import { IMessage, Message } from "../models/message"
 import { IRoom, Room } from "../models/room"
 import { RoomMember } from "../models/room-member"
-import { IUser, IUserSocket, UserSocket } from "../models/user"
-import { MESSAGE_FROM_SERVER } from "../definitions/event_types"
-import { MESSAGE_TYPES, ROOM_TYPE, roomsListItemMongoResponse, MessageWithRoom, PastChatAggegationResponseItem } from "../definitions/room_message_types"
+import { IUser, IUserSocket, UserRoomLastSeen, UserSocket } from "../models/user"
+import { roomsListItemMongoResponse, MessageWithRoom, PastChatAggegationResponseItem, MessageUnreadItem } from "../definitions/room_message_types"
 
 
 export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:any)=>{
@@ -52,13 +51,28 @@ export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:a
     //case2 targetUser is also not Null[as UI can see private room members and fuind out the target User], but room is Not null, means user clicked a recent one to one chat, and requesting history
     //coming here means room is there, either we find it from db or from API request
 
-    if(room  && targetUser._id !=""
-    ){
+    if(room  && targetUser._id !=""){
       messages = await Message.find({
         room:room
       }).populate('sender')
 
     }
+
+    //we also mark this user's last activity in the room, as user tried to see the past messages.
+    await UserRoomLastSeen.updateOne(
+      //matching conditions
+      {
+          user: loggedInUser,
+          room
+      },
+      //what to update
+      {
+          lastSeenAt:new Date()
+      },
+      {
+          upsert:true //create if does not exist
+      }
+  )
     
     return messages;
 }
@@ -159,6 +173,70 @@ export const getPastOneToOneChats = async (user:IUser)=>{
     return modified_past_one_to_one_chats;
 }
 
+export const getUnreadMessageInfo = async(user:IUser)=>{
+  const unreadItems:MessageUnreadItem[]  = await UserRoomLastSeen.aggregate(
+    [
+      {
+        $lookup:
+          /**
+           * from: The target collection.
+           * localField: The local join field.
+           * foreignField: The target join field.
+           * as: The name for the results.
+           * pipeline: Optional pipeline to run on the foreign collection.
+           * let: Optional variables to use in the pipeline field stages.
+           */
+          {
+            from: "rooms",
+            localField: "room",
+            foreignField: "_id",
+            as: "roomdetails",
+          },
+      },
+      {
+        $unwind:
+          /**
+           * path: Path to the array field.
+           * includeArrayIndex: Optional name for index.
+           * preserveNullAndEmptyArrays: Optional
+           *   toggle to unwind null and empty values.
+           */
+          {
+            path: "$roomdetails",
+            preserveNullAndEmptyArrays: false,
+          },
+      },
+      {
+        $addFields: 
+          {
+            unread: {
+              $cond:{
+                if:{ $lt:["$lastSeenAt", "$roomdetails.lastMessageAt"]},
+                then: true,
+                else: false
+              }
+            }
+          }
+        
+      },
+      {
+        $match: {
+          user: user._id
+        }
+      },
+      {
+        $project: {
+          room: "$roomdetails",
+          unread:1,
+          user:1,
+          lastSeenAt:1
+        }
+      }
+      
+    ]
+  )
+  return unreadItems
+}
 export const joinAllChatRooms = async (currentUser:IUser, socketId:string)=>{
   const myRooms:roomsListItemMongoResponse[] = await RoomMember.aggregate([
     {

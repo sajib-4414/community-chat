@@ -18,8 +18,8 @@
 }
 
 .content{
-  min-height: calc(100vh - 30vh); /*to adjust for both header and footer, we can also use js to calculate right height*/
+  min-height: calc(100vh - 18vh); /*to adjust for both header and footer, we can also use js to calculate right height*/
 }
 footer {
-  height: 12vh; 
+  height: 8vh; 
 }

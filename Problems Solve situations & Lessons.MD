@@ -293,6 +293,21 @@ then on socket connect and disconnect
 i updated the cache.
 then every 20s i did a node-cron task that sends just the user list and their oneline status to the froitnend.
 Now frotnend if updates the recent chat item, then the entire list all rows in recent chat will be refreshed, too many rerendered. so in the frotnend I used React.memo, and provided a function isEqual. so only if the isOnline status gets updated that will referesh some row, it will not rerender the other rows.
+
+### How did i do unread, read feature?
+Instead of tracking if message was unread, i tracked if user has read the chatroom.
+I created a room UserRoomLastSeen, it has room, user, lastseen time.
+Each room also have lastRoomMessage time field. so for a given user if users lastRoomSeen time
+is behind than room's last message time, it means user is behind, means messages are unread.
+when I am sending all the recent messages via API, i also send that for this room, is the user behind
+meaning unread or Not.
+When a user sends a message, it updates both the room last message time, user room last seen time.
+when user recieves a message, if it is in current chat opened window, frotnend sends a socket
+that please update my last seen time for this room, the backend updates this. This way for a opened chat window, if user sends or receives, in both cases, user's last room seen time is updated.
+Now, when a user clicks a recent message which is marked as unread, i call the api to fetch all messages in this chat, now at the same time in backend i mark user last seen for this room as Now, which means user has just read all the unread messages.
+Now, when a new message comes, we check if it is in the current chat window, if not, we dont send an acknolwedgement that message was read. in fact that time we update in the UI's isUnread for that message to true, means user has not yet seen(as that message is not for user's current chat window)
+
+
 # Frontnend related
 
 ### How to design a routeguard in React, so that particular page cannot be accesssed without authentication ?
@@ -484,3 +499,5 @@ export default ParentComponent;
 # Lessons
 
 - **backend frontend integration**: learnt about backend integration properly with frontend,especially which query to run, for which ui, which mongoose query to run, response. For example, I had Room(name,code, privateRoomMembers), Message(room, sender), User. Frotnend needed previous chat messages, for that i needed all rooms that logged in user are part of, those room's last messsage, and who is the other user that current user is chatting with. So I wrote mongoose aggregate query, created Typescript type, MessageWithRoom. I also had to aggreate lookup with the user table to send the info of the other person current user is chatting with.
+
+- **React state update asyncrhonously**: i tried to set a react state, and soon in few lines tried to use it, isaw obsolete data. in fact react state update asyncrhonously, your code must be done in a way that when new state data is asyncrhonously set, then your code should update appropriately. for example, i tried to set current chat contact in state, and soon after that i tried to pass that current chat contact to another parent such that they can update the unreadmessage=false(mark as read), but i saw the state does not work syncrhonously. therefore when i tried to pass the current chat cotnact as soon as i set the state, i was getting obsolte value. 

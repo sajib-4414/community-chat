@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import './chathome.css'
 import { socket } from "../socket";
-import avatarImage from './../assets/test_avatar_image.jpg';
 import { useAppSelector } from "../store/store";
-import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER } from "../constants";
+import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER, READ_ACKNOWLEDGEMENT_MESSAGE } from "../constants";
 import { LoggedInUser, User } from "../models/user.models";
 import { axiosInstance } from "../utility/axiosInstance";
 import { ChatContainer, ChatContainerRef } from "../components/Chat/ChatContainer";
@@ -110,43 +109,74 @@ export  const ChatHome = ()=>{
 user clicked a contact, we dont know the room, we just know contact and its a one to one chat
 get the other contact from the room, check out of two parties who is the other one
 if they are the one user clicked to chat, then we know we have to update the current chat window */
-
+ //******We also have to update recent chat windoow */  
     if(currentChatRoom===null && currentMessageRoomType===ROOM_TYPE.ONE_TO_ONE && currentlyChatContact){
-        const room:Room = messagePayload.room;
-        const targetUserFromPayload = room.privateRoomMembers.find(user=>user._id!== loggedinUser?.user._id)
+        // const room:Room = messagePayload.room;
+        const targetUserFromPayload = messagePayload.message.sender as User
         if(targetUserFromPayload?._id === currentlyChatContact._id){
             if(chatContainerRef.current){
                 const chatCointainerReference = chatContainerRef.current as ChatContainerRef
                 chatCointainerReference.updateChatUponSocketMessage(messagePayload)
             }
         }
+
+        //also have to update recent chat window
+        if(loggedinUser){
+            if(recentChatRef.current){
+                console.log('I am telling to update recent chat window ehre v1')
+                const recentChatReference = recentChatRef.current as RecentChatsRef
+                recentChatReference.updateRecentChatContainer(currentlyChatContact, messagePayload)
+            }
+        }
+        //also send a socket response back that user has seen it, as the chat window is currently open
+        socket.emit(READ_ACKNOWLEDGEMENT_MESSAGE, {
+            room:messagePayload.room
+        })
     }
 
 /*user clicked a recent chat[which has room, message both], so we know the chatroom, chat contact[for one to one we can
  retreive from the room, chcking who is the other prtyy]. This case also means we have to update the current chat window*/
-    else if(currentChatRoom!==null && currentMessageRoomType===ROOM_TYPE.ONE_TO_ONE && currentlyChatContact){
+ //******We also have to update recent chat windoow */   
+ else if(currentChatRoom!==null && currentMessageRoomType===ROOM_TYPE.ONE_TO_ONE && currentlyChatContact){
         // we check is it sure this is the room we got from server
         if(currentChatRoom._id === messagePayload.room._id){
             if(chatContainerRef.current){
                 const chatCointainerReference = chatContainerRef.current as ChatContainerRef
                 chatCointainerReference.updateChatUponSocketMessage(messagePayload)
             }
-        }     
-    }
+        }
+        
+        //also have to update recent chat window
+        if(loggedinUser){
+            if(recentChatRef.current){
+                console.log('I am telling to update recent chat window ehre v2')
+                const recentChatReference = recentChatRef.current as RecentChatsRef
+                recentChatReference.updateRecentChatContainer(currentlyChatContact,messagePayload)
+            }
+        }
+        //also send a socket response back that user has seen it, as the chat window is currently open
+        socket.emit(READ_ACKNOWLEDGEMENT_MESSAGE, {
+            roomId:messagePayload.room._id
+        },(response:any)=>{
+            console.log(response)
+        })
+
+}
 
     
 /*user has not clicked any contact/recent chat, or the incoming message's room/contact does not 
 match with the currently opened chat window's cotnact/room, so we update the recent chat Items.
 But We also have to update the recent chat and current chat both if user is currently chatting with someone*/
-        else{
-            if(loggedinUser){
-                if(recentChatRef.current){
-                    const recentChatReference = recentChatRef.current as RecentChatsRef
-                    recentChatReference.updateRecentChatContainer(messagePayload)
-                }
+    else if (currentChatRoom==null && currentlyChatContact==null){
+        if(loggedinUser){
+            if(recentChatRef.current){
+                console.log('actuially updating here......')
+                const recentChatReference = recentChatRef.current as RecentChatsRef
+                recentChatReference.updateRecentChatContainer(currentlyChatContact, messagePayload)
             }
-            
         }
+            
+    }
         
         
     });
@@ -167,7 +197,7 @@ But We also have to update the recent chat and current chat both if user is curr
             //it will update users online status online, in the recent chat window and later on current chat window as well
             socket.on(ONLINE_STATUS_BROADCAST_FROM_SERVER, ({users}:{users:User[]})=>{
                 if (recentChatRef.current) {
-                    console.log('recent chat reff is not null sending online braodcast')
+                    // console.log('recent chat reff is not null sending online braodcast')
                     const recentChatReference = recentChatRef.current as RecentChatsRef
                     recentChatReference.setRecentChatData(users)
                 }
@@ -193,14 +223,19 @@ But We also have to update the recent chat and current chat both if user is curr
 
     const handleRecentChatItemClick = (imessage:RecentChatItem)=>{
         console.log('recent item clicked..................')
+        console.log('this is what i received fromt he recent component, imessage=',imessage)
         const room:Room|null|string = imessage.room
         let targetUser;
         targetUser = imessage.secondUser;
 
         //someone wants to do a private chat, and just clicked a recent chats with another person
         //1. set currentChat to the contact
-        if(targetUser)
+        if(targetUser){
+
             setCurrentlyChatContact(targetUser)
+            // console.log('current chat contact has been set as',targetUser)
+        }
+            
             //2. set current message type
             setCurrentMessageRoomType(ROOM_TYPE.ONE_TO_ONE)
             //3. set the current room, we cannot get the room info from the contact only, so set it to null
@@ -216,81 +251,17 @@ But We also have to update the recent chat and current chat both if user is curr
     }
 
    
-    // (
-        
-    // <div className="full container-new">
-    //          {/* left side container  */}
-    //         <div className="contacts-container">
-    //             <div className="chat-contact-search-div">
-    //                 <h3>Chats</h3>
-    //                 <SearchBar
-    //                 onSearchResultContactSelected={handleContactClick}
-    //                 />
-    //             </div>
-    //             <div className="chat-contacts">
-    //                 <h4> Contacts</h4>
-    //                 <ul>
+    const handleClearUnread = (chattingUser:User)=>{
+        //notify the recent chat container that for a certain contact/chat,
+        //message has been opened, api has already marked the chat as read
+        //show it in the ui
+        if(recentChatRef.current){
+            const recentChatReference = recentChatRef.current as RecentChatsRef
+            console.log('passing ref call current contact=',currentlyChatContact)
+            recentChatReference.updateRecentItemRead(chattingUser, currentChatRoom)
+        }
 
-                    
-    //                 {contacts.map((contact:any,index:number)=>{
-    //                     return (
-    //                         <li 
-    //                         onClick={handleContactClick.bind(this,contact)}
-    //                         key={index}>{contact.username}
-    //                         </li>
-    //                     )
-    //                 })}
-    //                 </ul>
-    //             </div>
-                
-    //             <RecentChats
-    //             ref={recentChatRef}
-    //             handleRecentChatItemClick={handleRecentChatItemClick}
-    //             />
-                
-                
-    //         </div>
-    //          {/* right side message container  */}
-    //         <div className="message-container">
-    //             {currentlyChatContact?
-    //             <>
-    //                 <div className="message-container-header">
-    //                 <div className="message-image-container">
-    //                     <img 
-    //                     className="chat-avatar"
-    //                     src={avatarImage}/>
-    //                     <strong><span>{currentlyChatContact?currentlyChatContact.username:''}</span></strong>
-
-    //                     {currentlyChatContact.isOnline===false 
-    //             || currentlyChatContact.isOnline ===undefined ?
-    //             <span className="chat-status-header chat-inactive">&#8203;</span>:
-    //             <span className="chat-status-header chat-active">&#8203;</span>
-    //             } 
-
-    //                     {/* <span className="chat-active">&#8203;</span> */}
-                        
-    //                 </div>
-    //                 <div className="message-search-more-container">
-    //                     <i className="fa fa-search"></i>
-    //                     <i className="fa fa-ellipsis-h" style={{fontSize:"15px"}}></i>
-    //                 </div>
-    //             </div>
-    //             <ChatContainer
-    //             ref={chatContainerRef}
-    //             />
-                
-    //             <ChatFooterContainer
-    //             currentlyChattingWith={currentlyChatContact}
-    //             currentRoom={currentChatRoom}
-    //             notifyChatContainer={notifyChatContainer}
-    //             />
-    //             </>
-    //             :
-    //                 <h3 style={{textAlign:"center"}}>Select a contact to start chatting</h3>}
-                
-    //         </div>
-    //     </div>
-        // )
+    }
         return (
             <main className="content">
     <div className="container p-0">
@@ -375,6 +346,7 @@ But We also have to update the recent chat and current chat both if user is curr
 
 					<ChatContainer
                     ref={chatContainerRef}
+                    handleClearUnread={handleClearUnread}
                     />
                     {currentlyChatContact?
                     <ChatFooterContainer

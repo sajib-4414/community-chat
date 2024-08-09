@@ -11,6 +11,7 @@ export interface IRoom extends mongoose.Document{
     updatedAt:Date,
     createdBy:string|IUser,
     privateRoomMembers:IUser[],
+    lastMessageAt:Date;
 }
 
 const roomSchema = new mongoose.Schema<IRoom>({
@@ -37,7 +38,8 @@ const roomSchema = new mongoose.Schema<IRoom>({
         type: [mongoose.Schema.Types.ObjectId],
         ref:"User",
         required:false
-    }
+    },
+    lastMessageAt:Date
 },{timestamps: true})
 
 export const Room = mongoose.model<IRoom>('Room', roomSchema)

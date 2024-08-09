@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import  bcrypt  from "bcryptjs";
 import jwt from 'jsonwebtoken'
+import { IRoom } from "./room";
 interface IUser extends mongoose.Document{
     username:string,
     _id?:string,
@@ -96,4 +97,26 @@ const userSocketSchema = new mongoose.Schema<IUserSocket>({
 })
 const UserSocket = mongoose.model<IUserSocket>('UserSocket', userSocketSchema)
 
-export {User, IUser, UserSocket}
+
+
+
+interface IUserRoomLastSeen{
+    user:string|IUser;
+    room:string|IRoom;
+    lastSeenAt: Date;
+}
+
+const userRoomLastSeenSchema = new mongoose.Schema<IUserRoomLastSeen>({
+    user:{
+        type:mongoose.Schema.Types.ObjectId,
+        required:true
+    },
+    room:{
+        type:mongoose.Schema.Types.ObjectId,
+        required: true
+    },
+    lastSeenAt: Date
+})
+const UserRoomLastSeen = mongoose.model<IUserRoomLastSeen>('UserRoomLastSeen',userRoomLastSeenSchema)
+
+export {User, IUser, UserSocket, UserRoomLastSeen}

@@ -39,6 +39,7 @@
 - Search API for autocomplete: (Done)
 - Add seeder, (done)
 - and use superseeder/some library for mocking data.
+- Add mongoose aggregate paginate
 ### Devops
 - Add github workflow
 - Add Docker with docker entry point sh file, docker compose, multi stage build,docker run command, mongodb local instance.

@@ -1,10 +1,9 @@
 {
   "name": "nodejs-chatapp-myself",
   "version": "1.0.0",
-  "main": "index.js",
-  "type": "module",
+  "main": "server.ts",
   "scripts": {
-    "start": "nodemon --exec ts-node src/index.ts",
+    "start": "nodemon --exec ts-node --esm src/server.ts",
     "test": "cross-env NODE_ENV=test jest --detectOpenHandles --testTimeout=5000",
     "lint": "eslint src/**/*.ts",
     "format": "eslint src/**/*.ts --fix"

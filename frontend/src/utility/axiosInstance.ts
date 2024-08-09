@@ -19,7 +19,7 @@ export const axiosInstance = axios.create({
 
   axiosInstance.interceptors.response.use(
     (response)=>{
-      console.log('Response:', response);
+      // console.log('Response:', response);
       return response;
     },
     (error:AxiosError)=>{

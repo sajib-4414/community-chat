@@ -1,9 +1,10 @@
 import * as cron from 'node-cron'
-import { loadOnlineStatusToCache, updateUserOnlineStatus } from './services/socket.services';
+
 import { createServer } from "http";
 import { initializeSocketIoServer } from './config/socketInstance';
 import { app } from './app';
 import { connectToMongoDB } from './config/db';
+import { loadOnlineStatusToCache, updateUserOnlineStatus } from './services/socket.services';
 // //running cronjob
 cron.schedule('*/10 * * * * *', async() => {
     //updates whether user is online or not in DB every 20s. it updates from cache,

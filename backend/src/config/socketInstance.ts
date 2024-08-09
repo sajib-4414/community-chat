@@ -1,7 +1,7 @@
 import { Server } from "socket.io";
-import {  MESSAGE_TO_SERVER, SOCKET_CONNECTED, SOCKET_DISCONNECTED, USER_ROOM_JOIN_REQUEST } from "../definitions/event_types";
+import {  MESSAGE_TO_SERVER, READ_ACKNOWLEDGEMENT_MESSAGE, SOCKET_CONNECTED, SOCKET_DISCONNECTED, USER_ROOM_JOIN_REQUEST } from "../definitions/event_types";
 import {  MessagePayLoadToServer } from "../definitions/room_message_types";
-import { CustomSocket, onMessageReceivedHandler, processUserConnected, processUserDisconnected, socketAuthenticationMiddleware } from "../services/socket.services";
+import { CustomSocket, markUserRead, onMessageReceivedHandler, processUserConnected, processUserDisconnected, socketAuthenticationMiddleware } from "../services/socket.services";
 import dotenv from 'dotenv'
 
 dotenv.config()
@@ -32,11 +32,18 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
         })
         socket.on(USER_ROOM_JOIN_REQUEST,({roomName})=>{
             socket.join(roomName);
-            console.log('CLient want to join a room')
+            console.log('Client want to join a room')
         })
         socket.on(MESSAGE_TO_SERVER,async (payload:MessagePayLoadToServer)=>{
             console.log('got message from socket=',socket.id, ", message=", payload)
             await onMessageReceivedHandler(socket, payload)
+        })
+        socket.on(READ_ACKNOWLEDGEMENT_MESSAGE, async (data, callback)=>{
+            //marks that user has read the message, by updating the userroomlastseen collection's
+            //lastSeenAt time. 
+            await markUserRead(data.roomId, socket.user)
+            // console.log('Server Feedback: message marked read....')
+            callback('Server Feedback: message marked read....')
         })
     });
 }
