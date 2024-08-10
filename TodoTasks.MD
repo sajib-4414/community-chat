@@ -12,14 +12,16 @@
 
 ### Backend
 
-- Zipcode based search
-- Add testing.
-- Message read/seen functionality.
+- Zipcode based search, Add Postal code, and postal code based radius based searching.
+- Add API testing(done)
+- Add unit testing, method based
+- Add test with some mocking library
+- Message read/seen functionality(done)
 - Add message delete functionality.
-- Adding profile images
+- Adding profile images(done)
 - Current window chat messages should be paginated, recent chat should be too.
 - Search messages in the current chat window
-- use a Websocket file for better implementation
+- use a Websocket file for better implementation(could not be found)
 - Add online, offline functionality. (done)
 - Optimize Searching contact it with caching, indexing. Maybe add apache elastic search. Advanced: search in messages as well
 - Add Logging
@@ -27,7 +29,6 @@
 - User Blocking: Allow users to block/unblock other users.
 - Add message sent/Not sent functionality[auto append sender's message, then update with socket response] (done)
 - Add functionality to accept one to one chat request and then. Maybe add a friend request or something, use a graph database also.
-- Add Postal code, and postal code based radius based searching.
 - Add group chat
 - Lock/Unlock users.
 - Add a moderator role that can ban users.
@@ -38,8 +39,8 @@
 - Socketio middleware for authentication(Done)
 - Search API for autocomplete: (Done)
 - Add seeder, (done)
-- and use superseeder/some library for mocking data.
 - Add mongoose aggregate paginate
+
 ### Devops
 - Add github workflow
 - Add Docker with docker entry point sh file, docker compose, multi stage build,docker run command, mongodb local instance.
