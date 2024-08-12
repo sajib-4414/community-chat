@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import  bcrypt  from "bcryptjs";
 import jwt from 'jsonwebtoken'
 import { IRoom } from "./room";
+interface ILocation {
+    type: 'Point';
+    coordinates: [number, number]; // [longitude, latitude]
+}
 interface IUser extends mongoose.Document{
     username:string,
     _id?:string,
@@ -10,6 +14,8 @@ interface IUser extends mongoose.Document{
     password:string,
     isOnline?:boolean,
     profileImage:string;
+    location:ILocation;
+    zipcode:string;
     getSignedToken:()=>string,
     matchPassword: (password:string) => boolean;
 }
@@ -44,12 +50,25 @@ const userSchema = new mongoose.Schema<IUser>({
         type:String,
         required:false
     },
+    zipcode:{
+        type:String,
+    },
+    location: {
+        type: { 
+            type: String, 
+            enum: ['Point'] 
+        },
+        coordinates: { 
+            type: [Number] 
+        }
+    },
     isOnline:{
         type:Boolean,
         default:false,
         required:false,
     }
 })
+userSchema.index({ location: "2dsphere" }); 
 
 //before saving user, modify the password to have encrypted password stored
 //in schema methods, with the "this" we have refrence to the current object

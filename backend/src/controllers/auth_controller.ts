@@ -8,8 +8,7 @@ import { IUser, User } from "../models/user";
 
 export const Register = async(req:Request, res:Response)=>{
 
-    //validate payload
-    //todo add express validator library here
+    
 
     const {user,token} = await register(req.body)
     const jwtCookieExpire = process.env.JWT_COOKIE_EXPIRE;

@@ -1,6 +1,6 @@
 import express from "express";
 import { getMe, Login, Register, resetPassword, updatePassword, updateProfile, updateProfileImage } from "../controllers/auth_controller";
-import { getAllUsers, searchUsers } from "../controllers/user_controller";
+import { getAllUsers, searchUsers, validateZipcode } from "../controllers/user_controller";
 import { loginValidators, registrationValidators, userSearchValidators } from "../helpers/auth_validators";
 import { validateValidators } from "../middlewares/validator";
 import { authorizedRequest } from "../middlewares/auth.error";
@@ -35,5 +35,7 @@ userRouter.route('/all')
 
 userRouter.route('/find')
 .get(userSearchValidators, validateValidators,searchUsers)
+
+userRouter.post('/validatepostcode', validateZipcode)
 
 export {authRouter, userRouter}
