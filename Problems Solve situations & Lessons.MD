@@ -329,6 +329,21 @@ location: {
 //end of schema declaration
 userSchema.index({ location: "2dsphere" }); 
 ```
+see the seedfile example how to create user with lat long
+```
+{
+      "_id": "607f1f77bcf86cd799439012",
+      "username": "jane",
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "password": "1234",
+      "isOnline": false,
+      "location": {
+            "type": "Point",
+            "coordinates": [-104.612159, 50.431355] 
+        }
+    }
+```
 # Frontnend related
 
 ### How to design a routeguard in React, so that particular page cannot be accesssed without authentication ?
