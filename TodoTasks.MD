@@ -9,6 +9,7 @@
 - Fix the UI for login, registration pages ( done)
 - Fix chat bubble padding when zooming in or out. ( done)
 - React Add memo for listview items(done)
+- add debounce for user search api call, add throttle for socket call to know user has seen the message. maybe use lodash.
 
 ### Backend
 
