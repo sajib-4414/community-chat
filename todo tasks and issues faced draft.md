@@ -86,3 +86,23 @@ So I am trying to do cache, but for how long useronline status will be true in r
 **about authentication:**
 we are currently doing it with middlware, that authenticates only when first connection is established.
 should update it such that every message to server via socket is authenticated instead of first.
+
+Finding all people:
+radius based search hobe, to find all people
+
+Friend request:
+sender, receiver, time
+
+friend:
+user1,user2, sender
+
+when user will search user-> we will send a related_info array, that will contain if the search, result's each person is already friend. something like, friends_association[userid]
+UI will use this to show if a search result item person is a friend.
+
+group request:
+room, sender, request time
+
+To track groups ->
+roommember for each member: (room, member, joined at)
+
+room: name, createdby, date 
