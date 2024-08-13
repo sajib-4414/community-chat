@@ -12,6 +12,7 @@ Welcome to the Community Chat Application! Our platform is designed to simplify 
 - **Search Functionality**: Explore people and groups by searching within a specified radius of your postal code or by name.
 - **Add Requests**: Send requests to connect with individuals or join groups. Once your request is accepted, you can start chatting.
 - **Group Creation**: Easily create and manage groups with your friends or other users.
+- **Message Read/Unread Status**: Track whether your messages have been read or are still unread.
 
 ## How It Works
 
