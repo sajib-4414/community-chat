@@ -1,10 +1,36 @@
-## Community Chat
+# Community Chat Application
 
-Overview: This is an ongoing project of mine to build a community chat application to facilitate one to one chat and group chat in a given community, especially for newcomers. People often finds it hard to communicate or find new people in a new area. This application is trying to mitigate that. 
+## Overview
 
-The way it works is, Users can signup for the community chat with a postal code. Once they create an account they can start to chat with other people or groups that are available. In order to find new people and group they have to search. Search will show up people who have signed up or the group chats which are open to people of the postcode, the new user put when registering. Users can also find people and community from other postcode, they just have to modify the postcode when searching.
+Welcome to the Community Chat Application! Our platform is designed to simplify connections and communication within a community, especially for newcomers. By using this app, you can easily find and interact with people and groups around you or in different areas, fostering meaningful relationships and engagement.
 
-Users can then send request to chat to other users or also send request to join a group chat.
+## Features
+
+- **User Registration**: Sign up with your postal code to start connecting with others.
+- **One-to-One Chat**: Initiate conversations with users in your area or elsewhere.
+- **Group Chats**: Create and join group chats with friends or community members.
+- **Search Functionality**: Explore people and groups by searching within a specified radius of your postal code or by name.
+- **Add Requests**: Send requests to connect with individuals or join groups. Once your request is accepted, you can start chatting.
+- **Group Creation**: Easily create and manage groups with your friends or other users.
+
+## How It Works
+
+1. **Sign Up**: Register by entering your postal code to connect with local users.
+2. **Search & Discover**: Use the search feature to find people or groups within your desired radius or by name. Adjust your search radius to explore different areas.
+3. **Send Requests**: Send a request to connect with other users or to join group chats. Once your request is accepted, you can start chatting.
+4. **Create Groups**: Form new groups with your friends or other users to facilitate more focused discussions and interactions.
+5. **Chat & Connect**: Engage in conversations and build relationships with your community.
+
+## Getting Started
+
+1. **Register**: Create an account with your postal code.
+2. **Explore**: Search for users and groups within your desired radius or by name.
+3. **Connect**: Send add requests to start conversations or join groups.
+4. **Create**: Set up new groups with friends or community members.
+5. **Engage**: Start chatting and building your network.
+
+Our goal is to make community interaction seamless and enjoyable, helping you to easily connect with others and establish new relationships.
+
 
 Technology stack: Typescript, React, Vite, Redux, Redux Toolkit, Express, MongoDB, SocketIO
 
