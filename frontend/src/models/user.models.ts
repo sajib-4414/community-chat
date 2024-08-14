@@ -9,6 +9,7 @@ export interface User{
     email:string,
     username:string,
     name:string,
+    zipcode:string,
     isOnline:boolean;
     profileImage:string;
 }

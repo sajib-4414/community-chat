@@ -64,8 +64,8 @@ const Header:FC = ()=>{
         </Link>
 
         <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
-          <li><a href="#" className="nav-link px-2 text-secondary">Chat</a></li>
-          <li><a href="#" className="nav-link px-2 text-white">Friends</a></li>
+          <li><Link to="/discover" className="nav-link px-2 text-secondary">Discover</Link></li>
+          <li><a href="#" className="nav-link px-2 text-white">Connections & Groups</a></li>
           <li><a href="#" className="nav-link px-2 text-white">Your groups</a></li>
           <li><Link to="/profile" className="nav-link px-2 text-white">Profile</Link></li>
         </ul>

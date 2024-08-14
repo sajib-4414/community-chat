@@ -6,6 +6,7 @@ import { axiosInstance } from "../utility/axiosInstance"
 import { useDispatch } from "react-redux"
 import { storeUser } from "../store/UserSlice"
 import { ErrorParser } from "../utility/errorParser"
+import { Coordinate } from "./Register"
 const env = await import.meta.env;
 
 const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001';
@@ -23,6 +24,9 @@ export const UserProfile = ()=>{
     const [profileImageSuccessMessage, setProfileImageSuccessMessage] = useState<string>("")
     const dispatch = useDispatch()
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [zipcode, setZipcode] = useState("");
+    const [coordinate,setCoordinate] = useState<Coordinate|null>(null)
+    const [zipcodemsg, setZipCodeMsg] = useState<string|null>(null)
     
     const fetchUserProfile = async ()=>{
         const response = await axiosInstance.get('/auth/me',getAuthHeader(loggedinUser))
@@ -30,6 +34,7 @@ export const UserProfile = ()=>{
         setUserName(user.username)
         setName(user.name)
         setEmail(user.email)
+        setZipcode(user.zipcode)
     }
     const updateUserInSystem = (updatedUser:User)=>{
         const storedUserData = localStorage.getItem("user");
@@ -86,7 +91,7 @@ export const UserProfile = ()=>{
         }
         //make API call
         axiosInstance.post('/auth/updateprofile',{
-            name,
+            name,zip:zipcode
         },getAuthHeader(loggedinUser)).then(async(response)=>{
             const updatedUser = response.data
 
@@ -105,6 +110,42 @@ export const UserProfile = ()=>{
         const selectedFile = event.target.files?.[0] || null;
         setFile(selectedFile);
     };
+    const validateZipcode = async (event)=>{
+        event.preventDefault();
+
+        if (!zipcode || zipcode.length<6 || zipcode.length>7){
+            setZipCodeMsg('Invalid zip code')
+            setCoordinate(null)
+            return;
+        }
+        try{
+            const response = await axiosInstance.post('/users/validatepostcode',{
+                zip:zipcode
+            })
+            console.log(response.status)
+            if(response.status==200){
+                setZipCodeMsg('Location validated')
+                const data = response.data
+                const {lat,lng} = data.geolocation
+                const coordinate = {
+                    lat:lat,
+                    long:lng
+                }
+                setCoordinate(coordinate)
+            }
+                
+            else{
+                setCoordinate(null)
+                setZipCodeMsg('Invalid zip code')
+            }
+        }catch(err){
+            console.log('cannto validate zipcode',err)
+            setCoordinate(null)
+            setZipCodeMsg('Zip code validation failed, try again')
+        }
+        
+            
+    }
     useEffect(()=>{
         fetchUserProfile()
     },[])
@@ -144,6 +185,25 @@ export const UserProfile = ()=>{
                  id="username" 
                  aria-describedby="emailHelp"
                 >{username}</p>
+            </div>
+            <div className="form-group">
+                <label htmlFor="zipcode">Location zip code(Canada)</label>
+                <div className="row mx-1">
+                <input 
+                    id="zipcode" 
+                    className="form-control col-xl-9"
+                    value={zipcode}
+                    onChange={e=>setZipcode(e.target.value)}
+                    placeholder="Ex: S4S 3E1"/>
+                <button className="btn btn-primary ml-1 col-xl-2" onClick={validateZipcode}>Validate</button>
+                {coordinate!==null?
+                <small className='bg-success text-white'>{zipcodemsg}</small>
+                :
+                <small className='bg-warning text-white'>{zipcodemsg}</small>
+                }
+                
+                </div>
+                
             </div>
             <div className="form-group">
                 <label htmlFor="profileimage">Profile Image</label>

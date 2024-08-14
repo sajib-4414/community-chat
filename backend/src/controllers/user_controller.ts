@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { getAllDBUsers, getUserAutoCompleteSearchResult } from "../services/user_services";
-import { IUser } from "../models/user";
+import { IUser, User } from "../models/user";
 import { BadRequestError, InternalServerError } from "../definitions/error_definitions";
 import axios from "axios";
 import dotenv from 'dotenv';
+import { kilometersToRadian } from "../helpers/utility";
 dotenv.config()
 
 //to show in the UI all users
@@ -45,5 +46,14 @@ export const validateZipcode = async (req:Request, res:Response)=>{
 //discover people in radius, searches by radius
 export const discoverUser = async (req:Request, res:Response)=>{
     const {radius} = req.query;
-    
+    const radiusInKM = Number(radius)
+    var query = {
+        "location" : {
+            $geoWithin : {
+                $centerSphere : [req.user.location.coordinates, kilometersToRadian(radiusInKM) ]
+            }
+        }
+    };
+    const users = await User.find(query)
+    res.status(200).json(users)
 }

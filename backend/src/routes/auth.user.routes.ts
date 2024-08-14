@@ -1,6 +1,6 @@
 import express from "express";
 import { getMe, Login, Register, resetPassword, updatePassword, updateProfile, updateProfileImage } from "../controllers/auth_controller";
-import { getAllUsers, searchUsers, validateZipcode } from "../controllers/user_controller";
+import { discoverUser, getAllUsers, searchUsers, validateZipcode } from "../controllers/user_controller";
 import { loginValidators, registrationValidators, userSearchValidators } from "../helpers/auth_validators";
 import { validateValidators } from "../middlewares/validator";
 import { authorizedRequest } from "../middlewares/auth.error";
@@ -37,5 +37,8 @@ userRouter.route('/find')
 .get(userSearchValidators, validateValidators,searchUsers)
 
 userRouter.post('/validatepostcode', validateZipcode)
+
+//only authenticated user can discover, because we need user's own location
+userRouter.get('/discover',authorizedRequest, discoverUser)
 
 export {authRouter, userRouter}

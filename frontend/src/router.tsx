@@ -5,6 +5,7 @@ import { ChatHome } from "./pages/ChatHome";
 import Container from "./common/Container";
 import GuardedHOC from "./components/Chat/GuardedComponent";
 import { UserProfile } from "./pages/UserProfile";
+import { DiscoverUsers } from "./pages/DiscoverUsers";
 
 
 const HOCWithContainer = (OriginalComponent:any) => {
@@ -21,10 +22,12 @@ const HOCWithContainer = (OriginalComponent:any) => {
 
 const WrappedChatHome = HOCWithContainer(ChatHome)
 const WrappedProfile = HOCWithContainer(UserProfile)
+const WrappedDiscover = HOCWithContainer(DiscoverUsers)
 const WrappedRegister = HOCWithContainer(Register)
 const WrappedLogin= HOCWithContainer(Login)
 const GuardedChatHome = GuardedHOC(WrappedChatHome)
 const GuardedProfile = GuardedHOC(WrappedProfile)
+const GuardedDiscoverUsers = GuardedHOC(WrappedDiscover)
 
 
 export const router = createBrowserRouter([
@@ -43,5 +46,9 @@ export const router = createBrowserRouter([
       {
         element: <GuardedProfile />,
         path: "/profile"
+      },
+      {
+        element: <GuardedDiscoverUsers />,
+        path: "/discover"
       }
  ])
