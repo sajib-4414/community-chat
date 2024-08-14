@@ -1,12 +1,13 @@
 import mongoose from "mongoose";
-import { IRoom } from "./room";
-import { IUser } from "./user";
+import { RoomType, UserType } from "./groups.friends.models";
 
 interface IRoomMember{
-    room:string|IRoom,
-    member:string|IUser
+    room:RoomType,
+    member:UserType,
+    joinedAt:Date,
 }
 
+//will be used for group chat only
 const roomMemberSchema = new mongoose.Schema<IRoomMember>({
     room:{
         type: mongoose.Schema.Types.ObjectId,
@@ -17,6 +18,9 @@ const roomMemberSchema = new mongoose.Schema<IRoomMember>({
         type: mongoose.Schema.Types.ObjectId,
         ref:"User",
         required:true
+    },
+    joinedAt:{
+        type:Date,
     }
 })
 

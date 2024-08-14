@@ -39,6 +39,11 @@ export const validateZipcode = async (req:Request, res:Response)=>{
     }catch(err){
         console.log('Geolocation fetch failed, error=',err)
         throw new InternalServerError('Validation check failed, try again with correct data')
-    }
+    } 
+}
+
+//discover people in radius, searches by radius
+export const discoverUser = async (req:Request, res:Response)=>{
+    const {radius} = req.query;
     
 }
