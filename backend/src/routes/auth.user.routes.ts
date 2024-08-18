@@ -1,6 +1,6 @@
 import express from "express";
 import { getMe, Login, Register, resetPassword, updatePassword, updateProfile, updateProfileImage } from "../controllers/auth_controller";
-import { discoverUser, getAllUsers, searchUsers, validateZipcode } from "../controllers/user_controller";
+import { addFriend, discoverUser, getAllUsers, RemoveFriend, RemoveFriendRequest, searchUsers, validateZipcode } from "../controllers/user_controller";
 import { loginValidators, registrationValidators, userSearchValidators } from "../helpers/auth_validators";
 import { validateValidators } from "../middlewares/validator";
 import { authorizedRequest } from "../middlewares/auth.error";
@@ -40,5 +40,13 @@ userRouter.post('/validatepostcode', validateZipcode)
 
 //only authenticated user can discover, because we need user's own location
 userRouter.get('/discover',authorizedRequest, discoverUser)
+
+//only authenticated can send friend request
+userRouter.post('/addfriend',authorizedRequest, addFriend)
+
+
+userRouter.post('/removefriendrequest',authorizedRequest, RemoveFriendRequest)
+
+userRouter.post('/removefriend',authorizedRequest, RemoveFriend)
 
 export {authRouter, userRouter}

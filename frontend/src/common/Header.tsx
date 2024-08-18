@@ -60,13 +60,12 @@ const Header:FC = ()=>{
     <div className="container">
       <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start">
         <Link to="/" className="d-flex align-items-center mb-2 mb-lg-0 text-white text-decoration-none">
-          <h4> Dev chat application</h4>
+          <h4> Community chat application</h4>
         </Link>
 
         <ul className="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <li><Link to="/discover" className="nav-link px-2 text-secondary">Discover</Link></li>
-          <li><a href="#" className="nav-link px-2 text-white">Connections & Groups</a></li>
-          <li><a href="#" className="nav-link px-2 text-white">Your groups</a></li>
+          <li><Link to="/connectionlibrary" className="nav-link px-2 text-white">Connections & Groups</Link></li>
           <li><Link to="/profile" className="nav-link px-2 text-white">Profile</Link></li>
         </ul>
 

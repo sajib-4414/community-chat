@@ -97,6 +97,16 @@ userSchema.set('toJSON', {
         // delete ret._id; wil delete it soon, need to update backend and frotnend for that
         delete ret.__v;
         delete ret.password;
+        let location = null;
+        if(ret.location && ret.location.coordinates){
+            location = {
+                latitude:ret.location.coordinates[1],
+                longitude:ret.location.coordinates[0]
+            }
+        }
+        delete ret.location
+        ret.location = location
+        
     }
 }); 
 
@@ -123,8 +133,6 @@ const userSocketSchema = new mongoose.Schema<IUserSocket>({
     }
 })
 const UserSocket = mongoose.model<IUserSocket>('UserSocket', userSocketSchema)
-
-
 
 
 interface IUserRoomLastSeen{

@@ -44,7 +44,10 @@ export const initializeSocketIoServer = (httpExpressServer:any)=>{
                 //lastSeenAt time. 
                 await markUserRead(data.roomId, socket.user)
                 // console.log('Server Feedback: message marked read....')
-                callback('Server Feedback: message marked read....')
+                if(callback)
+                    callback('Server Feedback: message marked read....')
+                else
+                    console.error('no callback passed, could not notify about message marked read')
             })
         }catch(err){
             console.log('socket connection listener error=',err)

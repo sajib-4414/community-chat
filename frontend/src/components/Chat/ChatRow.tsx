@@ -56,42 +56,4 @@ export const ChatRow: React.FC<ChatRowProps> = (props: ChatRowProps) => {
         
       </div>)
 
-      {/* <div className="chat-message-left pb-4">
-        <div>
-          <img
-            src="https://bootdey.com/img/Content/avatar/avatar3.png"
-            className="rounded-circle mr-1"
-            alt="Sharon Lessman"
-            width="40"
-            height="40"
-          />
-          <div className="text-muted small text-nowrap mt-2">2:44 am</div>
-        </div>
-        <div className="flex-shrink-1 bg-light rounded py-2 px-3 ml-3">
-          <div className="font-weight-bold mb-1">Sharon Lessman</div>
-          Sit meis deleniti eu, pri vidit meliore docendi ut, an eum erat animal
-          commodo.
-        </div>
-      </div> */}
-    {/* </> */}
-
-    //     <li key={props.message._id} className={`${rowClassName}`}>
-    //         { !isSender?<img
-    //         className="chat-avatar"
-    //         src={avatarImage}/>:''}
-    //     <div className={`talk-bubble tri-right ${bubbleClassName}`}>
-    //         <div className="talktext">
-    //         <p>{props.message.message}</p>
-    //         <small>Sent by - {sender.username}</small>
-    //         </div>
-    //     { isSender && (!props.message.createdAt)?<small>Sending</small>:''}
-
-    //     </div>
-
-    //     { isSender?<img
-    //         className="chat-avatar"
-    //         src={avatarImage}/>:''}
-
-    // </li>
-//   );
 };
