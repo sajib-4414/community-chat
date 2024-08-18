@@ -45,3 +45,8 @@ Features to be added:
 * Ability to find people using gps/current location.
 * Content filtering, therefore users can report any message/user.
 * Searching people by name.
+
+## Overview of the App
+![Chat home page](chathome1.png)
+![Discovering Users](chathome2.png)
+![Profile Update](chathome3.png)  
