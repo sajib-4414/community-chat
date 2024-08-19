@@ -2,8 +2,9 @@ import { useState } from "react"
 import { ErrorMessage } from "../components/Misc/ErrorMessage"
 import { axiosInstance } from "../utility/axiosInstance"
 import { getAuthHeader } from "../utility/authenticationHelper"
-import { LoggedInUser, User } from "../models/user.models"
+import { LoggedInUser } from "../models/user.models"
 import { useAppSelector } from "../store/store"
+import { UserWithFriend } from "../types/users.friends.types"
 const env = await import.meta.env;
 const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 
@@ -13,7 +14,7 @@ export const DiscoverUsers:React.FC = ()=>{
     const [users,setUserList] = useState<UserWithFriend[]>([])
     const loggedinUser: LoggedInUser | null = useAppSelector(
         (state) => state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
-      );
+    );
     
     const fetchUsersInRadius = async ()=>{
         try{
@@ -127,13 +128,8 @@ export const DiscoverUsers:React.FC = ()=>{
         
     </div>)
 }
-interface discoverFriend{
-    isFriend:boolean;
-    friend_request_info?:User,
-    friend_info?:User
-}
-type UserWithFriend = User & discoverFriend
-const UserSearchListItem = ({user,frCallback}:{user:UserWithFriend,frCallback:any})=>{
+
+export const UserSearchListItem = ({user,frCallback}:{user:UserWithFriend,frCallback:any})=>{
     const loggedinUser: LoggedInUser | null = useAppSelector(
         (state) => state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
       );

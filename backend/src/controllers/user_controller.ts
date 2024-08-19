@@ -173,3 +173,15 @@ export const RespondFriendRequest = async(req:Request, res:Response)=>{
     })
     res.status(200).json(friendRequest)
 }
+
+export const getConnectionRequests = async(req:Request, res:Response)=>{
+
+}
+
+export const getAllConnections = async(req:Request, res:Response)=>{
+
+}
+
+export const getAllGroups = async(req:Request, res:Response)=>{
+
+}
