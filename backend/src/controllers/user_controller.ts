@@ -5,7 +5,7 @@ import { BadRequestError, InternalServerError } from "../definitions/error_defin
 import axios from "axios";
 import dotenv from 'dotenv';
 import { kilometersToRadian } from "../helpers/utility";
-import { Friend, FriendRequest } from "../models/groups.friends.models";
+import { Friend, FriendRequest, IFriendRequest } from "../models/groups.friends.models";
 dotenv.config()
 
 //to show in the UI all users
@@ -125,7 +125,7 @@ export const discoverUser = async (req:Request, res:Response)=>{
 export const addFriend = async(req:Request, res:Response)=>{
     const {reciverId} = req.body
     const friendRequest = await FriendRequest.create({
-        sender:req.user,
+        sender:req.user._id,
         reciever:reciverId
     })
     res.status(200).json(friendRequest)
@@ -164,22 +164,98 @@ export const RemoveFriend = async(req:Request, res:Response)=>{
     })
 }
 
-//responding with either yes or No
+//responding with either accept, deny
 export const RespondFriendRequest = async(req:Request, res:Response)=>{
-    const {reciverId} = req.body
-    const friendRequest = await FriendRequest.create({
-        sender:req.user,
-        reciever:reciverId
+    const {response,reciverId} = req.body
+    const updatedFriendRequest:IFriendRequest|null = await FriendRequest.findOneAndUpdate({
+      reciever:req.user,
+      sender:reciverId
+    }, {
+      isAccepted:response==="accept"?true:false,
+      respondTime:Date.now()
+    },
+    {returnDocument: 'after'})
+    let friend=null;
+    if(response === "accept"){
+      //if user has accepted, make them friends now
+      friend = await Friend.create({
+        user1:req.user._id,
+        user2:reciverId,
+        sender:reciverId
+      })
+      //also delete the friend request, friend and friend request only one of them can exist
+      await updatedFriendRequest?.deleteOne()
+    }
+    
+    res.status(200).json({
+      status:response,
+      friend_info:friend,
+      friend_request_info:updatedFriendRequest
     })
-    res.status(200).json(friendRequest)
 }
 
 export const getConnectionRequests = async(req:Request, res:Response)=>{
-
+  const {type} = req.query
+  let friendRequests;
+  if (type === "received")
+    friendRequests = await FriendRequest.where('reciever').equals(req.user._id).populate('sender');
+  // .find({
+  //     'sender':req.user._id
+  // }).populate('sender')
+  
+  // where('reciever').equals(req.user._id).populate('sender');
+  else if(type === "sent")
+    friendRequests = await FriendRequest.where('sender').equals(req.user._id).populate('reciever');
+  res.status(200).json(friendRequests)
 }
 
 export const getAllConnections = async(req:Request, res:Response)=>{
-
+  let aggregateQuery = [
+    {
+      $match:{
+        "_id": req.user._id
+      }
+    },
+    {
+      $lookup: {
+        from: "friends",  // Name of the friends collection
+        let: { userId: "$_id" },  // Define variable for current user's _id
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $or: [
+                  { $eq: ["$user1", "$$userId"] },
+                  { $eq: ["$user2", "$$userId"] }
+                ]
+              }
+            }
+          }
+        ],
+        as: "friend_info"
+      }
+    },
+    {
+      $addFields: {
+        isFriend: {
+          $cond: { if: { $gt: [{ $size: "$friend_info" }, 0] }, then: true, else: false }
+        }
+      }
+    },
+    {
+        $unwind: {
+          path: "$friend_info" //we are not specifying preserve null true, that means for any user for which
+          //we did not find anything inthe friend table, will be discarded by this unwind
+        }
+    },
+    {
+      $match:{
+        "_id": {$ne: req.user._id}
+      }
+    }
+  ]
+  const users = await User.aggregate(aggregateQuery)
+  res.status(200).json(users)
 }
 
 export const getAllGroups = async(req:Request, res:Response)=>{

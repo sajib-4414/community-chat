@@ -2,11 +2,11 @@ import { useState } from "react"
 import { ErrorMessage } from "../components/Misc/ErrorMessage"
 import { axiosInstance } from "../utility/axiosInstance"
 import { getAuthHeader } from "../utility/authenticationHelper"
-import { LoggedInUser } from "../models/user.models"
+import { FriendRequest, LoggedInUser } from "../models/user.models"
 import { useAppSelector } from "../store/store"
 import { UserWithFriend } from "../types/users.friends.types"
-const env = await import.meta.env;
-const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
+import { UserListItem } from "../components/Connections&Groups/UserListItem"
+
 
 export const DiscoverUsers:React.FC = ()=>{
     const [radius,setRadius] = useState(0)
@@ -37,11 +37,12 @@ export const DiscoverUsers:React.FC = ()=>{
         setRadius(event.target.value)
         setErrorLine("")
     }
-    function onFriendActionChanged(reciverId, friend_request_info, type){
+    function onFriendActionChanged(reciverId:string, friend_request_info:FriendRequest, type){
         console.log('onfriendrequest sent called')
         console.log(reciverId)
         console.log(friend_request_info)
         if(type==="friend_request_sent_success"){
+            console.log("here inside if")
             const newUserList = users.map((user)=>{
                 if (user._id === reciverId)
                     return{
@@ -98,9 +99,10 @@ export const DiscoverUsers:React.FC = ()=>{
             <ul className="list-group">
             {users.map((user,index)=>{
                 return(
-                    <UserSearchListItem
+                    <UserListItem
                     frCallback={onFriendActionChanged.bind(null, user._id)} 
                     key={index} 
+                    showDeny={false}
                     user={user}/>
                 )
             })}
@@ -127,85 +129,4 @@ export const DiscoverUsers:React.FC = ()=>{
         
         
     </div>)
-}
-
-export const UserSearchListItem = ({user,frCallback}:{user:UserWithFriend,frCallback:any})=>{
-    const loggedinUser: LoggedInUser | null = useAppSelector(
-        (state) => state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
-      );
-    const [frsuccessMsg, setFrMsg] = useState("")
-    const getActionButton = ()=>{
-        if(user._id === loggedinUser?.user.id)
-            return '(Yourself)'
-        else if(user.friend_request_info)
-            return <div className="col-3">
-            <p>You already sent request.</p>
-            <button className="btn btn-warning" onClick={removeFriendRequest}>Remove Pending Request</button>
-            </div>
-        
-        else if (user.friend_info)
-            return <>
-                You are friends.
-                <button className="btn btn-warning col-3" onClick={removeFriend}>Remove Connection</button>
-            </>
-        else
-            return <button className="btn btn-success col-3" onClick={addFriendRequest}>Add Connection</button>
-    }
-    const addFriendRequest = async ()=>{
-        try{
-            const response = await axiosInstance.post('/users/addfriend',{
-                reciverId:user._id
-            },getAuthHeader(loggedinUser))
-            const friendRequestData = response.data
-            frCallback(friendRequestData,"friend_request_sent_success")
-            setFrMsg("request sent")
-        }catch(err){
-            console.log('friend reqiest sending error',err)
-            setFrMsg("request failed")
-        }
-    }
-    const removeFriendRequest = async ()=>{
-        try{
-            await axiosInstance.post('/users/removefriendrequest',{
-                reciverId:user._id
-            },getAuthHeader(loggedinUser))
-            frCallback(null,"friend_pending_request_remove_success")
-            setFrMsg("Friend request removed")
-        }catch(err){
-            console.log('friend reqiest removing error',err)
-            setFrMsg("request failed")
-        }
-    }
-    const removeFriend = async ()=>{
-        try{
-            await axiosInstance.post('/users/removefriend',{
-                reciverId:user._id
-            },getAuthHeader(loggedinUser))
-            frCallback(null,"friend_removal_success")
-            setFrMsg("Friend removed")
-        }catch(err){
-            console.log('friend reqiest removing error',err)
-            setFrMsg("request failed")
-        }
-    }
-    return(
-        <li className="list-group-item">
-            <div className="row px-2">
-                <div className="col-1">
-                    <img
-                        src={`${SERVER_URL}${user.profileImage}`}
-                        className="rounded-circle mr-1"
-                        alt="profile picture"
-                        width="30"
-                        height="30"
-                    />
-                </div>
-                    
-                <p className="col-8">{user.name}</p>
-                        
-                {getActionButton()}
-            </div>
-            <p className="bg-warning"><small>{frsuccessMsg}</small></p>
-        </li>
-    )
 }

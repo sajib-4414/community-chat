@@ -13,3 +13,13 @@ export interface User{
     isOnline:boolean;
     profileImage:string;
 }
+
+export interface FriendRequest<S=string,R=string>{
+    _id:string;
+    isAccepted:Boolean;
+    sender:S;
+    reciever:R;
+    createdAt:Date;
+    updatedAt:Date;
+    respondTime?:Date;
+}

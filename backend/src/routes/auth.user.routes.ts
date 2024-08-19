@@ -1,7 +1,7 @@
 import express from "express";
 import { getMe, Login, Register, resetPassword, updatePassword, updateProfile, updateProfileImage } from "../controllers/auth_controller";
-import { addFriend, discoverUser, getAllConnections, getAllGroups, getAllUsers, getConnectionRequests, RemoveFriend, RemoveFriendRequest, searchUsers, validateZipcode } from "../controllers/user_controller";
-import { loginValidators, registrationValidators, userSearchValidators } from "../helpers/auth_validators";
+import { addFriend, discoverUser, getAllConnections, getAllGroups, getAllUsers, getConnectionRequests, RemoveFriend, RemoveFriendRequest, RespondFriendRequest, searchUsers, validateZipcode } from "../controllers/user_controller";
+import { getConnectionRequestsValidator, loginValidators, registrationValidators, RespondConnectionRequestValidator, userSearchValidators } from "../helpers/auth_validators";
 import { validateValidators } from "../middlewares/validator";
 import { authorizedRequest } from "../middlewares/auth.error";
 import { upload } from "../config/multerConfig";
@@ -49,9 +49,11 @@ userRouter.post('/removefriendrequest',authorizedRequest, RemoveFriendRequest)
 
 userRouter.post('/removefriend',authorizedRequest, RemoveFriend)
 
-userRouter.post('/connection-requests',authorizedRequest, getConnectionRequests)
+userRouter.get('/connection-requests',authorizedRequest,getConnectionRequestsValidator, validateValidators, getConnectionRequests)
 
-userRouter.post('/connections',authorizedRequest, getAllConnections)
+userRouter.post('/respond-connection-requests',authorizedRequest, RespondConnectionRequestValidator, validateValidators, RespondFriendRequest)
+
+userRouter.get('/connections',authorizedRequest, getAllConnections)
 
 userRouter.post('/groups',authorizedRequest, getAllGroups)
 

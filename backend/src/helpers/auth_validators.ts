@@ -33,3 +33,27 @@ export const userSearchValidators:ValidationChain[] = [
     .trim()
     .withMessage("search query cannot be empty")
 ]
+
+export const getConnectionRequestsValidator:ValidationChain[] = [
+    query('type')
+    .notEmpty()
+    .trim()
+    .withMessage("connection type query cannot be empty"),
+    query('type')
+    .isIn(['received', 'sent'])
+    .withMessage('type must be one of: received, sent')
+]
+
+export const RespondConnectionRequestValidator:ValidationChain[] = [
+    body('response')
+    .notEmpty()
+    .trim()
+    .withMessage("connection type query cannot be empty"),
+    body('response')
+    .isIn(['deny', 'accept'])
+    .withMessage('type must be one of: received, sent'),
+    body('reciverId')
+    .notEmpty()
+    .trim()
+    .withMessage("reciverId cannot be empty"),
+]
