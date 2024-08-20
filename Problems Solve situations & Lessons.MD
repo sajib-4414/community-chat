@@ -307,7 +307,43 @@ that please update my last seen time for this room, the backend updates this. Th
 Now, when a user clicks a recent message which is marked as unread, i call the api to fetch all messages in this chat, now at the same time in backend i mark user last seen for this room as Now, which means user has just read all the unread messages.
 Now, when a new message comes, we check if it is in the current chat window, if not, we dont send an acknolwedgement that message was read. in fact that time we update in the UI's isUnread for that message to true, means user has not yet seen(as that message is not for user's current chat window)
 
+### How to add geospatial location support?
+* used opencage to get lat,long from a given address/zipcode.
+* We must need a geospatial index before searching in db with location, such as finding users in a given radius.
+so i created the index in the schema file.
 
+User model
+```
+//userSchema declaration
+....
+location: {
+        type: { 
+            type: String, 
+            enum: ['Point'] 
+        },
+        coordinates: { 
+            type: [Number] 
+        }
+    },
+...
+//end of schema declaration
+userSchema.index({ location: "2dsphere" }); 
+```
+see the seedfile example how to create user with lat long
+```
+{
+      "_id": "607f1f77bcf86cd799439012",
+      "username": "jane",
+      "name": "Jane Smith",
+      "email": "jane.smith@example.com",
+      "password": "1234",
+      "isOnline": false,
+      "location": {
+            "type": "Point",
+            "coordinates": [-104.612159, 50.431355] 
+        }
+    }
+```
 # Frontnend related
 
 ### How to design a routeguard in React, so that particular page cannot be accesssed without authentication ?

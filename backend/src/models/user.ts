@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import  bcrypt  from "bcryptjs";
 import jwt from 'jsonwebtoken'
 import { IRoom } from "./room";
+interface ILocation {
+    type: 'Point';
+    coordinates: [number, number]; // [longitude, latitude]
+}
 interface IUser extends mongoose.Document{
     username:string,
     _id?:string,
@@ -10,6 +14,8 @@ interface IUser extends mongoose.Document{
     password:string,
     isOnline?:boolean,
     profileImage:string;
+    location:ILocation;
+    zipcode:string;
     getSignedToken:()=>string,
     matchPassword: (password:string) => boolean;
 }
@@ -44,12 +50,25 @@ const userSchema = new mongoose.Schema<IUser>({
         type:String,
         required:false
     },
+    zipcode:{
+        type:String,
+    },
+    location: {
+        type: { 
+            type: String, 
+            enum: ['Point'] 
+        },
+        coordinates: { 
+            type: [Number] 
+        }
+    },
     isOnline:{
         type:Boolean,
         default:false,
         required:false,
     }
 })
+userSchema.index({ location: "2dsphere" }); 
 
 //before saving user, modify the password to have encrypted password stored
 //in schema methods, with the "this" we have refrence to the current object
@@ -78,6 +97,16 @@ userSchema.set('toJSON', {
         // delete ret._id; wil delete it soon, need to update backend and frotnend for that
         delete ret.__v;
         delete ret.password;
+        let location = null;
+        if(ret.location && ret.location.coordinates){
+            location = {
+                latitude:ret.location.coordinates[1],
+                longitude:ret.location.coordinates[0]
+            }
+        }
+        delete ret.location
+        ret.location = location
+        
     }
 }); 
 
@@ -104,8 +133,6 @@ const userSocketSchema = new mongoose.Schema<IUserSocket>({
     }
 })
 const UserSocket = mongoose.model<IUserSocket>('UserSocket', userSocketSchema)
-
-
 
 
 interface IUserRoomLastSeen{

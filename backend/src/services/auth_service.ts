@@ -1,11 +1,22 @@
-import { BadRequestError, NotAuthenticatedError, ResourceNotFoundError } from "../definitions/error_definitions";
+import axios from "axios";
+import { BadRequestError, InternalServerError, NotAuthenticatedError, ResourceNotFoundError } from "../definitions/error_definitions";
 import { IUser, User } from "../models/user"
 
 interface IRegisterPayload{
     username:string;
     password:string;
+    name:string;
+    email:string;
+    coordinate:{lat:number,long:number},
+    zipcode:string
 }
-export const login = async(payload:IRegisterPayload)=>{
+
+interface ILoginPayload{
+    username:string;
+    password:string;
+}
+
+export const login = async(payload:ILoginPayload)=>{
     //validate payload
     //todo add express validator library here
 
@@ -38,7 +49,27 @@ const generateToken = (user:IUser)=>{
     return token
 
 }
-export const register = async (payload:IRegisterPayload)=>{
+export const register = async (body:IRegisterPayload)=>{
+    let latitude,longitude;
+    try{
+        const response = await axios.get(`https://api.opencagedata.com/geocode/v1/json?q=${body.zipcode}&key=${process.env.OPEN_CAGE_API_KEY}&language=en&pretty=1`)
+        const actualData = response.data
+        const {lat, lng} = actualData.results[0].geometry
+        latitude = lat
+        longitude = lng
+    }catch(err){
+        console.log('Geolocation failed in registration, error=',err)
+        throw new BadRequestError('Could not verify location, please try again')
+    }
+    const {username, email, password, name, coordinate, zipcode} = body
+    const payload = {
+        username, email, password, name, zipcode,
+        location: {
+            type: 'Point',
+            coordinates: [longitude, latitude]
+        }
+    }
+
     const user:IUser = await User.create({
         ...payload
     })

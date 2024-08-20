@@ -182,9 +182,7 @@ export const updateUserOnlineStatus = async()=>{
         //skip if for a user we dont have any status in redis, its ok, in next refresh redis will have it
         //we only update if something found. I mean if user logs in or logs out we will have some status in the cache
         if(!(status === null || status === undefined)){
-            // user.isOnline = status==='true'?true:false //status is either 'true' or 'false'
-            // console.log('saving user ',user.name,' , as=',user.isOnline)
-            // await user.save()
+            //console.log('loop user is',user)
             const updatedUser = await User.findOneAndUpdate(
                 {
                     _id: user._id

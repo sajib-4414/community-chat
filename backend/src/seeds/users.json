@@ -5,7 +5,11 @@
       "name": "John Doe",
       "email": "john.doe@example.com",
       "password": "1234",
-      "isOnline": false
+      "isOnline": false,
+      "location": {
+            "type": "Point",
+            "coordinates": [-104.618896, 50.445210] 
+      }
     },
     {
       "_id": "607f1f77bcf86cd799439012",
@@ -13,7 +17,11 @@
       "name": "Jane Smith",
       "email": "jane.smith@example.com",
       "password": "1234",
-      "isOnline": false
+      "isOnline": false,
+      "location": {
+            "type": "Point",
+            "coordinates": [-104.612159, 50.431355] 
+        }
     },
     {
       "_id": "607f1f77bcf86cd799439013",
@@ -21,7 +29,11 @@
       "name": "Alice Johnson",
       "email": "alice.johnson@example.com",
       "password": "1234",
-      "isOnline": false
+      "isOnline": false,
+      "location": {
+            "type": "Point",
+            "coordinates": [-104.617429, 50.450885] 
+        }
     },
     {
       "_id": "607f1f77bcf86cd799439014",
@@ -29,7 +41,11 @@
       "name": "Bob Brown",
       "email": "bob.brown@example.com",
       "password": "1234",
-      "isOnline": false
+      "isOnline": false,
+      "location": {
+        "type": "Point",
+        "coordinates": [-104.620550, 50.447806]
+      }
     }
   ]
   

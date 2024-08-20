@@ -1,7 +1,7 @@
 import express from "express";
 import { getMe, Login, Register, resetPassword, updatePassword, updateProfile, updateProfileImage } from "../controllers/auth_controller";
-import { getAllUsers, searchUsers } from "../controllers/user_controller";
-import { loginValidators, registrationValidators, userSearchValidators } from "../helpers/auth_validators";
+import { addFriend, discoverUser, getAllConnections, getAllGroups, getAllUsers, getConnectionRequests, leaveGroup, RemoveFriend, RemoveFriendRequest, RespondFriendRequest, searchUsers, validateZipcode } from "../controllers/user_controller";
+import { getConnectionRequestsValidator, loginValidators, registrationValidators, RespondConnectionRequestValidator, userSearchValidators } from "../helpers/auth_validators";
 import { validateValidators } from "../middlewares/validator";
 import { authorizedRequest } from "../middlewares/auth.error";
 import { upload } from "../config/multerConfig";
@@ -35,5 +35,28 @@ userRouter.route('/all')
 
 userRouter.route('/find')
 .get(userSearchValidators, validateValidators,searchUsers)
+
+userRouter.post('/validatepostcode', validateZipcode)
+
+//only authenticated user can discover, because we need user's own location
+userRouter.get('/discover',authorizedRequest, discoverUser)
+
+//only authenticated can send friend request
+userRouter.post('/addfriend',authorizedRequest, addFriend)
+
+
+userRouter.post('/removefriendrequest',authorizedRequest, RemoveFriendRequest)
+
+userRouter.post('/removefriend',authorizedRequest, RemoveFriend)
+
+userRouter.get('/connection-requests',authorizedRequest,getConnectionRequestsValidator, validateValidators, getConnectionRequests)
+
+userRouter.post('/respond-connection-requests',authorizedRequest, RespondConnectionRequestValidator, validateValidators, RespondFriendRequest)
+
+userRouter.get('/connections',authorizedRequest, getAllConnections)
+
+userRouter.get('/groups',authorizedRequest, getAllGroups)
+
+userRouter.post('/groups/leave',authorizedRequest, leaveGroup) 
 
 export {authRouter, userRouter}

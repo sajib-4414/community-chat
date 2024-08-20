@@ -5,11 +5,11 @@ import sharp from "sharp";
 import fs from 'fs';
 import path from "path";
 import { IUser, User } from "../models/user";
+import axios from "axios";
 
 export const Register = async(req:Request, res:Response)=>{
 
-    //validate payload
-    //todo add express validator library here
+    
 
     const {user,token} = await register(req.body)
     const jwtCookieExpire = process.env.JWT_COOKIE_EXPIRE;
@@ -46,8 +46,26 @@ export const getMe = async(req:Request, res:Response)=>{
 
 export const updateProfile = async(req:Request, res:Response)=>{
     const {name} = req.body
+    const {zip} = req.body
+    let latitude,longitude;
+    try{
+        const response = await axios.get(`https://api.opencagedata.com/geocode/v1/json?q=${zip}&key=${process.env.OPEN_CAGE_API_KEY}&language=en&pretty=1`)
+        const actualData = response.data
+        const {lat, lng} = actualData.results[0].geometry
+        latitude = lat
+        longitude = lng
+        
+    }catch(err){
+        console.log('Geolocation fetch failed, error=',err)
+        throw new InternalServerError('Validation check failed, try again with correct data')
+    } 
+
     const updatedUser:IUser|null = await User.findByIdAndUpdate(req.user._id,{
-        name
+        name, zipcode:zip,
+        location: {
+            type: 'Point',
+            coordinates: [longitude, latitude]
+        }
     },{returnOriginal: false})
 
     res.json(updatedUser)

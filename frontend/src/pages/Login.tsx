@@ -8,6 +8,7 @@ import { LoggedInUser } from "../models/user.models";
 import { refreshSocket, socket } from "../socket";
 import { router } from "../router";
 import { ErrorParser } from "../utility/errorParser";
+import { ErrorMessage } from "../components/common/ErrorMessage";
 export const Login:FC = ()=>{
 
     const [username, setUserName] = useState("");
@@ -88,7 +89,8 @@ export const Login:FC = ()=>{
                 <button type="submit" className="btn btn-primary mb-2">Submit</button>
 
                 <p>Dont have an account? <Link to="/register">Register here.</Link> </p>
-                <p className="form-error">{errorLine}</p>
+                <ErrorMessage
+                    errorLine={errorLine}/>
             </form>
 
         </div>
