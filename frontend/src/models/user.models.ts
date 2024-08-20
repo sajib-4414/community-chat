@@ -23,3 +23,11 @@ export interface FriendRequest<S=string,R=string>{
     updatedAt:Date;
     respondTime?:Date;
 }
+
+export interface Friend{
+    user1:User;
+    user2:User;
+    sender:User;
+    createdAt:Date;
+    updatedAt:Date;
+}

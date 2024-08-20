@@ -1,11 +1,10 @@
 import { Request, Response } from "express";
-import { getAllDBUsers, getUserAutoCompleteSearchResult } from "../services/user_services";
-import { IUser, User } from "../models/user";
+import { discoverUsersInRadius, getAllDBUsers, getAllUserConnections, getUserAutoCompleteSearchResult } from "../services/user_services";
+import { IUser } from "../models/user";
 import { BadRequestError, InternalServerError } from "../definitions/error_definitions";
 import axios from "axios";
 import dotenv from 'dotenv';
-import { kilometersToRadian } from "../helpers/utility";
-import { Friend, FriendRequest, IFriendRequest } from "../models/groups.friends.models";
+import { Friend, FriendRequest, IFriend, IFriendRequest } from "../models/groups.friends.models";
 dotenv.config()
 
 //to show in the UI all users
@@ -47,78 +46,7 @@ export const validateZipcode = async (req:Request, res:Response)=>{
 //discover people in radius, searches by radius
 export const discoverUser = async (req:Request, res:Response)=>{
     const {radius} = req.query;
-    const radiusInKM = Number(radius)
-    let aggregateQuery = [
-        {
-          $match: {
-            "location" : {
-                  $geoWithin : {
-                      $centerSphere : [req.user.location.coordinates, kilometersToRadian(radiusInKM) ]
-                  }
-              }
-          }
-        },
-      {
-          $lookup: {
-            from: "friends",  // Name of the friends collection
-            let: { userId: "$_id" },  // Define variable for current user's _id
-            pipeline: [
-              {
-                $match: {
-                  $expr: {
-                    $or: [
-                      { $eq: ["$user1", "$$userId"] },
-                      { $eq: ["$user2", "$$userId"] }
-                    ]
-                  }
-                }
-              }
-            ],
-            as: "friend_info"
-          }
-        },
-        {
-          $addFields: {
-            isFriend: {
-              $cond: { if: { $gt: [{ $size: "$friend_info" }, 0] }, then: true, else: false }
-            }
-          }
-        },
-        {
-            $lookup: {
-              from: "friendrequests",
-              // Name of the friends collection
-              let: {
-                userId: "$_id",
-              },
-              // Define variable for current user's _id
-              pipeline: [
-                {
-                  $match: {
-                    $expr: {
-                      $eq: ["$reciever", "$$userId"],
-                    },
-                  },
-                },
-              ],
-              as: "friend_request_info",
-            },
-          },
-          {
-            $unwind: {
-              path: "$friend_request_info",
-              preserveNullAndEmptyArrays: true
-              
-            }
-          },
-          {
-            $unwind: {
-              path: "$friend_info",
-              preserveNullAndEmptyArrays: true
-            }
-          }
-      ]
-    const users = await User.aggregate(aggregateQuery)
+    const users = await discoverUsersInRadius(req.user, radius!.toString())
     res.status(200).json(users)
 }
 
@@ -183,9 +111,12 @@ export const RespondFriendRequest = async(req:Request, res:Response)=>{
         user2:reciverId,
         sender:reciverId
       })
-      //also delete the friend request, friend and friend request only one of them can exist
-      await updatedFriendRequest?.deleteOne()
+      
     }
+    //actually lets delete friend request regardless of whether accepted or not.
+    //for both cases we will create a notification
+    //also delete the friend request, friend and friend request only one of them can exist
+    await updatedFriendRequest?.deleteOne()
     
     res.status(200).json({
       status:response,
@@ -196,68 +127,19 @@ export const RespondFriendRequest = async(req:Request, res:Response)=>{
 
 export const getConnectionRequests = async(req:Request, res:Response)=>{
   const {type} = req.query
-  let friendRequests;
+  let friendRequests:IFriendRequest[];
   if (type === "received")
     friendRequests = await FriendRequest.where('reciever').equals(req.user._id).populate('sender');
-  // .find({
-  //     'sender':req.user._id
-  // }).populate('sender')
-  
-  // where('reciever').equals(req.user._id).populate('sender');
-  else if(type === "sent")
+   else //means sent
     friendRequests = await FriendRequest.where('sender').equals(req.user._id).populate('reciever');
   res.status(200).json(friendRequests)
 }
-
+export type UserWithFriend = IUser & { friend_info:IFriend, isFriend:boolean;}
 export const getAllConnections = async(req:Request, res:Response)=>{
-  let aggregateQuery = [
-    {
-      $match:{
-        "_id": req.user._id
-      }
-    },
-    {
-      $lookup: {
-        from: "friends",  // Name of the friends collection
-        let: { userId: "$_id" },  // Define variable for current user's _id
-        pipeline: [
-          {
-            $match: {
-              $expr: {
-                $or: [
-                  { $eq: ["$user1", "$$userId"] },
-                  { $eq: ["$user2", "$$userId"] }
-                ]
-              }
-            }
-          }
-        ],
-        as: "friend_info"
-      }
-    },
-    {
-      $addFields: {
-        isFriend: {
-          $cond: { if: { $gt: [{ $size: "$friend_info" }, 0] }, then: true, else: false }
-        }
-      }
-    },
-    {
-        $unwind: {
-          path: "$friend_info" //we are not specifying preserve null true, that means for any user for which
-          //we did not find anything inthe friend table, will be discarded by this unwind
-        }
-    },
-    {
-      $match:{
-        "_id": {$ne: req.user._id}
-      }
-    }
-  ]
-  const users = await User.aggregate(aggregateQuery)
+  const users:UserWithFriend[] = await getAllUserConnections(req)
   res.status(200).json(users)
 }
 
 export const getAllGroups = async(req:Request, res:Response)=>{
-
+    
 }

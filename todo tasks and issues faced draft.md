@@ -106,3 +106,33 @@ To track groups ->
 roommember for each member: (room, member, joined at)
 
 room: name, createdby, date 
+
+//////
+[
+  {
+    $match: {
+      "member":new ObjectId('66b98eb71cb701ffc3fe5594')
+    }
+  },
+  {
+    $lookup: {
+      from: "rooms",
+      let:{
+        room_id:"$room"
+      },
+      pipeline:[
+        {
+          $match:{
+            $expr:{
+              $and:[
+                { $eq: ["one_to_one","$roomType"]},
+                { $eq: ["_id","$$room_id"]}
+              ]
+            }
+          }
+        }
+      ],
+      as: "room_details"
+    }
+  }
+]

@@ -5,36 +5,6 @@ import { IUser } from "./user";
 export type RoomType = IRoom|string;
 export type UserType = IUser|string;
 
-export interface IGroupRequest extends mongoose.Document{
-    _id:string,
-    room:RoomType,
-    createdBy:UserType,
-    isAccepted:false,
-    respondTime:Date,
-    createdAt:Date,
-    updatedAt:Date,
-}
-
-const groupRequestSchema = new mongoose.Schema<IGroupRequest>({
-    room:{
-        type:mongoose.Schema.Types.ObjectId,
-        required:true
-    },
-    isAccepted:{
-        type:Boolean,
-        default:false,
-    },
-    respondTime:{
-        type:Date,
-    },
-    createdBy:{
-        type: mongoose.Schema.Types.ObjectId,
-        ref:"User",
-        required:true
-    },
-},{timestamps: true})
-
-export const GroupRequest = mongoose.model<IGroupRequest>('GroupRequest', groupRequestSchema)
 
 export interface IFriend extends mongoose.Document{
     _id:string,

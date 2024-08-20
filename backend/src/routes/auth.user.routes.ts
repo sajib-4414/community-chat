@@ -55,6 +55,6 @@ userRouter.post('/respond-connection-requests',authorizedRequest, RespondConnect
 
 userRouter.get('/connections',authorizedRequest, getAllConnections)
 
-userRouter.post('/groups',authorizedRequest, getAllGroups)
+userRouter.get('/groups',authorizedRequest, getAllGroups)
 
 export {authRouter, userRouter}

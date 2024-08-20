@@ -8,7 +8,7 @@ const env = await import.meta.env;
 const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 
 export type FRResponse = "accept" | "deny"
-export const UserListItem = ({user,frCallback,showDeny=true}:{user:UserWithFriend,frCallback:any,showDeny:boolean})=>{
+export const UserListItem = ({user,frCallback,showDeny=true}:{user:UserWithFriend,frCallback:any,showDeny?:boolean})=>{
     const loggedinUser: LoggedInUser | null = useAppSelector(
         (state) => state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
       );
@@ -43,6 +43,9 @@ export const UserListItem = ({user,frCallback,showDeny=true}:{user:UserWithFrien
             const friendRequestData = response.data
             frCallback(friendRequestData,"friend_request_sent_success")
             setFrMsg("request sent")
+            setTimeout(()=>{
+                setFrMsg("")
+            },1000)
         }catch(err){
             console.log('friend reqiest sending error',err)
             setFrMsg("request failed")
@@ -55,6 +58,9 @@ export const UserListItem = ({user,frCallback,showDeny=true}:{user:UserWithFrien
             },getAuthHeader(loggedinUser))
             frCallback(null,"friend_pending_request_remove_success")
             setFrMsg("Friend request removed")
+            setTimeout(()=>{
+                setFrMsg("")
+            },1000)
         }catch(err){
             console.log('friend reqiest removing error',err)
             setFrMsg("request failed")
@@ -76,6 +82,9 @@ export const UserListItem = ({user,frCallback,showDeny=true}:{user:UserWithFrien
             if(response==="deny")
                 frCallback(friend_request_info,"friend_responded_deny",friend_info)
             setFrMsg("Friend request "+response+"d")
+            setTimeout(()=>{
+                setFrMsg("")
+            },1000)
         }catch(err){
             console.log('friend reqiest removing error',err)
             setFrMsg("request failed")
@@ -88,18 +97,26 @@ export const UserListItem = ({user,frCallback,showDeny=true}:{user:UserWithFrien
             },getAuthHeader(loggedinUser))
             frCallback(null,"friend_removal_success")
             setFrMsg("Friend removed")
+            setTimeout(()=>{
+                setFrMsg("")
+            },1000)
         }catch(err){
             console.log('friend reqiest removing error',err)
             setFrMsg("request failed")
         }
     }
+
     //dont show denied request row if showdeny=false
-    if(!showDeny && user.friend_request_info?.respondTime!==null && user.friend_request_info?.isAccepted===false)
+    if(!showDeny && user.friend_request_info?.respondTime && user.friend_request_info?.isAccepted===false)
+    {
+        console.log('getting true')
         return null
+    }
+        
     return(
         <li className="list-group-item">
             <div className="row px-2">
-                {user.friend_request_info?.respondTime!==null && user.friend_request_info?.isAccepted===false? `Your connection request to ${user.name} was denied`
+                {user.friend_request_info?.respondTime && user.friend_request_info?.isAccepted===false? `Your connection request to ${user.name} was denied`
                 :
                 <>
                 <div className="col-1">
