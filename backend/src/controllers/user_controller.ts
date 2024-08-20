@@ -1,10 +1,12 @@
 import { Request, Response } from "express";
-import { discoverUsersInRadius, getAllDBUsers, getAllUserConnections, getUserAutoCompleteSearchResult } from "../services/user_services";
+import { discoverUsersInRadius, getAllDBUsers, getAllGroupChatRoomOfUser, getAllUserConnections, getUserAutoCompleteSearchResult } from "../services/user_services";
 import { IUser } from "../models/user";
 import { BadRequestError, InternalServerError } from "../definitions/error_definitions";
 import axios from "axios";
 import dotenv from 'dotenv';
 import { Friend, FriendRequest, IFriend, IFriendRequest } from "../models/groups.friends.models";
+import { IRoomMember, RoomMember } from "../models/room-member";
+import { IRoom } from "../models/room";
 dotenv.config()
 
 //to show in the UI all users
@@ -140,6 +142,23 @@ export const getAllConnections = async(req:Request, res:Response)=>{
   res.status(200).json(users)
 }
 
+export type RoomMemberAndRoom = IRoomMember & { room: IRoom }
 export const getAllGroups = async(req:Request, res:Response)=>{
-    
+    const roomMemberWithRoom:RoomMemberAndRoom[] = await getAllGroupChatRoomOfUser(req.user);
+    res.status(200).json(roomMemberWithRoom)
+}
+
+export const leaveGroup = async(req:Request, res:Response)=>{
+    const {groupId} = req.body
+    //first check if user is in that group/room
+    const roomMember = await RoomMember.findOne({
+        member:req.user._id,
+        room:groupId
+    })
+    if(!roomMember)
+        throw new BadRequestError('Cannot leave room, user is not in the room')
+    await roomMember.deleteOne();
+    res.status(200).json({
+        message: 'Group successfully left'
+    })
 }

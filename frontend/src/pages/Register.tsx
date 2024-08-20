@@ -8,7 +8,7 @@ import { router } from "../router";
 import { socket } from "../socket";
 import { ErrorParser } from "../utility/errorParser";
 import { Link } from "react-router-dom";
-import { ErrorMessage } from "../components/Misc/ErrorMessage";
+import { ErrorMessage } from "../components/common/ErrorMessage";
 export interface Coordinate{
     lat:number;
     long:number;

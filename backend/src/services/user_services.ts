@@ -2,6 +2,8 @@ import { Request } from "express";
 import { IUser, User } from "../models/user"
 import { Friend } from "../models/groups.friends.models";
 import { kilometersToRadian } from "../helpers/utility";
+import { RoomMember } from "../models/room-member";
+import { ROOM_TYPE } from "../definitions/room_message_types";
 
 export const getAllDBUsers = async ()=>{
     const users = await User.find({});
@@ -188,4 +190,49 @@ export const discoverUsersInRadius = async (user:IUser, radius:string)=>{
           }
       ]
     return await User.aggregate(aggregateQuery)
+}
+
+export const getAllGroupChatRoomOfUser = async (user:IUser)=>{
+  const aggregateQuery = [
+    {
+      $match: {
+        "member":user._id
+      }
+    },
+    {
+      $lookup: {
+        from: "rooms",
+        let:{
+          room_id:"$room"
+        },
+        pipeline:[
+          {
+             $match: {
+              $expr: {
+                $and: [
+                  { $eq: ["$roomType", ROOM_TYPE.GROUP_CHAT] }, //just for testing
+                  { $eq: ["$_id", "$$room_id"] }
+                ]
+              }
+             }
+          }
+        ],
+        as: "room_details"
+      }
+    },
+    {
+      $unwind: {
+        path: "$room_details",
+        preserveNullAndEmptyArrays: false
+      }
+    },
+    {
+      $project: {
+        'room':'$room_details',
+        'member':1,
+        'joinedAt':1
+      }
+    }
+  ]
+  return await RoomMember.aggregate(aggregateQuery)
 }

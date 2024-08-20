@@ -1,6 +1,6 @@
 import express from "express";
 import { getMe, Login, Register, resetPassword, updatePassword, updateProfile, updateProfileImage } from "../controllers/auth_controller";
-import { addFriend, discoverUser, getAllConnections, getAllGroups, getAllUsers, getConnectionRequests, RemoveFriend, RemoveFriendRequest, RespondFriendRequest, searchUsers, validateZipcode } from "../controllers/user_controller";
+import { addFriend, discoverUser, getAllConnections, getAllGroups, getAllUsers, getConnectionRequests, leaveGroup, RemoveFriend, RemoveFriendRequest, RespondFriendRequest, searchUsers, validateZipcode } from "../controllers/user_controller";
 import { getConnectionRequestsValidator, loginValidators, registrationValidators, RespondConnectionRequestValidator, userSearchValidators } from "../helpers/auth_validators";
 import { validateValidators } from "../middlewares/validator";
 import { authorizedRequest } from "../middlewares/auth.error";
@@ -56,5 +56,7 @@ userRouter.post('/respond-connection-requests',authorizedRequest, RespondConnect
 userRouter.get('/connections',authorizedRequest, getAllConnections)
 
 userRouter.get('/groups',authorizedRequest, getAllGroups)
+
+userRouter.post('/groups/leave',authorizedRequest, leaveGroup) 
 
 export {authRouter, userRouter}

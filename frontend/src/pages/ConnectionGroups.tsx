@@ -4,18 +4,23 @@ import { axiosInstance } from "../utility/axiosInstance"
 import { FriendRequest, LoggedInUser, User } from "../models/user.models"
 import { useAppSelector } from "../store/store"
 import { getAuthHeader } from "../utility/authenticationHelper"
-import { ErrorMessage } from "../components/Misc/ErrorMessage"
-import { UserListItem } from "../components/Connections&Groups/UserListItem"
+import { ErrorMessage } from "../components/common/ErrorMessage"
+import { UserListItem } from "../components/connectiongroups/UserListItem"
+import { RoomMemberAndRoom } from "../models/message.models"
+import { GroupListItem } from "../components/connectiongroups/GroupListItem"
+import { group } from "console"
 type tabType = "connections"| "requests-sent" | "groups" | "requests-recieved"
 export const ConnectionGroups = ()=>{
     const [activeTab,setActiveTab] = useState<tabType>("connections")
     const [users,setUsers] = useState<UserWithFriend[]>([])
+    const [groups,setGroups] = useState<RoomMemberAndRoom[]>([])
     const loggedinUser: LoggedInUser | null = useAppSelector(
         (state) => state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
     );
     const [errorLine,setErrorLine] = useState("")
     const handleTabClick = (buttonType:tabType)=>{
         console.log('clicked')
+        
         setActiveTab(buttonType)
         fetchUsers(buttonType)
         setErrorLine("")
@@ -41,6 +46,7 @@ export const ConnectionGroups = ()=>{
                     return ret
                 })
                 setUsers(usersWithFriend)
+                setGroups([])
             }
             else if(type==="requests-recieved"){
                 const friendRequests:FriendRequest<User,string>[] = response.data
@@ -51,16 +57,26 @@ export const ConnectionGroups = ()=>{
                     return ret
                 })
                 setUsers(usersWithFriend)
+                setGroups([])
             }
             else if (type==="connections"){
                 //data is formatted from server with the pattern
                 setUsers(response.data)
+                setGroups([])
+            }
+            else if (type==="groups"){
+                setGroups(response.data)
+                setUsers([])
             }
             
         }catch(err){
             console.log(err)
             setErrorLine("Could not search users, try again")
         }
+    }
+    function handleOnGroupLeave(roomId:string){
+        const newGroupList = groups.filter((group)=> group.room._id !== roomId)
+        setGroups(newGroupList)
     }
     function onFriendActionChanged(reciverId:string, friend_request_info:FriendRequest, type, friend_info=null){
         console.log('onfriendrequest sent called')
@@ -200,7 +216,15 @@ export const ConnectionGroups = ()=>{
                 :
                 <>
                     <h3>Groups that you are part of</h3>
-                    
+                    {groups.map((group,index)=>{
+                        return(
+                            <GroupListItem
+                            key={index} 
+                            group={group}
+                            onGroupLeave={handleOnGroupLeave}
+                            />
+                        )
+                    })}
                 </>
                 }
         

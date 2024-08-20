@@ -1,11 +1,11 @@
 import { useState } from "react"
-import { ErrorMessage } from "../components/Misc/ErrorMessage"
+import { ErrorMessage } from "../components/common/ErrorMessage"
 import { axiosInstance } from "../utility/axiosInstance"
 import { getAuthHeader } from "../utility/authenticationHelper"
 import { FriendRequest, LoggedInUser } from "../models/user.models"
 import { useAppSelector } from "../store/store"
 import { UserWithFriend } from "../types/users.friends.types"
-import { UserListItem } from "../components/Connections&Groups/UserListItem"
+import { UserListItem } from "../components/connectiongroups/UserListItem"
 
 
 export const DiscoverUsers:React.FC = ()=>{

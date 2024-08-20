@@ -27,7 +27,7 @@ export interface Room {
     roomType:ROOM_TYPE,
     createdAt:Date,
     updatedAt:Date,
-    createdBy:string|User,
+    createdBy:User|string,
     privateRoomMembers:User[],
 }
 
@@ -59,3 +59,11 @@ export interface RecentChatItem{
     room:Room;
     isUnread:boolean;
 }
+export type UserType = User|string;
+
+export interface RoomMember{
+    room:ROOM_TYPE,
+    member:UserType,
+    joinedAt:Date,
+}
+export type RoomMemberAndRoom = RoomMember & { room: Room }

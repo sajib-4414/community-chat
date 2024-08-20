@@ -31,3 +31,4 @@ export interface Friend{
     createdAt:Date;
     updatedAt:Date;
 }
+

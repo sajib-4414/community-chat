@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { RoomType, UserType } from "./groups.friends.models";
 
-interface IRoomMember{
+export interface IRoomMember{
     room:RoomType,
     member:UserType,
     joinedAt:Date,

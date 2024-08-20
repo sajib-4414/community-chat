@@ -1,11 +1,11 @@
 import { FC } from "react";
 import { Link } from "react-router-dom";
-import { LoggedInUser } from "../models/user.models";
-import { useAppDispatch, useAppSelector } from "../store/store";
-import { resetUser } from "../store/UserSlice";
-import { axiosInstance } from "../utility/axiosInstance";
-import { socket } from "../socket";
-import { router } from "../router";
+import { LoggedInUser } from "../../models/user.models";
+import { useAppDispatch, useAppSelector } from "../../store/store";
+import { resetUser } from "../../store/UserSlice";
+import { axiosInstance } from "../../utility/axiosInstance";
+import { socket } from "../../socket";
+import { router } from "../../router";
 const env = await import.meta.env;
 const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 

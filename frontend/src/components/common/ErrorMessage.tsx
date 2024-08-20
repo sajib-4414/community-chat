@@ -1,4 +1,6 @@
-export const ErrorMessage = ({errorLine})=>{
+import React from "react"
+
+export const ErrorMessage:React.FC<{errorLine:string}> = ({errorLine}:{errorLine:string})=>{
     return (
         <>
         {
