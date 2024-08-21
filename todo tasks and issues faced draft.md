@@ -107,32 +107,56 @@ roommember for each member: (room, member, joined at)
 
 room: name, createdby, date 
 
-//////
-[
-  {
-    $match: {
-      "member":new ObjectId('66b98eb71cb701ffc3fe5594')
-    }
-  },
-  {
-    $lookup: {
-      from: "rooms",
-      let:{
-        room_id:"$room"
-      },
-      pipeline:[
-        {
-          $match:{
-            $expr:{
-              $and:[
-                { $eq: ["one_to_one","$roomType"]},
-                { $eq: ["_id","$$room_id"]}
-              ]
-            }
-          }
-        }
-      ],
-      as: "room_details"
-    }
-  }
-]
+Group chat planning:
+
+who can create group chat:
+everyone
+
+how to create?
+start chatting with one person, then click a button create a new group with this person
+, then a modal with dropdown will come, showing all his friends, he can checkmark,
+and then submit. api wil get a list of userids, and creator id. api will create a room with
+a system message, omuk created this group. 
+
+how to update?
+next time when someone is in the group chat ui, they will see option to add more people, ui will show a list
+of people that are not in the group as scrollview through an api, they can again mark them with checkboxes.
+
+there is no admin facility, we will not allow removing a person by an admin.
+its for later.
+
+only way to get out of this group chat will be if someone leaves by themselves.
+
+group chat will have an option to leave also.
+
+when someone clicks leave, we just delete the roomMember.
+messages we dont do anything.
+
+...
+acknowledgment?
+already kora ase proti message e acknowledgement.
+
+
+---
+how about getting recent chats.
+arekta query hobe
+room member theke user jesob room e ase,
+oi sob room niya message er sathe left join,
+taile osob room er message pabo, decending sort kore last message nibo,
+then just pathay dibo,
+we need room, last message, thats it.
+UI te name er jagay group chat name, ar last message jar e dekhano hobe.
+
+unread query i guess, automatically roomwise
+data diye dibe.
+
+---
+when frontend sends a message:
+server will definitely know there is room.
+it will just check if its a valid room.
+then backend sends messagePayload to server{room, message}
+fronend dekhbe j ei room to current chat e khola taile eta current chat e add korbe, naile recent chat e.
+frontned already jane just ekta room paile ki kora lage.
+so frontend is prepared for group chat.
+
+

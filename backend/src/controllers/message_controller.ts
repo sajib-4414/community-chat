@@ -2,9 +2,11 @@ import {  Request, Response } from "express";
 import { addNewSocketIdToUser, deleteSocketIdFromUser, getChatMessagesOfRoom, getPastOneToOneChats, getUnreadMessageInfo, joinAllChatRooms } from "../services/message_service";
 
 import { HTTP_200_OK, HTTP_204_NO_CONTENT } from "../definitions/http_constants";
-import { IMessage } from "../models/message";
+import { IMessage, Message } from "../models/message";
 
-import {  MessageUnreadItem, MessageWithRoom } from "../definitions/room_message_types";
+import {  MESSAGE_TYPES, MessageUnreadItem, MessageWithRoom, ROOM_TYPE } from "../definitions/room_message_types";
+import { Room } from "../models/room";
+import { RoomMember } from "../models/room-member";
 
 
 //get all messages of a channel, espeicaily user opened the chat window with a person
@@ -52,4 +54,40 @@ export const deleteUserSocket = async(req:Request, res:Response)=>{
     const {socketId} = req.body
     deleteSocketIdFromUser(req.user, socketId)
     res.status(HTTP_204_NO_CONTENT).json({})
+}
+
+export const createChatGroup = async(req:Request, res:Response)=>{
+    const {userIds} = req.body
+    //first create a room
+    const room = await Room.create({
+        name: 'Room by '+req.user.name,
+        code: 'group-chat-room-created-by-'+req.user.username+"-"+ Number((new Date)),
+        roomType:ROOM_TYPE.GROUP_CHAT,
+        createdAt:req.user._id
+    })
+
+    //then enroll everybody in the room
+    //create a bulk insert object
+    const dateNow = new Date()
+    const bulkInsert = userIds.map((userId:string) => {
+        return {
+            room,
+            member:userId,
+            joinedAt: dateNow
+        }
+    });
+    //create all room members at once
+    await RoomMember.insertMany(bulkInsert)
+    //create a first system message in the room
+    const message = await Message.create({
+        message: `${req.user.name} Created the group`,
+        room:room._id,
+        messageType:MESSAGE_TYPES.SYSTEM_MSG,
+        messageRoomType:ROOM_TYPE.GROUP_CHAT,
+    })
+    const messagePayLoadResponse:MessageWithRoom = {
+        room,
+        message
+    }
+    res.status(HTTP_204_NO_CONTENT).json(messagePayLoadResponse)
 }

@@ -266,6 +266,64 @@ But We also have to update the recent chat and current chat both if user is curr
     }
         return (
             <main className="content">
+                {/* modal start  */}
+                <div className="modal fade" id="exampleModal" tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                        <div className="modal-header">
+                            <h5 className="modal-title" id="exampleModalLabel">Choose more friends to start a group chat </h5>
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div className="modal-body">
+                        <div className="border mb-2">
+                            <h5>Friends chosen</h5>
+                            <div className="form-check">
+                                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" disabled checked/>
+                                    <label className="form-check-label" htmlFor="flexCheckDefault">
+                                        John doe
+                                    </label>
+                            </div>
+                            <div className="form-check">
+                                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" disabled checked/>
+                                    <label className="form-check-label" htmlFor="flexCheckDefault">
+                                        John doe
+                                    </label>
+                            </div>
+                        </div>
+                        
+                        <h5>Friends to choose</h5>
+                        <ul className="list-group">
+                            <li className="list-group-item">
+                                <div className="form-check">
+                                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault"/>
+                                    <label className="form-check-label" htmlFor="flexCheckDefault">
+                                        John doe
+                                    </label>
+                                </div>
+                            </li>
+                            <li className="list-group-item">
+                                <div className="form-check">
+                                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault"/>
+                                    <label className="form-check-label" htmlFor="flexCheckDefault">
+                                        Sebastian
+                                    </label>
+                                </div>
+                            </li>
+                        </ul>
+                        </div>
+                        <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary">Save changes</button>
+                        </div>
+                        </div>
+                    </div>
+                </div>
+                {/* modal end  */}
+
+
+
     <div className="container p-0">
 
 		<h1 className="h3 mb-3">Messages</h1>
@@ -349,12 +407,17 @@ But We also have to update the recent chat and current chat both if user is curr
                                 ) : (
                                 <div className="circle-custom bg-success">&#8203;</div>
                                 )}
+                                <button type="button" className="btn ml-2 border" data-toggle="modal" data-target="#exampleModal">
+                                {/* Create a groupchat with {currentlyChatContact.name} */}
+                                <i className="bi bi-person-add" style={{fontSize:'20px'}}></i>
+                                </button>
                             </>
                             ) : (
                             'Click a user to start chatting'
                             )}
 								
 							</div>
+                            
 							
 						</div>
 					</div>

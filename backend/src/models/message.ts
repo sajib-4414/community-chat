@@ -23,7 +23,7 @@ const messsageSchema = new mongoose.Schema<IMessage>({
     sender:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User",
-        required:true
+        required:false //we dont need a sender for system message
     },
     reciever:{
         type:mongoose.Schema.Types.ObjectId,
