@@ -1,7 +1,7 @@
 # Project Todos
 
 ### FrontEnd
-- Learn Error Boundary and Implement.
+- Learn Error Boundary and Implement.(done)
 - See a better implementation of socket, like in useeffect or where its best.
 - add suspense for loading, add useMemo
 - Added message sending, status to show that message is being sent (done)
@@ -15,8 +15,8 @@
 
 - Zipcode based search, Add Postal code, and postal code based radius based searching.
 - Add API testing(done)
+- add more usecase based testing with mocking library
 - Add unit testing, method based
-- Add test with some mocking library
 - Message read/seen functionality(done)
 - Add message delete functionality.
 - Adding profile images(done)
@@ -40,7 +40,9 @@
 - Socketio middleware for authentication(Done)
 - Search API for autocomplete: (Done)
 - Add seeder, (done)
-- Add mongoose aggregate paginate
+- Add mongoose aggregate paginate, will be useful for discovering friends.
+- add seed data for friends
+- add seed data for group chats
 
 ### Devops
 - Add github workflow

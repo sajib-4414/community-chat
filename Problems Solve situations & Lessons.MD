@@ -532,6 +532,13 @@ const ParentComponent = () => {
 export default ParentComponent;
 ```
 
+### Error boundary for react:
+what error boundary catch: which is not a compile time error such as syntax error, wrong tag,Errors that occur during the build process, like those reported by Babel or Vite, Errors Outside React Components: Errors in non-React code or configuration issues.
+*what error boundary  catch*:  Rendering Errors: Errors that occur during the rendering of a component.
+Lifecycle Methods: Errors in componentDidMount, componentDidUpdate, or other lifecycle methods.
+Constructors: Errors that occur in the constructor of a component.
+*One very Common example* is if there is no field in api response, we try to access, that time. this is a runtime error. or a variable got null we tried to access it during some logic in frontend.
+I used react-error-boundary with a given fallback UI. i could have done it manually as well.
 # Lessons
 
 - **backend frontend integration**: learnt about backend integration properly with frontend,especially which query to run, for which ui, which mongoose query to run, response. For example, I had Room(name,code, privateRoomMembers), Message(room, sender), User. Frotnend needed previous chat messages, for that i needed all rooms that logged in user are part of, those room's last messsage, and who is the other user that current user is chatting with. So I wrote mongoose aggregate query, created Typescript type, MessageWithRoom. I also had to aggreate lookup with the user table to send the info of the other person current user is chatting with.

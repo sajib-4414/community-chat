@@ -9,14 +9,24 @@ import { useEffect } from 'react';
 import { LoggedInUser } from './models/user.models';
 import { resetUser, storeUser } from './store/UserSlice';
 import { router } from './router';
+import ErrorBoundary from './components/common/ErrorBoundary';
+
+
 const AppWrapper = ()=>{
+   {/* we are wrapping so that App component itself can use React redux store(dispatch command), fetch functionalities */}
   return(
-    //we are wrapping so that App component itself can use React redux store(dispatch command), fetch functionalities
-    <Provider store={store}>
-      <App />
-    </Provider>
+    
+   
+  <Provider store={store}>
+        <App />
+  </Provider>
+  
+
+
+   
   )
 }
+
 function App() {
   const dispatch = useAppDispatch(); // Works!
   useEffect(()=>{
@@ -32,9 +42,9 @@ function App() {
     }
   })
   return (
-      // <Container>
+    
         <RouterProvider router={router} />
-      // </Container>
+        
   );
 }
 

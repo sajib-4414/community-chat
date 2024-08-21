@@ -49,6 +49,10 @@ const Header:FC = ()=>{
             router.navigate('/login')
         }
         }
+      else{
+        dispatch(resetUser())
+        router.navigate('/login')
+      }
     }
     
     //we will later restore the user from local storage in App.ts,

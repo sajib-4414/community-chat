@@ -7,14 +7,19 @@ import GuardedHOC from "./components/chat/GuardedComponent";
 import { UserProfile } from "./pages/UserProfile";
 import { DiscoverUsers } from "./pages/DiscoverUsers";
 import { ConnectionGroups } from "./pages/ConnectionGroups";
+import { ErrorBoundary } from "react-error-boundary";
+import { ErrorFallback } from "./components/common/ErrorFallback";
+
 
 
 const HOCWithContainer = (OriginalComponent:any) => {
     function NewComponent(props:any) {
       return (
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
         <Container>
           <OriginalComponent {...props} />
         </Container>
+         </ErrorBoundary>
       );
     }
     return NewComponent;

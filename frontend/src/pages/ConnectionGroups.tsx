@@ -8,7 +8,6 @@ import { ErrorMessage } from "../components/common/ErrorMessage"
 import { UserListItem } from "../components/connectiongroups/UserListItem"
 import { RoomMemberAndRoom } from "../models/message.models"
 import { GroupListItem } from "../components/connectiongroups/GroupListItem"
-import { group } from "console"
 type tabType = "connections"| "requests-sent" | "groups" | "requests-recieved"
 export const ConnectionGroups = ()=>{
     const [activeTab,setActiveTab] = useState<tabType>("connections")

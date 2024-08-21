@@ -9,6 +9,7 @@ import { UserListItem } from "../components/connectiongroups/UserListItem"
 
 
 export const DiscoverUsers:React.FC = ()=>{
+  
     const [radius,setRadius] = useState(0)
     const [errorLine,setErrorLine] = useState("")
     const [users,setUserList] = useState<UserWithFriend[]>([])
