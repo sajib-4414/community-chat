@@ -1,13 +1,14 @@
 import { Socket } from "socket.io";
 import { NotAuthenticatedError } from "../definitions/error_definitions";
 import jwt, { JwtPayload } from "jsonwebtoken";
-import { IUser, User, UserRoomLastSeen, UserSocket } from "../models/user";
+import { IUser, IUserSocket, User, UserRoomLastSeen, UserSocket } from "../models/user";
 import { MESSAGE_TYPES, MessagePayLoadToServer, MessageWithRoom, ROOM_TYPE } from "../definitions/room_message_types";
 import { IRoom, Room } from "../models/room";
 import { IMessage, Message } from "../models/message";
 import { getIoInstance } from "../config/socketInstance";
 import { MESSAGE_FROM_SERVER, ONLINE_STATUS_BROADCAST_FROM_SERVER, USER_CAME_ONLINE } from "../definitions/event_types";
 import { redisClient } from "../config/redisClient";
+import { IRoomMember, RoomMember } from "../models/room-member";
 export interface CustomSocket extends Socket {
     user: IUser|null; // Replace User with your actual user interface
 }
@@ -78,16 +79,14 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
                 message:payload.message,
                 sender:  payload.senderUser  ,
                 room,
-                oneToOne:true,
+                oneToOne:room?.roomType === ROOM_TYPE.ONE_TO_ONE ? true:false,
                 messageRoomType:payload.messageRoomType,
                 messageType:MESSAGE_TYPES.USER_MSG
             })
             //also mark this as latest activity from that room
             room!.lastMessageAt = new Date()
             await room?.save()
-            const receiverUserSocket = await UserSocket.findOne({
-                user:payload.targetUser
-            })
+            
             //also mark this as user's last seen of this room
             await UserRoomLastSeen.updateOne(
                 //matching conditions
@@ -104,20 +103,44 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
                 }
             )
 
-            //we will join both sender and receiver socke to the room
-            //this is the sender socket
-            socket.join(payload.room?.code!);
-            //this is the receiver socket
-            //reciver may not be in online, so we attempt to join the receiver to the room
-            try{
-                const targetSocket = io.sockets.sockets.get(receiverUserSocket?.socketIds[0]);
-                if (targetSocket)
-                    targetSocket.join(payload.room?.code!)
-                else
-                    console.log("reciver is not online, just db message this time....")
-            }catch(err){
-                console.log(err)
+            
+            
+            if(payload.targetUser && room?.roomType === ROOM_TYPE.ONE_TO_ONE){
+                //we will join both sender and receiver socke to the room
+                //this is the sender socket
+                socket.join(payload.room?.code!);
+                //this is the receiver socket
+                //reciver may not be in online, so we attempt to join the receiver to the room
+                const receiverUserSocket = await UserSocket.findOne({
+                    user:payload.targetUser
+                })
+                try{
+                    const targetSocket = io.sockets.sockets.get(receiverUserSocket?.socketIds[0]);
+                    if (targetSocket)
+                        targetSocket.join(payload.room?.code!)
+                    else
+                        console.log("reciver is not online, just db message this time....")
+                }catch(err){
+                    console.log(err)
+                }
             }
+            else if(room?.roomType === ROOM_TYPE.GROUP_CHAT){
+                //find all members of that group
+                //we dont need to explicitly join sender socket
+                const roomMembers:IRoomMember[] = await RoomMember.find({
+                    room
+                }).populate('member')
+                for(const rm of roomMembers){
+                    const user = rm.member
+                    const userSocket:IUserSocket|null = await UserSocket.findOne({
+                        user
+                    })
+                    const targetSocket = io.sockets.sockets.get(userSocket?.socketIds[0]);
+                    if (targetSocket)
+                        targetSocket.join(payload.room?.code!)
+                }
+            }
+            
             
 
             //retireve the updated message from DB

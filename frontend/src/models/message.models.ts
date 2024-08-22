@@ -55,7 +55,7 @@ export interface pastChatResponse{
 //in the recent window it must show user1 when user2 sees the recent chats
 export interface RecentChatItem{
     latestMessage:Message,
-    secondUser:User;
+    secondUser?:User;
     room:Room;
     isUnread:boolean;
 }

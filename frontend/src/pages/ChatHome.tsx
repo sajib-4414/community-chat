@@ -12,6 +12,9 @@ import { ONLINE_STATUS_BROADCAST_FROM_SERVER, ROOM_TYPE, SOCKET_CONNECTED, SOCKE
 import { RecentChats, RecentChatsRef } from "../components/chat/RecentChatContainer";
 import {  Message, RecentChatItem, Room, ServerMessagePayload } from "../models/message.models";
 import { getAuthHeader } from "../utility/authenticationHelper";
+import {  getInitialsFromRoom, getInitialsFromUser } from "../utility/stringherlper";
+import { GroupChatModal } from "../components/chat/GroupChatModal";
+import { modalAction } from "../types/users.friends.types";
 const env = await import.meta.env;
 const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 export  const ChatHome = ()=>{
@@ -24,9 +27,10 @@ export  const ChatHome = ()=>{
     const [currentlyChatContact, setCurrentlyChatContact] = useState<User|null>(null)
     const [currentMessageRoomType, setCurrentMessageRoomType] = useState("")
     const [currentChatRoom, setCurrentChatRoom] = useState<Room|null>(null)
-    
+    const [chosenUsers,setChosenUsers] = useState<User[]>([])
     const recentChatRef = useRef();
     const chatContainerRef = useRef()
+    const [showGroupCreateModal, setGroupCreateModalShow] = useState(false);
     
 
 
@@ -169,6 +173,7 @@ if they are the one user clicked to chat, then we know we have to update the cur
 /*user has not clicked any contact/recent chat, or the incoming message's room/contact does not 
 match with the currently opened chat window's cotnact/room, so we update the recent chat Items.
 But We also have to update the recent chat and current chat both if user is currently chatting with someone*/
+//also covers when there is a group chat message
     else if (currentChatRoom==null && currentlyChatContact==null){
         if(loggedinUser){
             if(recentChatRef.current){
@@ -179,6 +184,29 @@ But We also have to update the recent chat and current chat both if user is curr
         }
             
     }
+// a group chat message came, and user has opened that group chat
+else if(currentChatRoom !== null && currentlyChatContact === null && messagePayload.room.roomType === ROOM_TYPE.GROUP_CHAT){
+
+        if(messagePayload.room._id === currentChatRoom._id){
+            if(chatContainerRef.current){
+                const chatCointainerReference = chatContainerRef.current as ChatContainerRef
+                chatCointainerReference.updateChatUponSocketMessage(messagePayload)
+            }
+        }
+
+        //also have to update recent chat window
+        if(loggedinUser){
+            if(recentChatRef.current){
+                console.log('I am telling to update recent chat window ehre v1')
+                const recentChatReference = recentChatRef.current as RecentChatsRef
+                recentChatReference.updateRecentChatContainer(null, messagePayload)
+            }
+        }
+        //also send a socket response back that user has seen it, as the chat window is currently open
+        socket.emit(READ_ACKNOWLEDGEMENT_MESSAGE, {
+            room:messagePayload.room
+        })
+}
         
         
     });
@@ -230,29 +258,71 @@ But We also have to update the recent chat and current chat both if user is curr
         let targetUser;
         targetUser = imessage.secondUser;
 
-        //someone wants to do a private chat, and just clicked a recent chats with another person
-        //1. set currentChat to the contact
-        if(targetUser){
+        //2. set current message type
+        setCurrentMessageRoomType(room.roomType)
 
-            setCurrentlyChatContact(targetUser)
-            // console.log('current chat contact has been set as',targetUser)
+        if(room.roomType === ROOM_TYPE.ONE_TO_ONE){
+            //someone wants to do a private chat, and just clicked a recent chats with another person
+            //1. set currentChat to the contact
+            if(targetUser){
+
+                setCurrentlyChatContact(targetUser)
+                // console.log('current chat contact has been set as',targetUser)
+            }
+                
+                
+                
+                //3. set the current room, we cannot get the room info from the contact only, so set it to null
+                if(room)
+                    setCurrentChatRoom(room as Room)
         }
-            
-            //2. set current message type
-            setCurrentMessageRoomType(ROOM_TYPE.ONE_TO_ONE)
-            //3. set the current room, we cannot get the room info from the contact only, so set it to null
+        else if (room.roomType === ROOM_TYPE.GROUP_CHAT){
+            setCurrentlyChatContact(null)
             if(room)
                 setCurrentChatRoom(room as Room)
+        }
+        
 
         //4. Now fecth the previous messages of this chat
         // fetchChatMessagesForCurrentChat(ROOM_TYPE.ONE_TO_ONE, targetUser)
-        if(chatContainerRef.current){
-            const chatCointainerReference = chatContainerRef.current as ChatContainerRef
-            chatCointainerReference.fetchCurrentChatMessage(ROOM_TYPE.ONE_TO_ONE, targetUser)
+        if(room && room.roomType===ROOM_TYPE.GROUP_CHAT){
+            console.log('i am calling group  chat............')
+            if(chatContainerRef.current){
+                const chatCointainerReference = chatContainerRef.current as ChatContainerRef
+                chatCointainerReference.fetchCurrentChatMessage(ROOM_TYPE.GROUP_CHAT, null, room)
+            }
+        }
+        else if(targetUser && (!room || room.roomType === ROOM_TYPE.ONE_TO_ONE)){
+            console.log('i am calling one to one  chat............')
+            if(chatContainerRef.current){
+                const chatCointainerReference = chatContainerRef.current as ChatContainerRef
+                chatCointainerReference.fetchCurrentChatMessage(ROOM_TYPE.ONE_TO_ONE, targetUser)
+            }
         }
     }
 
-   
+   const handleGroupChatModalClose = (action:modalAction, msgResponse:ServerMessagePayload|null)=>{
+    setGroupCreateModalShow(false)
+    if(action === "save"){
+        //message group chat was created
+        if(msgResponse){
+            const room:Room|null|string = msgResponse.room
+            setCurrentMessageRoomType(msgResponse.room.roomType)
+            setCurrentChatRoom(room as Room)
+            setCurrentlyChatContact(null)
+            if(chatContainerRef.current){
+                const chatCointainerReference = chatContainerRef.current as ChatContainerRef
+                chatCointainerReference.fetchCurrentChatMessage(ROOM_TYPE.GROUP_CHAT, null,room)
+            }
+            if(recentChatRef.current){
+                const recentChatReference = recentChatRef.current as RecentChatsRef
+                recentChatReference.updateRecentChatContainer(null, msgResponse)
+            }
+        }
+        
+
+    }
+   }
     const handleClearUnread = (chattingUser:User)=>{
         //notify the recent chat container that for a certain contact/chat,
         //message has been opened, api has already marked the chat as read
@@ -267,59 +337,11 @@ But We also have to update the recent chat and current chat both if user is curr
         return (
             <main className="content">
                 {/* modal start  */}
-                <div className="modal fade" id="exampleModal" tabIndex={-1} role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div className="modal-dialog" role="document">
-                        <div className="modal-content">
-                        <div className="modal-header">
-                            <h5 className="modal-title" id="exampleModalLabel">Choose more friends to start a group chat </h5>
-                            <button type="button" className="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-                        <div className="modal-body">
-                        <div className="border mb-2">
-                            <h5>Friends chosen</h5>
-                            <div className="form-check">
-                                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" disabled checked/>
-                                    <label className="form-check-label" htmlFor="flexCheckDefault">
-                                        John doe
-                                    </label>
-                            </div>
-                            <div className="form-check">
-                                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault" disabled checked/>
-                                    <label className="form-check-label" htmlFor="flexCheckDefault">
-                                        John doe
-                                    </label>
-                            </div>
-                        </div>
-                        
-                        <h5>Friends to choose</h5>
-                        <ul className="list-group">
-                            <li className="list-group-item">
-                                <div className="form-check">
-                                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault"/>
-                                    <label className="form-check-label" htmlFor="flexCheckDefault">
-                                        John doe
-                                    </label>
-                                </div>
-                            </li>
-                            <li className="list-group-item">
-                                <div className="form-check">
-                                    <input className="form-check-input" type="checkbox" value="" id="flexCheckDefault"/>
-                                    <label className="form-check-label" htmlFor="flexCheckDefault">
-                                        Sebastian
-                                    </label>
-                                </div>
-                            </li>
-                        </ul>
-                        </div>
-                        <div className="modal-footer">
-                            <button type="button" className="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="button" className="btn btn-primary">Save changes</button>
-                        </div>
-                        </div>
-                    </div>
-                </div>
+                <GroupChatModal
+                modalShow={showGroupCreateModal}
+                chosenFriends={chosenUsers}
+                onModalClose={handleGroupChatModalClose}
+                />
                 {/* modal end  */}
 
 
@@ -333,13 +355,6 @@ But We also have to update the recent chat and current chat both if user is curr
 				
 				<div className="col-12 col-lg-5 col-xl-3 border-right">
 
-					{/* <div className="px-4 d-none d-md-block">
-						<div className="d-flex align-items-center">
-							<div className="flex-grow-1">
-								<input type="text" className="form-control my-3" placeholder="Search..."/>
-							</div>
-						</div>
-					</div> */}
                     <SearchBar
                     onSearchResultContactSelected={handleContactClick}
                     />
@@ -352,14 +367,25 @@ But We also have to update the recent chat and current chat both if user is curr
 								<a href="#" className="list-group-item list-group-item-action border-0">
 							
 							<div className="d-flex align-items-start">
-								<img 
+                                {contact.profileImage?
+                                <img 
                                 src={`${SERVER_URL}${contact.profileImage}`}
                                 className="rounded-circle mr-1" 
                                 alt="photo" 
                                 width="40" 
                                 height="40"/>
+                                :
+                                <div data-initials={getInitialsFromUser(contact)}></div>
+                            }
+                                
+								
+
+
+
 								<div className="flex-grow-1 ml-3">
 								{contact.username}
+
+
 								{contact.isOnline?
 								<div className="small"><span className="fas fa-circle chat-online"></span> Online</div>
 								:
@@ -388,18 +414,35 @@ But We also have to update the recent chat and current chat both if user is curr
 				<div className="col-12 col-lg-7 col-xl-9">
 					<div className="py-2 px-4 border-bottom d-none d-lg-block">
 						<div className="d-flex align-items-center py-1">
-                            {currentlyChatContact?
-                            <div className="position-relative">
-                            <img 
-                            alt='profile pic'
-                            src={`${SERVER_URL}${currentlyChatContact.profileImage}`}
-                            className="rounded-circle mr-1"
-                             width="40" 
-                             height="40"/>
-                            </div>:''}
+                            {currentlyChatContact && (!currentChatRoom || currentChatRoom.roomType===ROOM_TYPE.ONE_TO_ONE ) &&
+                                
+
+                                <div className="position-relative">
+                                
+                                
+                                    {currentlyChatContact.profileImage?
+                                        <img 
+                                        src={`${SERVER_URL}${currentlyChatContact.profileImage}`}
+                                        className="rounded-circle mr-1" 
+                                        alt="photo" 
+                                        width="40" 
+                                        height="40"/>
+                                        :
+                                        <div data-initials={getInitialsFromUser(currentlyChatContact)}></div>
+                                    }
+                                
+                                </div>
+                                
+                            }
+
+                            {!currentlyChatContact && currentChatRoom && currentChatRoom.roomType===ROOM_TYPE.GROUP_CHAT &&
+                                <div className="position-relative">
+                                    <div data-initials={getInitialsFromRoom(currentChatRoom)}></div>
+                                </div>
+                            }
 							
 							<div className="flex-grow-1 pl-3">
-                            {currentlyChatContact ? (
+                            {currentlyChatContact &&(!currentChatRoom || currentChatRoom.roomType===ROOM_TYPE.ONE_TO_ONE) && 
                             <>
                                 <strong>{currentlyChatContact.name}</strong>
                                 {currentlyChatContact.isOnline === false || currentlyChatContact.isOnline === undefined ? (
@@ -407,14 +450,29 @@ But We also have to update the recent chat and current chat both if user is curr
                                 ) : (
                                 <div className="circle-custom bg-success">&#8203;</div>
                                 )}
-                                <button type="button" className="btn ml-2 border" data-toggle="modal" data-target="#exampleModal">
+                                <button type="button" 
+                                className="btn ml-3 border" 
+                                onClick={()=>
+                                    {
+                                        setChosenUsers([loggedinUser?.user!, currentlyChatContact]); 
+                                        setGroupCreateModalShow(true)
+                                    }}
+                                >
                                 {/* Create a groupchat with {currentlyChatContact.name} */}
-                                <i className="bi bi-person-add" style={{fontSize:'20px'}}></i>
+                                    <i className="bi bi-person-add" style={{fontSize:'20px'}}></i>
                                 </button>
                             </>
-                            ) : (
-                            'Click a user to start chatting'
-                            )}
+                            }
+
+                            {!currentlyChatContact && currentChatRoom && currentChatRoom.roomType === ROOM_TYPE.GROUP_CHAT &&
+                                <>
+                                    <strong>{currentChatRoom.name}</strong>
+                                </>
+                            }
+
+                            {!currentlyChatContact && !currentChatRoom &&
+                                <p>Click a user to start chatting</p>
+                            }
 								
 							</div>
                             
@@ -426,13 +484,20 @@ But We also have to update the recent chat and current chat both if user is curr
                     ref={chatContainerRef}
                     handleClearUnread={handleClearUnread}
                     />
-                    {currentlyChatContact?
+                    {currentlyChatContact && (!currentChatRoom || currentChatRoom.roomType === ROOM_TYPE.ONE_TO_ONE) ?
                     <ChatFooterContainer
                     currentlyChattingWith={currentlyChatContact}
                     currentRoom={currentChatRoom}
                     notifyChatContainer={notifyChatContainer}
                     />:''
-                }
+                    }
+
+                    {!currentlyChatContact  && currentChatRoom && currentChatRoom.roomType === ROOM_TYPE.GROUP_CHAT ?
+                    <ChatFooterContainer
+                    currentRoom={currentChatRoom}
+                    notifyChatContainer={notifyChatContainer}
+                    />:''
+                    }
 
 					
 

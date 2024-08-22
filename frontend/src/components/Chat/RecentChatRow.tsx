@@ -1,5 +1,7 @@
-import React, { memo, useEffect, useState } from "react";
+import React, {  useEffect } from "react";
 import { RecentChatItem } from "../../models/message.models";
+import { ROOM_TYPE } from "../../utility/constants";
+import { getInitialsFromRoom } from "../../utility/stringherlper";
 const env = await import.meta.env;
 const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 export interface RowProps{
@@ -11,14 +13,17 @@ const RowComp:React.FC<RowProps> = ({imessage,isCurrentlyChosen})=>{
         //  console.log('I am recent chat row, rendered,props=',imessage)
     },[imessage])
     const getDisplayName = ()=>{
-        if(imessage.secondUser.name && imessage.secondUser.name!=="")
+        if(imessage.secondUser && imessage.secondUser.name && imessage.secondUser.name!=="")
             return imessage.secondUser.name
-        else
+        else if(imessage.secondUser && imessage.secondUser.username)
             return imessage.secondUser.username
+        else if(imessage.room.roomType===ROOM_TYPE.GROUP_CHAT){
+            return imessage.room.name
+        }
     }
 
     const getUserIsOnline = ()=>{
-        if(imessage.secondUser.isOnline===false 
+        if(!imessage.secondUser || imessage.secondUser.isOnline===false 
             || imessage.secondUser.isOnline ===undefined)
             return false
         else
@@ -39,23 +44,31 @@ const RowComp:React.FC<RowProps> = ({imessage,isCurrentlyChosen})=>{
             {/* <pre>{JSON.stringify(imessage, null, 2)}</pre> */}
 							
 							<div className={`d-flex align-items-start`+getBackGroundColor()}>
-								<img 
+                                {imessage.secondUser ? 
+                                <img 
                                 src={`${SERVER_URL}${imessage.secondUser.profileImage}`}
                                 className="rounded-circle mr-1" 
                                 alt="photo"
                                 width="40" 
                                 height="40"/>
+                                :
+                                <div data-initials={getInitialsFromRoom(imessage.room)}></div>
+                                }
+								
 								<div className="flex-grow-1 ml-3">
                                     <span 
                                     
                                     style={{fontWeight:(imessage.isUnread==true?'bold':'normal')}}
                                     >{getDisplayName()} </span>
+                                {
+                                    imessage.secondUser ? !getUserIsOnline() ? 
+                                        <span className="circle-custom bg-warning">&#8203;</span>
+                                        :
+                                        <div className="circle-custom bg-success">&#8203;</div>
+                                    :''
+                                }
                                 
-                                { !getUserIsOnline()? 
-                                    <span className="circle-custom bg-warning">&#8203;</span>
-                                    :
-                                    <div className="circle-custom bg-success">&#8203;</div>
-                                    }
+                                
                                 
                                 
 									<div className="small">{imessage.latestMessage.message}</div>

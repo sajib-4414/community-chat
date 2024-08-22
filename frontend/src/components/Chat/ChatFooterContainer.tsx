@@ -7,7 +7,7 @@ import { socket } from "../../socket";
 import { MESSAGE_TO_SERVER } from "../../constants";
 
 interface ChatFooterContainerProps{
-    currentlyChattingWith:User,
+    currentlyChattingWith?:User,
     currentRoom:Room|null,
     notifyChatContainer:(msg:Message)=>void;
 }
@@ -30,7 +30,7 @@ export const ChatFooterContainer:React.FC<ChatFooterContainerProps> = (props)=>{
 
         //then emit the mesasge
         const messagePayload:MessagePayLoadToServer = {
-            messageRoomType: ROOM_TYPE.ONE_TO_ONE,
+            messageRoomType: props.currentRoom?.roomType===ROOM_TYPE.GROUP_CHAT? ROOM_TYPE.GROUP_CHAT: ROOM_TYPE.ONE_TO_ONE,
             targetUser: props.currentlyChattingWith,//it will be empty for groupchats
             senderUser:loggedinUser?.user,
             message:currentMessage,

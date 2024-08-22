@@ -1,7 +1,7 @@
 import {  Request, Response } from "express";
-import { addNewSocketIdToUser, deleteSocketIdFromUser, getChatMessagesOfRoom, getPastOneToOneChats, getUnreadMessageInfo, joinAllChatRooms } from "../services/message_service";
+import { addNewSocketIdToUser, deleteSocketIdFromUser, getChatMessagesOfRoom, getPastGroupChats, getPastOneToOneChats, getUnreadMessageInfo, joinAllChatRooms } from "../services/message_service";
 
-import { HTTP_200_OK, HTTP_204_NO_CONTENT } from "../definitions/http_constants";
+import { HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT } from "../definitions/http_constants";
 import { IMessage, Message } from "../models/message";
 
 import {  MESSAGE_TYPES, MessageUnreadItem, MessageWithRoom, ROOM_TYPE } from "../definitions/room_message_types";
@@ -21,10 +21,11 @@ export const getChatMessagesInRoom = async (req:Request, res:Response)=>{
 
 //to show the recent messages in the frotnennd
 export const getPastChatsOfUser = async (req:Request, res:Response)=>{
-    const pastChats:MessageWithRoom[] = await getPastOneToOneChats(req.user)
+    const pastOneToOneChats:MessageWithRoom[] = await getPastOneToOneChats(req.user)
+    const pastGroupChats:MessageWithRoom[] = await getPastGroupChats(req.user)
     const unreadRoomData:MessageUnreadItem[] = await getUnreadMessageInfo(req.user)
     const response = {
-        pastChats:pastChats,
+        pastChats:pastOneToOneChats.concat(pastGroupChats),
         unreadItems:unreadRoomData
     }
     res.status(HTTP_200_OK).json(response)
@@ -63,7 +64,7 @@ export const createChatGroup = async(req:Request, res:Response)=>{
         name: 'Room by '+req.user.name,
         code: 'group-chat-room-created-by-'+req.user.username+"-"+ Number((new Date)),
         roomType:ROOM_TYPE.GROUP_CHAT,
-        createdAt:req.user._id
+        createdBy:req.user._id
     })
 
     //then enroll everybody in the room
@@ -89,5 +90,5 @@ export const createChatGroup = async(req:Request, res:Response)=>{
         room,
         message
     }
-    res.status(HTTP_204_NO_CONTENT).json(messagePayLoadResponse)
+    res.status(HTTP_201_CREATED).json(messagePayLoadResponse)
 }

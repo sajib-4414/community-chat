@@ -1,5 +1,5 @@
 import express from 'express'
-import { addUserSocket, deleteUserSocket, getChatMessagesInRoom, getPastChatsOfUser, joinAllRooms } from '../controllers/message_controller'
+import { addUserSocket, createChatGroup, deleteUserSocket, getChatMessagesInRoom, getPastChatsOfUser, joinAllRooms } from '../controllers/message_controller'
 import { authorizedRequest } from '../middlewares/auth.error'
 const router = express.Router()
 
@@ -18,4 +18,7 @@ router.post('/add-socket', authorizedRequest, addUserSocket)
 
 //delete the socket from the user who logged out/disconnected, so user wont get instannt messages, also for cleanup
 router.post('/delete-socket', authorizedRequest, deleteUserSocket)
+
+router.post('/create-chat-group', authorizedRequest, createChatGroup)
+
 export {router as messageRouter}

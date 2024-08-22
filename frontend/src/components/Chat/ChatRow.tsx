@@ -3,6 +3,7 @@ import { useAppSelector } from "../../store/store";
 import Moment from "moment";
 import { Message } from "../../models/message.models";
 import { useState } from "react";
+import { MESSAGE_TYPES } from "../../utility/constants";
 const env = await import.meta.env;
 const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 
@@ -17,11 +18,17 @@ export const ChatRow: React.FC<ChatRowProps> = (props: ChatRowProps) => {
   const [sender] = useState(props.message.sender as User);
   const [rowClassName] = useState(() => {
     const sender = props.message.sender as User;
-    return sender.username === loggedinUser?.user.username
+    if(sender){
+      return sender.username === loggedinUser?.user.username
       ? "chat-message-right mb-4" 
       : "chat-message-left pb-4";
+    }
+    return ""
+    
   });
   const [isSender] = useState(() => {
+    if (props.message.messageType===MESSAGE_TYPES.SYSTEM_MSG)
+      return false
     return sender.username === loggedinUser?.user.username;
   });
   const getProfileImageUrl = ()=>{
@@ -33,8 +40,13 @@ export const ChatRow: React.FC<ChatRowProps> = (props: ChatRowProps) => {
     }
   }
 
-  return (
-    // <>
+  if(props.message.messageType === MESSAGE_TYPES.SYSTEM_MSG){
+    return (<>
+      <div className="bg-info text-white text-center">{props.message.message}</div>
+    </>)
+  }
+  else{
+    return (
       <div className={`${rowClassName}`}>
         <div>
           <img
@@ -56,4 +68,6 @@ export const ChatRow: React.FC<ChatRowProps> = (props: ChatRowProps) => {
         
       </div>)
 
+  }
+  
 };

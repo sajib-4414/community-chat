@@ -41,13 +41,17 @@ export const RecentChats = React.forwardRef((props:RecentChatContainerProps, ref
             // updating the isOnline status for all pastchat row items, just modifying the user_chatting_with obj
             const currentpastChats:RecentChatItem[] = pastChats.map((ps)=>{
                 // ps.room.privateRoomMembers
-                return{
-                    ...ps,
-                    secondUser:{
-                        ...ps.secondUser,
-                        isOnline:userMap.get(ps.secondUser._id)||false
+                if (ps.secondUser){
+                    return{
+                        ...ps,
+                        secondUser:{
+                            ...ps.secondUser,
+                            isOnline:userMap.get(ps.secondUser._id)||false
+                        }
                     }
                 }
+                return ps
+                
             })
             
             setPastChats(currentpastChats)
@@ -60,16 +64,20 @@ export const RecentChats = React.forwardRef((props:RecentChatContainerProps, ref
             console.log('again checking payload=',messagePayload)
             if(loggedinUser && loggedinUser.user){
                 const updatedPastChats = getUpdatedChatsOnSocketMessage(currentChatingWith, messagePayload, loggedinUser?.user, pastChats)
-                setPastChats(updatedPastChats)
+                console.log('updated past chat was.....',updatedPastChats)
+                if(updatedPastChats)
+                    setPastChats(updatedPastChats)
             }
         },
 
+
+        //marking a recent chat item as Read
         updateRecentItemRead(chattingUser?:User|null, chattingRoom?:Room|null){
 
             //see if we find the chattingUser
             if(chattingUser){
                 const newPastChats = pastChats.map((ps)=>{
-                    if(ps.secondUser._id===chattingUser._id){
+                    if(ps.secondUser && ps.secondUser._id===chattingUser._id){
                         console.log('i am updating for this user',chattingUser)
                         return {
                             ...ps,

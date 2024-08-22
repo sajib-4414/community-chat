@@ -55,7 +55,7 @@ export interface PastChatAggegationResponseItem{
     _id:string,
     room:IRoom,
     message:IMessage,
-    user_detail:IUser
+    user_detail?:IUser
 }
 
 export interface MessageUnreadItem{

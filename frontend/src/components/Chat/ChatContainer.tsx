@@ -43,7 +43,7 @@ export const ChatContainer = React.forwardRef((props:ChatContainerProps, ref)=>{
 		console.log('inside fetching..............')
         const payload:any = {}
         //send whatever info we have to the server
-       
+        console.log('vvvv room=',room, ",target=",targetUser)
          //case 1: one to one chat, user clicked a contact, we dont know the room
         //ensures its the case 1
         if(!room && targetUser){
@@ -54,8 +54,14 @@ export const ChatContainer = React.forwardRef((props:ChatContainerProps, ref)=>{
 
         //case 2 user clicked a recent one to one chat, we know the room
         //we also know the target user, that is another user from the room
-        if(room && targetUser){
+        else if(room && targetUser){
             payload.targetUser = targetUser //target user will be xtracted from the room
+            payload.messageRoomType = roomOrMessageType
+            payload.room=room//for one to one chat when someone reent chat, we know the room
+        }
+
+        //case 3 user jsut created a group chat or clicked a group chat from recent
+        else if(room && !targetUser && room.roomType===ROOM_TYPE.GROUP_CHAT){
             payload.messageRoomType = roomOrMessageType
             payload.room=room//for one to one chat when someone reent chat, we know the room
         }
@@ -66,7 +72,10 @@ export const ChatContainer = React.forwardRef((props:ChatContainerProps, ref)=>{
 
 		//when you are done, notify the parent component such that this recent item's unread item
 		//marker should be gone from the ui
-		props.handleClearUnread(targetUser)
+        if(targetUser && room?.roomType===ROOM_TYPE.ONE_TO_ONE)
+		    props.handleClearUnread(targetUser)
+        else if(room?.roomType===ROOM_TYPE.GROUP_CHAT)
+            props.handleClearUnread(targetUser)
     }
 
     const [currentChatMessages, setCurrentChatMessages] = useState<Message[]>([])

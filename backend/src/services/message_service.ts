@@ -3,14 +3,14 @@ import { IMessage, Message } from "../models/message"
 import { IRoom, Room } from "../models/room"
 import { RoomMember } from "../models/room-member"
 import { IUser, IUserSocket, UserRoomLastSeen, UserSocket } from "../models/user"
-import { roomsListItemMongoResponse, MessageWithRoom, PastChatAggegationResponseItem, MessageUnreadItem } from "../definitions/room_message_types"
+import { roomsListItemMongoResponse, MessageWithRoom, PastChatAggegationResponseItem, MessageUnreadItem, ROOM_TYPE } from "../definitions/room_message_types"
 
 
 export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:any)=>{
     //todo in future check current user authorized to get chat data of this room
 
     const {targetUser, messageRoomType, room:payloadRoom} = requestPayload
-
+    console.log('get message of room is',requestPayload)
 
     //we find a room where messagetype is one to one, and authenticated user, and targetUser is the privateRoomList
     //if we find a room, that means its their(use1,user2)'s private room
@@ -50,12 +50,26 @@ export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:a
 
     //case2 targetUser is also not Null[as UI can see private room members and fuind out the target User], but room is Not null, means user clicked a recent one to one chat, and requesting history
     //coming here means room is there, either we find it from db or from API request
-
-    if(room  && targetUser._id !=""){
+    console.log(' i am here v3')
+    if(!room  && payloadRoom && targetUser?._id !=""){
+      room = await Room.findById(payloadRoom._id)
+      console.log(' i am here v4')
       messages = await Message.find({
         room:room
       }).populate('sender')
 
+    }
+
+    console.log(' i am here v2')
+    console.log('targetUser',targetUser)
+    console.log('roomtype', room!.roomType)
+    if(!room && !targetUser && payloadRoom && payloadRoom.roomType===ROOM_TYPE.GROUP_CHAT){
+      console.log('here')
+      room = await Room.findById(payloadRoom._id)
+      messages = await Message.find({
+        room:room
+      }).populate('room')
+      console.log('messages=',messages)
     }
 
     //we also mark this user's last activity in the room, as user tried to see the past messages.
@@ -163,7 +177,7 @@ export const getPastOneToOneChats = async (user:IUser)=>{
     const modified_past_one_to_one_chats:MessageWithRoom[] = pastChatsOfUser.map((psitem)=>{
       const room:IRoom = psitem.room;
 
-      room.privateRoomMembers = [psitem.user_detail, user]
+      room.privateRoomMembers = [psitem.user_detail!, user]
       const message = psitem.message
       return {
         room,
@@ -171,6 +185,80 @@ export const getPastOneToOneChats = async (user:IUser)=>{
       }
     })
     return modified_past_one_to_one_chats;
+}
+
+export const getPastGroupChats = async(user:IUser)=>{
+   const pastChatsOfUser:PastChatAggegationResponseItem[] =  await RoomMember.aggregate([
+    {
+      $match: {
+        member: user._id,
+        
+      }
+    },
+    {
+      $lookup: {
+        from: 'messages',
+        localField: 'room',
+        foreignField: 'room',
+        pipeline: [
+                {
+                  $sort: {
+                    createdAt: -1,
+                  },
+                },
+                {
+                  $limit: 1,
+                },
+              ],
+              as: "message",
+      }
+    },
+    {
+      $lookup: {
+        from: 'rooms',
+        localField: 'room',
+        foreignField: '_id',
+        as: 'room_detail'
+      }
+    },
+    {
+      $unwind: {
+        path: '$room_detail'
+      },
+      
+    },
+    {
+      $unwind: {
+        path: '$message'
+      }
+    },
+    {
+      $project: {
+        room:0
+      }
+    },
+    {
+      $addFields: {
+        room: '$room_detail'
+      }
+    },
+    {
+      $project: {
+        room_detail:0
+      }
+    }
+  ]
+  )
+  const modified_past_group_chats:MessageWithRoom[] = pastChatsOfUser.map((psitem)=>{
+    const room:IRoom = psitem.room;
+    const message = psitem.message
+    return {
+      room,
+      message
+    }
+  })
+  return modified_past_group_chats;
+
 }
 
 export const getUnreadMessageInfo = async(user:IUser)=>{
@@ -279,7 +367,13 @@ export const joinAllChatRooms = async (currentUser:IUser, socketId:string)=>{
   const userRooms = myRooms.map((roomItem:roomsListItemMongoResponse)=> roomItem.roomdetails)
   const io:any = getIoInstance()
   const socket = io.sockets.sockets.get(socketId);
-  userRooms.forEach((room:IRoom)=>socket.join(room.name))
+  if(socket){
+    userRooms.forEach((room:IRoom)=>socket.join(room.name))
+  }
+  else{
+    console.log('socket is null, cannot join user to all rooms')
+  }
+ 
 }
 
 export const addNewSocketIdToUser = async (user:IUser, socketId:string)=>{

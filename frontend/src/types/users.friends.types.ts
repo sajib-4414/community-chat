@@ -6,3 +6,4 @@ export interface discoverFriend{
     friend_info?:Friend
 }
 export type UserWithFriend = User & discoverFriend
+export type modalAction = "close" | "save"
