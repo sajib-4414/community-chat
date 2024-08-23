@@ -101,6 +101,12 @@ export  const ChatHome = ()=>{
                 chatCointainerReference.fetchCurrentChatMessage(ROOM_TYPE.ONE_TO_ONE, contact)
             }
             // fetchChatMessagesForCurrentChat(ROOM_TYPE.ONE_TO_ONE, contact)
+            //also uncheck/rset the seelcted state of a recent chat item
+            if(recentChatRef.current){
+                const recentChatReference = recentChatRef.current as RecentChatsRef
+                recentChatReference.resetSelectedRecentChat()
+                
+            }
         }
         else{
             //someone clicked a group chat name, no contact to send the message to.
@@ -317,6 +323,7 @@ else if(currentChatRoom !== null && currentlyChatContact === null && messagePayl
             if(recentChatRef.current){
                 const recentChatReference = recentChatRef.current as RecentChatsRef
                 recentChatReference.updateRecentChatContainer(null, msgResponse)
+                recentChatReference.resetSelectedRecentChat()
             }
         }
         
@@ -333,6 +340,13 @@ else if(currentChatRoom !== null && currentlyChatContact === null && messagePayl
             recentChatReference.updateRecentItemRead(chattingUser, currentChatRoom)
         }
 
+        
+    }
+    const getContactBG = (user:User)=>{
+        if(!currentChatRoom && currentlyChatContact){
+            return user._id === currentlyChatContact._id? 'bg-secondary text-white':''
+        }
+        return ''
     }
         return (
             <main className="content">
@@ -364,7 +378,7 @@ else if(currentChatRoom !== null && currentlyChatContact === null && messagePayl
 					{contacts.map((contact:any,index:number)=>{
                          return (
 							<div onClick={handleContactClick.bind(this,contact)} key={index}>
-								<a href="#" className="list-group-item list-group-item-action border-0">
+								<a href="#" className={"list-group-item list-group-item-action border-0 "+(getContactBG(contact))}>
 							
 							<div className="d-flex align-items-start">
                                 {contact.profileImage?

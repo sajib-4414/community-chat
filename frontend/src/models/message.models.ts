@@ -1,13 +1,13 @@
 import { MESSAGE_TYPES, ROOM_TYPE } from "../utility/constants";
 import { User } from "./user.models";
 
-export interface Message {
+export interface Message<SenderT=string, RoomT=string> {
     _id?:string;
     message:string,
     createdAt?:Date,
     updatedAt?:Date,
-    sender?:string|User,
-    room?:string|Room,
+    sender?:SenderT,
+    room?:RoomT,
     oneToOne:boolean,
     messageType:MESSAGE_TYPES
 }

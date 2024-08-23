@@ -60,6 +60,17 @@ export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:a
 
     }
 
+    console.log(' i am here v3')
+    //means only target user was supplied, and room was extracted above. now we have valid room object
+    if(room  && !payloadRoom && targetUser?._id !=""){
+      // room = await Room.findById(payloadRoom._id)
+      console.log(' i am here v4')
+      messages = await Message.find({
+        room:room
+      }).populate('sender')
+
+    }
+
     console.log(' i am here v2')
     console.log('targetUser',targetUser)
     console.log('roomtype', room!.roomType)
@@ -169,7 +180,8 @@ export const getPastOneToOneChats = async (user:IUser)=>{
               privateRoomMembers: "$privateRoomMembers",
             },
             message: 1,
-            user_detail:1
+            user_detail:1,
+            _id:1
           },
         }
       ]
@@ -181,7 +193,8 @@ export const getPastOneToOneChats = async (user:IUser)=>{
       const message = psitem.message
       return {
         room,
-        message
+        message,
+        _id:psitem._id
       }
     })
     return modified_past_one_to_one_chats;
@@ -254,7 +267,8 @@ export const getPastGroupChats = async(user:IUser)=>{
     const message = psitem.message
     return {
       room,
-      message
+      message,
+      _id:psitem._id
     }
   })
   return modified_past_group_chats;

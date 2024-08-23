@@ -7,7 +7,7 @@ dotenv.config();
 const connectionString = `${process.env.CONNECTION_STRING}${DB_NAME}`
 
 const connectToMongoDB = async()=>{
-
+    console.info('connecting to mongodb.............')
     try{
         if(connectionString !==null && connectionString!==undefined){
             await mongoose.connect(connectionString,{

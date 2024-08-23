@@ -1,7 +1,7 @@
 import React, {  useEffect } from "react";
 import { RecentChatItem } from "../../models/message.models";
 import { ROOM_TYPE } from "../../utility/constants";
-import { getInitialsFromRoom } from "../../utility/stringherlper";
+import { getInitialsFromRoom, getInitialsFromUser } from "../../utility/stringherlper";
 const env = await import.meta.env;
 const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 export interface RowProps{
@@ -43,17 +43,20 @@ const RowComp:React.FC<RowProps> = ({imessage,isCurrentlyChosen})=>{
         <a href="#" className="list-group-item list-group-item-action border-0 ">
             {/* <pre>{JSON.stringify(imessage, null, 2)}</pre> */}
 							
-							<div className={`d-flex align-items-start`+getBackGroundColor()}>
-                                {imessage.secondUser ? 
-                                <img 
-                                src={`${SERVER_URL}${imessage.secondUser.profileImage}`}
-                                className="rounded-circle mr-1" 
-                                alt="photo"
-                                width="40" 
-                                height="40"/>
-                                :
-                                <div data-initials={getInitialsFromRoom(imessage.room)}></div>
-                                }
+			<div className={`d-flex align-items-start`+getBackGroundColor()}>
+                {imessage.secondUser && imessage.secondUser.profileImage && imessage.room.roomType===ROOM_TYPE.ONE_TO_ONE && 
+                <img 
+                    src={`${SERVER_URL}${imessage.secondUser.profileImage}`}
+                    className="rounded-circle mr-1" 
+                    alt="photo"
+                    width="40" 
+                    height="40"/>
+                }
+                {imessage.secondUser && !imessage.secondUser.profileImage && imessage.room.roomType === ROOM_TYPE.ONE_TO_ONE &&
+                                <div data-initials={getInitialsFromUser(imessage.secondUser!)}></div>}
+                {imessage.room.roomType === ROOM_TYPE.GROUP_CHAT &&
+                                <div data-initials={getInitialsFromRoom(imessage.room)}></div>}
+                                
 								
 								<div className="flex-grow-1 ml-3">
                                     <span 

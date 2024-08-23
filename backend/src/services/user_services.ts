@@ -132,14 +132,27 @@ export const discoverUsersInRadius = async (user:IUser, radius:string)=>{
       {
           $lookup: {
             from: "friends",  // Name of the friends collection
-            let: { userId: user._id },  // Define variable for current user's _id
+            let: { 
+              userId: user._id,
+              aggUserId: "$_id"
+            },   // Define variable for current user's _id
             pipeline: [
               {
                 $match: {
                   $expr: {
                     $or: [
-                      { $eq: ["$user1", "$$userId"] },
-                      { $eq: ["$user2", "$$userId"] }
+                      {
+                        $and: [
+                          { $eq: ["$$userId", "$user1"] },
+                          { $eq: ["$$aggUserId", "$user2"] }
+                        ]
+                      },
+                      {
+                        $and: [
+                          { $eq: ["$$userId", "$user2"] },
+                          { $eq: ["$$aggUserId", "$user1"] }
+                        ]
+                      }
                     ]
                   }
                 }

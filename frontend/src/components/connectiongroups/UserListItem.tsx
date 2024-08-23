@@ -4,6 +4,7 @@ import { useAppSelector } from "../../store/store";
 import { UserWithFriend } from "../../types/users.friends.types";
 import { axiosInstance } from "../../utility/axiosInstance";
 import { getAuthHeader } from "../../utility/authenticationHelper";
+import { getInitialsFromUser } from "../../utility/stringherlper";
 const env = await import.meta.env;
 const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 
@@ -120,13 +121,17 @@ export const UserListItem = ({user,frCallback,showDeny=true}:{user:UserWithFrien
                 :
                 <>
                 <div className="col-1">
+                    
+                    {user.profileImage?
                     <img
-                        src={`${SERVER_URL}${user.profileImage}`}
-                        className="rounded-circle mr-1"
-                        alt="profile picture"
-                        width="30"
-                        height="30"
+                    src={`${SERVER_URL}${user.profileImage}`}
+                    className="rounded-circle mr-1"
+                    alt="profile picture"
+                    width="30"
+                    height="30"
                     />
+                    :
+                    <div data-initials={getInitialsFromUser(user)}></div>}
                 </div>
                     
                 <p className="col-8">{user.name}</p>

@@ -17,11 +17,12 @@ export interface RecentChatsRef {
     setRecentChatData: (users: User[]) => void;
     updateRecentChatContainer: (currentChatingWith:User|null,messagePayload: any) => void;
     updateRecentItemRead:(chattingUser?:User|null, chattingRoom?:Room|null)=>void;
+    resetSelectedRecentChat:()=>void;
 }
 
 export const RecentChats = React.forwardRef((props:RecentChatContainerProps, ref)=>{
     const [pastChats, setPastChats] = useState<RecentChatItem[]>([])
-    const [currentlyChosenIMessageIdx, setCurrentlyChosenImessage] = useState(-1)
+    const [currentlyChosenIMessageId, setCurrentlyChosenImessageId] = useState("")
     const loggedinUser:LoggedInUser|null = useAppSelector(
         (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
     )
@@ -73,43 +74,51 @@ export const RecentChats = React.forwardRef((props:RecentChatContainerProps, ref
 
         //marking a recent chat item as Read
         updateRecentItemRead(chattingUser?:User|null, chattingRoom?:Room|null){
-
-            //see if we find the chattingUser
-            if(chattingUser){
-                const newPastChats = pastChats.map((ps)=>{
-                    if(ps.secondUser && ps.secondUser._id===chattingUser._id){
-                        console.log('i am updating for this user',chattingUser)
-                        return {
-                            ...ps,
-                            isUnread:false,
-                        }
-                    }
-                    else
-                        return ps
-                })
-                setPastChats(newPastChats)
-                console.log('after updating, pastchat items are', newPastChats)
-            }
-            else if(chattingRoom){
-                const newPastChats = pastChats.map((ps)=>{
-                    if(ps.room===chattingRoom){
-                        console.log('i am updating for this room',chattingRoom)
-                        return {
-                            ...ps,
-                            isUnread:false,
-                        }
-                    }
-                    else
-                        return ps
-                })
-                setPastChats(newPastChats)
-                console.log('after updating, pastchat items are', newPastChats)
-            }
+            markRecentChatAsRead(chattingUser,chattingRoom)
 
             
+
+            
+        },
+        //when user selects a contact, then we should not show a recent chat item selected.
+        resetSelectedRecentChat(){
+            setCurrentlyChosenImessageId("")
         }
         
     }));
+    const markRecentChatAsRead = (chattingUser?:User|null, chattingRoom?:Room|null)=>{
+        //see if we find the chattingUser
+        if(chattingUser){
+            const newPastChats = pastChats.map((ps)=>{
+                if(ps.secondUser && ps.secondUser._id===chattingUser._id){
+                    console.log('i am updating for this user',chattingUser)
+                    return {
+                        ...ps,
+                        isUnread:false,
+                    }
+                }
+                else
+                    return ps
+            })
+            setPastChats(newPastChats)
+            console.log('after updating, pastchat items are', newPastChats)
+        }
+        else if(chattingRoom){
+            const newPastChats = pastChats.map((ps)=>{
+                if(ps.room===chattingRoom){
+                    console.log('i am updating for this room',chattingRoom)
+                    return {
+                        ...ps,
+                        isUnread:false,
+                    }
+                }
+                else
+                    return ps
+            })
+            setPastChats(newPastChats)
+            console.log('after updating, pastchat items are', newPastChats)
+        }
+    }
     
     const dispatch = useDispatch()
         //Functions and listeners
@@ -181,12 +190,14 @@ export const RecentChats = React.forwardRef((props:RecentChatContainerProps, ref
                             onClick={
                                 
                                 ()=> {
-                                    setCurrentlyChosenImessage(index);
+                                    setCurrentlyChosenImessageId(imessage.room._id);
                                     props.handleRecentChatItemClick(imessage)
+                                    //also mark this message as Read
+                                    markRecentChatAsRead(null, imessage.room)
                                 }
                                 }>
                                 <ChatRecentRow
-                                    isCurrentlyChosen={index==currentlyChosenIMessageIdx}
+                                    isCurrentlyChosen={imessage.room._id==currentlyChosenIMessageId}
                                     imessage={imessage}
                                                     />
                             </div>
