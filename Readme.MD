@@ -47,6 +47,22 @@ Features to be added:
 * Searching people by name.
 
 ## Overview of the App
-![Chat home page](chathome1.png)
-![Discovering Users](chathome2.png)
-![Profile Update](chathome3.png)  
+<div style="text-align: center;">
+<h3>Home Page</h3>
+<img src="chathome1.png" alt="Profile Update" width="600">
+
+### Create a group chat
+<img src="photo3.png" alt="Group Chat" width="600">
+
+<img src="photo4.png" style="margin-left:auto; margin-right:auto" alt="Group Chat" width="400">
+
+### Group Chat room and searching friends
+<img src="photo 6.png" alt="Group Chat" width="600">
+
+### Discovering users nearby and add as Friend
+<img src="chathome2.png" alt="Discovering users" width="600">
+
+### Your friends, friend requests, groups
+<img src="photo 7.png" alt="Friends and requests" width="600">
+
+</div>
