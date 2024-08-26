@@ -51,10 +51,11 @@ Better approach: so i decided i could do a channel pvt-username1-username2 and c
 Even better: first time chat er jonno frotnend sudhu name gula pathato, backend dekhto room ase kina, na thakle banay dito, then frotnend k room dito, kivabe room banabe eta backend er upore. In future, we will stop sending roomInfo details to frotnend, backend should only receive roomId, and send roomId.
 
 ### How to do a private chat and group chat both with almost similar implementation?
-I have not done the group chat yet, but I think the current approach for one to one chat will require very few changes for group chat.
 
-first e room, roommembers, messages, users erkm collection banai, then dekhlam rpivate chat er jonno roommemmber theke abar join kore ana redundant, as just duita user. so ami one to one chat er jonno duita room member er name, room model ei rekhe disi, group chat er jonno roommembers model use hobe, as room e eonek onek lok thakte pare.
-Current RoomModel has `room code, privateRoomMembers, roomType`
+**To support both one to one and group chat**,
+At first we created models such as room, roommembers, messages, users. For both private room(one to one chat) and group chat, i started to track using the roomMembers model. then i saw that in this approach i have to do an unncecessary join/aggregation between roomMembers and rooms for one to one chat. For one to one chat there is just two members, so I modifed the room model to keep the private chat members list. But for group chat members i will use the roomMembers model, so that I can scale and support unlimited users in a group chat.
+Current RoomModel has `room code, privateRoomMembers, roomType`.
+
 
 ### What to do when first time someone messages someone[one to one chat]? should we create private rooms for all user combinations beforehand?
 
