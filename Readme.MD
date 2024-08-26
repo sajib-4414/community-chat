@@ -42,9 +42,7 @@ Installation:
 - in both terminals issue command `npm start`.
 
 Features to be added:
-* Ability to find people using gps/current location.
 * Content filtering, therefore users can report any message/user.
-* Searching people by name.
 
 ## Overview of the App
 <div style="text-align: center;">
