@@ -11,9 +11,10 @@
 - React Add memo for listview items(done)
 - add debounce for user search api call, add throttle for socket call to know user has seen the message. maybe use lodash.
 
+
 ### Backend
 
-- Zipcode based search, Add Postal code, and postal code based radius based searching.
+- Zipcode based search, Add Postal code, and postal code based radius based searching.(done)
 - Add API testing(done)
 - add more usecase based testing with mocking library
 - Add unit testing, method based
@@ -43,6 +44,7 @@
 - Add mongoose aggregate paginate, will be useful for discovering friends.
 - add seed data for friends
 - add seed data for group chats
+- add XSS preventing mechanism from query or request parameters. use xss npm package
 
 ### Devops
 - Add github workflow
