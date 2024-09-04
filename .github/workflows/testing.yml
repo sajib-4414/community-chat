@@ -36,6 +36,11 @@ jobs:
           echo "switching to backend directory"
           cd backend
           npm run build
+      - name: Test backend
+        run: |
+          echo "switching to backend directory"
+          cd backend
+          npm run test
       
 
 
