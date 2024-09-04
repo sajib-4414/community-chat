@@ -11,6 +11,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+      - name: Installing dependencies
+        run: |
+          cd frontend
+          npm ci
       - name: Build frontend
         run: |
           echo "switching to frontend directory"
