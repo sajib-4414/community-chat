@@ -2,7 +2,7 @@
 
 ## Overview
 
-Welcome to the Community Chat Application! Our platform is designed to simplify connections and communication within a community, especially for newcomers. By using this app, you can easily find and interact with people and groups around you or in different areas, fostering meaningful relationships and engagement.
+Welcome to the Community Chat Application! This application is designed to simplify connections and communication within a community, especially for newcomers. By using this app, you can easily find and interact with people and groups around you or in different areas, fostering meaningful relationships and engagement.
 
 ## Features
 
@@ -30,14 +30,15 @@ Welcome to the Community Chat Application! Our platform is designed to simplify 
 4. **Create**: Set up new groups with friends or community members.
 5. **Engage**: Start chatting and building your network.
 
-Our goal is to make community interaction seamless and enjoyable, helping you to easily connect with others and establish new relationships.
+The project goal is to make community interaction seamless and enjoyable, helping you to easily connect with others and establish new relationships. I have plan to deploy this
+so that everyone can use this app.
 
-
-Technology stack: Typescript, React, Vite, Redux, Redux Toolkit, Express, MongoDB, SocketIO
+Technology stack: Typescript, Express, MongoDB, SocketIO, React, Vite, Redux, Redux Toolkit
 
 Installation:
 - Clone the project.
 - Have nodejs, and npm installed.
+- Have Opencage api key, mongodb atlas string(crate db in atlas and use the connection string), redis cloud string (create redis cloud db), and other information in the .env file as mentioned in the .env.example file.
 - Go to the backend and frontend folders in two terminals, and issue command `npm install`.
 - in both terminals issue command `npm start`.
 
