@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   
 jobs:
-  build:
+  build-frontend:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -20,9 +20,22 @@ jobs:
           echo "switching to frontend directory"
           cd frontend
           npm run build
+
+
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Installing dependencies
+        run: |
+          cd backend
+          npm ci
       - name: Build backend
         run: |
-          echo "switching to the backend directory"
+          echo "switching to backend directory"
           cd backend
           npm run build
+      
+
 
