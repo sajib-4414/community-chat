@@ -5,16 +5,16 @@ import { useAppSelector } from "../store/store";
 import { MESSAGE_FROM_SERVER, MESSAGE_TO_SERVER, READ_ACKNOWLEDGEMENT_MESSAGE } from "../constants";
 import { LoggedInUser, User } from "../models/user.models";
 import { axiosInstance } from "../utility/axiosInstance";
-import { ChatContainer, ChatContainerRef } from "../components/chat/ChatContainer";
-import { ChatFooterContainer } from "../components/chat/ChatFooterContainer";
-import { SearchBar } from "../components/chat/SearchBar";
 import { ONLINE_STATUS_BROADCAST_FROM_SERVER, ROOM_TYPE, SOCKET_CONNECTED, SOCKET_CONNECTION_ERROR, SOCKET_DISCONNECTED } from "../utility/constants";
-import { RecentChats, RecentChatsRef } from "../components/chat/RecentChatContainer";
 import {  Message, RecentChatItem, Room, ServerMessagePayload } from "../models/message.models";
 import { getAuthHeader } from "../utility/authenticationHelper";
 import {  getInitialsFromRoom, getInitialsFromUser } from "../utility/stringherlper";
-import { GroupChatModal } from "../components/chat/GroupChatModal";
 import { modalAction } from "../types/users.friends.types";
+import { RecentChats, RecentChatsRef } from "../components/Chat/RecentChatContainer";
+import { ChatContainer, ChatContainerRef } from "../components/Chat/ChatContainer";
+import { GroupChatModal } from "../components/Chat/GroupChatModal";
+import { SearchBar } from "../components/Chat/SearchBar";
+import { ChatFooterContainer } from "../components/Chat/ChatFooterContainer";
 const env = await import.meta.env;
 const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 export  const ChatHome = ()=>{
@@ -73,7 +73,7 @@ export  const ChatHome = ()=>{
             socketId
         },getAuthHeader(loggedinUser))
     }
-    const notifyChatContainer = (unpublishedMessage:Message)=>{
+    const notifyChatContainer = (unpublishedMessage:Message<User,Room>)=>{
         //this was invoked by the message footer component with the current message as dummy
         //we will send it to the message container
         if(chatContainerRef.current){
@@ -122,7 +122,7 @@ user clicked a contact, we dont know the room, we just know contact and its a on
 get the other contact from the room, check out of two parties who is the other one
 if they are the one user clicked to chat, then we know we have to update the current chat window */
  //******We also have to update recent chat windoow */  
-    if(currentChatRoom===null && currentMessageRoomType===ROOM_TYPE.ONE_TO_ONE && currentlyChatContact){
+    if(currentChatRoom===null && currentMessageRoomType===ROOM_TYPE.ONE_TO_ONE && currentlyChatContact && messagePayload.message.sender){
         // const room:Room = messagePayload.room;
         const targetUserFromPayload = messagePayload.message.sender as User
         if(targetUserFromPayload?._id === currentlyChatContact._id){

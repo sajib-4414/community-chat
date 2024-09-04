@@ -1,13 +1,12 @@
 import { useEffect, useState } from "react"
 import { LoggedInUser, User } from "../../models/user.models"
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
 import { useAppSelector } from "../../store/store";
 import { ErrorMessage } from "../common/ErrorMessage";
 import { axiosInstance } from "../../utility/axiosInstance";
 import { getAuthHeader } from "../../utility/authenticationHelper";
 import { modalAction } from "../../types/users.friends.types";
 import { ServerMessagePayload } from "../../models/message.models";
+import { Button, Modal } from "react-bootstrap";
 
 export const GroupChatModal = ({chosenFriends, modalShow, onModalClose}:{chosenFriends:User[], modalShow:boolean, onModalClose:(action:modalAction, responseGroupMessage:ServerMessagePayload|null)=>void})=>{
 

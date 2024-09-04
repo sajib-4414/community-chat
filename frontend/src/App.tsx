@@ -9,7 +9,7 @@ import { useEffect } from 'react';
 import { LoggedInUser } from './models/user.models';
 import { resetUser, storeUser } from './store/UserSlice';
 import { router } from './router';
-import ErrorBoundary from './components/common/ErrorBoundary';
+
 
 
 const AppWrapper = ()=>{

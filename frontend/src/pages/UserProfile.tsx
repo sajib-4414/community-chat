@@ -110,7 +110,7 @@ export const UserProfile = ()=>{
         const selectedFile = event.target.files?.[0] || null;
         setFile(selectedFile);
     };
-    const validateZipcode = async (event)=>{
+    const validateZipcode = async (event:React.MouseEvent<HTMLButtonElement>)=>{
         event.preventDefault();
 
         if (!zipcode || zipcode.length<6 || zipcode.length>7){

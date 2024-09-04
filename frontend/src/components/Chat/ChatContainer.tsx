@@ -9,7 +9,7 @@ import { ChatRow } from "./ChatRow";
 export interface ChatContainerRef {
     updateChatUponSocketMessage: (messagePayload:ServerMessagePayload) => void;
     fetchCurrentChatMessage: (roomOrMessageType:ROOM_TYPE, targetUser?:any,room?:Room|null) => void;
-    pushDummyMessage:(unpublishedMessage:Message)=>void;
+    pushDummyMessage:(unpublishedMessage:Message<User,Room>)=>void;
 }
 export interface ChatContainerProps{
     handleClearUnread: (chattingUser:User)=>void;
@@ -33,7 +33,7 @@ export const ChatContainer = React.forwardRef((props:ChatContainerProps, ref)=>{
         fetchCurrentChatMessage(roomOrMessageType:ROOM_TYPE, targetUser?:any,room?:Room|null){
             fetchChatMessagesForCurrentChat(roomOrMessageType, targetUser,room)
         },
-        pushDummyMessage(unpublishedMessage:Message){
+        pushDummyMessage(unpublishedMessage:Message<User,Room>){
             setCurrentChatMessages([...currentChatMessages, unpublishedMessage])
         }
         
@@ -78,7 +78,7 @@ export const ChatContainer = React.forwardRef((props:ChatContainerProps, ref)=>{
             props.handleClearUnread(targetUser)
     }
 
-    const [currentChatMessages, setCurrentChatMessages] = useState<Message[]>([])
+    const [currentChatMessages, setCurrentChatMessages] = useState<Message<User,Room>[]>([])
     const loggedinUser:LoggedInUser|null = useAppSelector(
         (state)=> state.userSlice.loggedInUser //we can also listen to entire slice instead of loggedInUser of the userSlice
     )
@@ -87,7 +87,7 @@ export const ChatContainer = React.forwardRef((props:ChatContainerProps, ref)=>{
     return(
         <div className="position-relative">
 						<div className="chat-messages p-4">
-                        {currentChatMessages.map((message:Message, index:number)=>{
+                        {currentChatMessages.map((message:Message<User,Room>, index:number)=>{
                              return <ChatRow key={index} message={message}/>
                             
                          })}

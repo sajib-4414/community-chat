@@ -3,9 +3,9 @@ import { ReactSearchAutocomplete } from "react-search-autocomplete";
 import { axiosInstance } from "../../utility/axiosInstance";
 import { User } from "../../models/user.models";
 
-
+type SearchCallBack = (contact?:User)=>void
 function SearchBar(
-    {onSearchResultContactSelected}
+  {onSearchResultContactSelected}:{onSearchResultContactSelected:SearchCallBack}
 
 ) {
 
@@ -34,7 +34,7 @@ function SearchBar(
     const handleOnSearch = (term:string) => {
         setSearchTerm(term)
     };
-    const handleOnHover = (item) => {
+    const handleOnHover = (item:User) => {
         // Triggered when the user hovers over an item in the suggestions list
         console.log('Item hovered:', item);
     };

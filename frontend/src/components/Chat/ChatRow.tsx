@@ -1,13 +1,13 @@
 import { LoggedInUser, User } from "../../models/user.models";
 import { useAppSelector } from "../../store/store";
 import Moment from "moment";
-import { Message } from "../../models/message.models";
+import { Message, Room } from "../../models/message.models";
 import { MESSAGE_TYPES } from "../../utility/constants";
 const env = await import.meta.env;
 const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 
 interface ChatRowProps {
-  message: Message<User>;
+  message: Message<User,Room>;
 }
 
 export const ChatRow: React.FC<ChatRowProps> = (props: ChatRowProps) => {

@@ -33,7 +33,7 @@ export interface Room {
 
 export interface ServerMessagePayload{
     room:Room,
-    message:Message,
+    message:Message<User,Room>,
 }
 
 export interface MessageUnreadItem{
@@ -54,7 +54,7 @@ export interface pastChatResponse{
 //in the recent window it must show user2 when user1 sees the recent chats
 //in the recent window it must show user1 when user2 sees the recent chats
 export interface RecentChatItem{
-    latestMessage:Message,
+    latestMessage:Message<User,Room>,
     secondUser?:User;
     room:Room;
     isUnread:boolean;

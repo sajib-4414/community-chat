@@ -17,13 +17,13 @@ export const UserListItem = ({user,frCallback,showDeny=true}:{user:UserWithFrien
     const getActionButton = ()=>{
         console.log('inside get action button')
         console.log(user.name,user.friend_request_info)
-        if(user._id === loggedinUser?.user.id)
+        if(user._id === loggedinUser?.user._id)
             return '(Yourself)'
-        else if(user.friend_request_info && user.friend_request_info.sender===loggedinUser?.user.id && !user.friend_request_info.respondTime)
+        else if(user.friend_request_info && user.friend_request_info.sender===loggedinUser?.user._id && !user.friend_request_info.respondTime)
             return <div className="col-3">
             <button className="btn btn-warning" onClick={removeFriendRequest}>Remove Pending Request</button>
             </div>
-        else if(user.friend_request_info && user.friend_request_info.reciever===loggedinUser?.user.id && !user.friend_request_info.respondTime)
+        else if(user.friend_request_info && user.friend_request_info.reciever===loggedinUser?.user._id && !user.friend_request_info.respondTime)
             return <div className="col-3">
             <button className="btn btn-success mb-1" onClick={respondFriendRequest.bind(null,"accept")}>Accept request</button>
             <button className="btn btn-danger" onClick={respondFriendRequest.bind(null,"deny")}>Deny request</button>

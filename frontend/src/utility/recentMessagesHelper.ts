@@ -27,7 +27,9 @@ export const getUpdatedChatsOnSocketMessage = (currentChatingWith:User|null, mes
             currentPastMessages.splice(existingchatIndex,1)
             currentPastMessages.push(latestChatItem)
             currentPastMessages.sort((a,b)=>{
-                return(new Date(b.latestMessage.createdAt).getTime()-new Date(a.latestMessage.createdAt).getTime())
+                const dateA = a.latestMessage?.createdAt ? new Date(a.latestMessage.createdAt).getTime() : 0;
+                const dateB = b.latestMessage?.createdAt ? new Date(b.latestMessage.createdAt).getTime() : 0;
+                return dateB - dateA;
             })
             console.log('upon socket new pasmessage is', currentPastMessages)
             return currentPastMessages
@@ -39,7 +41,9 @@ export const getUpdatedChatsOnSocketMessage = (currentChatingWith:User|null, mes
             const currentPastMessages = structuredClone(recentChats)
             currentPastMessages.push(latestChatItem)
             currentPastMessages.sort((a,b)=>{
-                    return(new Date(b.latestMessage.createdAt).getTime()-new Date(a.latestMessage.createdAt).getTime())
+                const dateA = a.latestMessage?.createdAt ? new Date(a.latestMessage.createdAt).getTime() : 0;
+                const dateB = b.latestMessage?.createdAt ? new Date(b.latestMessage.createdAt).getTime() : 0;
+                return dateB - dateA;
             })
             console.log('upon socket new pasmessage is v2', currentPastMessages)
             return currentPastMessages
@@ -50,7 +54,7 @@ export const getUpdatedChatsOnSocketMessage = (currentChatingWith:User|null, mes
         // console.log('second user is identified as',secondUser)
         let unread = true
         if(messagePayload.message.sender){
-            if(messagePayload.message.sender._id === currentUser.id)
+            if(messagePayload.message.sender._id === currentUser._id)
                 unread = false
         }
         const latestChatItem:RecentChatItem = {
@@ -67,7 +71,9 @@ export const getUpdatedChatsOnSocketMessage = (currentChatingWith:User|null, mes
             currentPastMessages.splice(existingchatIndex,1)
             currentPastMessages.push(latestChatItem)
             currentPastMessages.sort((a,b)=>{
-                return(new Date(b.latestMessage.createdAt).getTime()-new Date(a.latestMessage.createdAt).getTime())
+                const dateA = a.latestMessage?.createdAt ? new Date(a.latestMessage.createdAt).getTime() : 0;
+                const dateB = b.latestMessage?.createdAt ? new Date(b.latestMessage.createdAt).getTime() : 0;
+                return dateB - dateA;
             })
             console.log('upon socket new pasmessage is', currentPastMessages)
             return currentPastMessages
@@ -79,7 +85,9 @@ export const getUpdatedChatsOnSocketMessage = (currentChatingWith:User|null, mes
             const currentPastMessages = structuredClone(recentChats)
             currentPastMessages.push(latestChatItem)
             currentPastMessages.sort((a,b)=>{
-                    return(new Date(b.latestMessage.createdAt).getTime()-new Date(a.latestMessage.createdAt).getTime())
+                const dateA = a.latestMessage?.createdAt ? new Date(a.latestMessage.createdAt).getTime() : 0;
+                const dateB = b.latestMessage?.createdAt ? new Date(b.latestMessage.createdAt).getTime() : 0;
+                return dateB - dateA;
             })
             console.log('upon socket new pasmessage is v2', currentPastMessages)
             return currentPastMessages

@@ -84,11 +84,11 @@ const RowComp:React.FC<RowProps> = ({imessage,isCurrentlyChosen})=>{
       
     )
 }
-const areEqual = (prevProps:RowProps, nextProps:RowProps) => {
-    // Only re-render online status changed or unread status changed
-    const isOnlineStatusChanged = prevProps.imessage.secondUser.isOnline === nextProps.imessage.secondUser.isOnline
-    const isUnreadStatusChanged = prevProps.imessage.isUnread === nextProps.imessage.isUnread
-    return isOnlineStatusChanged || isUnreadStatusChanged;
-};
+// const areEqual = (prevProps:RowProps, nextProps:RowProps) => {
+//     // Only re-render online status changed or unread status changed
+//     const isOnlineStatusChanged = prevProps.imessage?.secondUser?.isOnline === nextProps.imessage?.secondUser?.isOnline
+//     const isUnreadStatusChanged = prevProps.imessage.isUnread === nextProps.imessage.isUnread
+//     return isOnlineStatusChanged || isUnreadStatusChanged;
+// };
 export const ChatRecentRow = RowComp
 // memo(RowComp,areEqual)

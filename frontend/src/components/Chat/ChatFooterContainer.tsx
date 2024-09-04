@@ -9,7 +9,7 @@ import { MESSAGE_TO_SERVER } from "../../constants";
 interface ChatFooterContainerProps{
     currentlyChattingWith?:User,
     currentRoom:Room|null,
-    notifyChatContainer:(msg:Message)=>void;
+    notifyChatContainer:(msg:Message<User,Room>)=>void;
 }
 export const ChatFooterContainer:React.FC<ChatFooterContainerProps> = (props)=>{
     const [currentMessage, setCurrentMessage] = useState("")
@@ -18,8 +18,12 @@ export const ChatFooterContainer:React.FC<ChatFooterContainerProps> = (props)=>{
     )
 
     const sendCurrentMessage = async()=>{
+        if(!loggedinUser){
+            console.log('message sending failed, logged in user is null')
+            return
+        }
         //first create a dummy message to show in the UI as 'Sending'
-        const unpublishedMessage:Message = {
+        const unpublishedMessage:Message<User,Room> = {
             message:currentMessage,
             sender:loggedinUser?.user,
             room:props.currentRoom!,

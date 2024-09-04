@@ -90,7 +90,7 @@ export const Register:FC = ()=>{
         })
         
     }
-    const validateZipcode = async (event)=>{
+    const validateZipcode = async (event:React.MouseEvent<HTMLButtonElement>)=>{
         event.preventDefault();
 
         if (zipcode.length<6 || zipcode.length>7){

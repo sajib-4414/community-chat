@@ -1,5 +1,5 @@
 import {  useEffect, useState } from "react"
-import { UserWithFriend } from "../types/users.friends.types"
+import { FriendActionButtonT, UserWithFriend } from "../types/users.friends.types"
 import { axiosInstance } from "../utility/axiosInstance"
 import { FriendRequest, LoggedInUser, User } from "../models/user.models"
 import { useAppSelector } from "../store/store"
@@ -77,7 +77,7 @@ export const ConnectionGroups = ()=>{
         const newGroupList = groups.filter((group)=> group.room._id !== roomId)
         setGroups(newGroupList)
     }
-    function onFriendActionChanged(reciverId:string, friend_request_info:FriendRequest, type, friend_info=null){
+    function onFriendActionChanged(reciverId:string, friend_request_info:FriendRequest, type:FriendActionButtonT, friend_info=null){
         console.log('onfriendrequest sent called')
         console.log(reciverId)
         console.log(friend_request_info)

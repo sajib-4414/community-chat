@@ -4,7 +4,7 @@ import { axiosInstance } from "../utility/axiosInstance"
 import { getAuthHeader } from "../utility/authenticationHelper"
 import { FriendRequest, LoggedInUser } from "../models/user.models"
 import { useAppSelector } from "../store/store"
-import { UserWithFriend } from "../types/users.friends.types"
+import { FriendActionButtonT, UserWithFriend } from "../types/users.friends.types"
 import { UserListItem } from "../components/connectiongroups/UserListItem"
 
 
@@ -34,11 +34,11 @@ export const DiscoverUsers:React.FC = ()=>{
         }
         fetchUsersInRadius()
     }
-    function handleSliderChange(event){
-        setRadius(event.target.value)
+    function handleSliderChange(event:React.ChangeEvent<HTMLInputElement>){
+        setRadius(Number(event.target.value))
         setErrorLine("")
     }
-    function onFriendActionChanged(reciverId:string, friend_request_info:FriendRequest, type){
+    function onFriendActionChanged(reciverId:string, friend_request_info:FriendRequest, type:FriendActionButtonT){
         console.log('onfriendrequest sent called')
         console.log(reciverId)
         console.log(friend_request_info)
