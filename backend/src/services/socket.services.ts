@@ -6,7 +6,7 @@ import { MESSAGE_TYPES, MessagePayLoadToServer, MessageWithRoom, ROOM_TYPE } fro
 import { IRoom, Room } from "../models/room";
 import { IMessage, Message } from "../models/message";
 import { getIoInstance } from "../config/socketInstance";
-import { MESSAGE_FROM_SERVER, ONLINE_STATUS_BROADCAST_FROM_SERVER, USER_CAME_ONLINE } from "../definitions/event_types";
+import { MESSAGE_FROM_SERVER, ONLINE_STATUS_BROADCAST_FROM_SERVER } from "../definitions/event_types";
 import { redisClient } from "../config/redisClient";
 import { IRoomMember, RoomMember } from "../models/room-member";
 export interface CustomSocket extends Socket {
@@ -108,7 +108,8 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
             if(payload.targetUser && room?.roomType === ROOM_TYPE.ONE_TO_ONE){
                 //we will join both sender and receiver socke to the room
                 //this is the sender socket
-                socket.join(payload.room?.code!);
+                if(payload.room && payload.room.code)
+                    socket.join(payload.room.code);
                 //this is the receiver socket
                 //reciver may not be in online, so we attempt to join the receiver to the room
                 const receiverUserSocket = await UserSocket.findOne({
@@ -116,7 +117,7 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
                 })
                 try{
                     const targetSocket = io.sockets.sockets.get(receiverUserSocket?.socketIds[0]);
-                    if (targetSocket)
+                    if (targetSocket && payload.room && payload.room.code)
                         targetSocket.join(payload.room?.code!)
                     else
                         console.log("reciver is not online, just db message this time....")
@@ -136,7 +137,7 @@ export const onMessageReceivedHandler = async (socket: CustomSocket, payload:Mes
                         user
                     })
                     const targetSocket = io.sockets.sockets.get(userSocket?.socketIds[0]);
-                    if (targetSocket)
+                    if (targetSocket && payload.room && payload.room.code)
                         targetSocket.join(payload.room?.code!)
                 }
             }

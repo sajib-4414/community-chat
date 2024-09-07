@@ -1,8 +1,8 @@
-import { NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import { validationResult } from "express-validator";
 import { BadRequestError } from "../definitions/error_definitions";
 
-export const validateValidators = (req:any,res:any,next:NextFunction)=>{
+export const validateValidators = (req:Request,res:Response,next:NextFunction)=>{
     const validationErrors = validationResult(req);
     if(!validationErrors.isEmpty()){
         let allValidationErrors = ""

@@ -21,7 +21,7 @@ export const getUserAutoCompleteSearchResult = async (keyword:string)=>{
 }
 
 export const getAllUserConnections = async(req:Request)=>{
-    let aggregateQuery = [
+    const aggregateQuery = [
         {
           $match: {
             $expr: {
@@ -119,7 +119,7 @@ export const getAllUserConnections = async(req:Request)=>{
 
 export const discoverUsersInRadius = async (user:IUser, radius:string)=>{
     const radiusInKM = Number(radius)
-    let aggregateQuery = [
+    const aggregateQuery = [
         {
           $match: {
             "location" : {

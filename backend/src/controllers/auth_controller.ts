@@ -1,8 +1,7 @@
 import { Request, Response } from "express";
 import { login, register } from "../services/auth_service";
-import { BadRequestError, InternalServerError, ResourceNotFoundError } from "../definitions/error_definitions";
+import { BadRequestError, InternalServerError } from "../definitions/error_definitions";
 import sharp from "sharp";
-import fs from 'fs';
 import path from "path";
 import { IUser, User } from "../models/user";
 import axios from "axios";
@@ -17,9 +16,9 @@ export const Register = async(req:Request, res:Response)=>{
         throw new InternalServerError('JWT_COOKIE_EXPIRE is not defined');
     }
     console.log('jwt cookie expire is',jwtCookieExpire)
-    const options:any = {
+    const options:{maxAge:Date,httpOnly:boolean,secure?:boolean} = {
         maxAge: new Date(Date.now() + Number(jwtCookieExpire)*24*60*60*1000),
-        httpOnly:process.env.IS_ENVIRONMENT_HTTP_ONLY
+        httpOnly:Boolean(process.env.IS_ENVIRONMENT_HTTP_ONLY)
     }
     if(process.env.NODE_ENV === 'production'){
         options.secure = true

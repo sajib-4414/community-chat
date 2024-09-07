@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BadRequestError, InternalServerError, NotAuthenticatedError, ResourceNotFoundError } from "../definitions/error_definitions";
+import { BadRequestError, NotAuthenticatedError, ResourceNotFoundError } from "../definitions/error_definitions";
 import { IUser, User } from "../models/user"
 
 interface IRegisterPayload{

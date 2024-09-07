@@ -62,6 +62,6 @@ export interface MessageUnreadItem{
     _id:string;
     user: IUser|string;
     lastSeenAt:Date;
-    unread:Boolean;
+    unread:boolean;
     room:IRoom;
 }

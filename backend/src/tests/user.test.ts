@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from 'mongoose';
 import request from 'supertest'
 import dotenv from 'dotenv'
 import { connectToMongoDB } from "../config/db";

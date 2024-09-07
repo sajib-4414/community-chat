@@ -13,7 +13,7 @@ declare global {
 }
 
 export const authorizedRequest = async(req:Request, res:Response, next:NextFunction)=>{
-    let token:any;
+    let token: string | undefined = undefined;
     if(req.headers.authorization && req.headers.authorization.startsWith('Bearer ')){
         //set token from bearer token in header
         token = req.headers.authorization.split(' ')[1];
@@ -40,7 +40,7 @@ export const authorizedRequest = async(req:Request, res:Response, next:NextFunct
     }
 }
 
-export const globalErrorHandler = (err:Error, req:Request, res:Response, next:NextFunction)=>{
+export const globalErrorHandler = (err:Error, req:Request, res:Response)=>{
     console.log(err)
     if(err instanceof CustomErrorResponse){
         res.status(err.statusCode).send({

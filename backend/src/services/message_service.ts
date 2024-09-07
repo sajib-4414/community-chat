@@ -5,8 +5,13 @@ import { RoomMember } from "../models/room-member"
 import { IUser, IUserSocket, UserRoomLastSeen, UserSocket } from "../models/user"
 import { roomsListItemMongoResponse, MessageWithRoom, PastChatAggegationResponseItem, MessageUnreadItem, ROOM_TYPE } from "../definitions/room_message_types"
 
+interface GetRoomMessagePayload {
+  targetUser:IUser,
+  messageRoomType:ROOM_TYPE,
+  room:IRoom
+}
 
-export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:any)=>{
+export const getChatMessagesOfRoom = async (loggedInUser:IUser, requestPayload:GetRoomMessagePayload)=>{
     //todo in future check current user authorized to get chat data of this room
 
     const {targetUser, messageRoomType, room:payloadRoom} = requestPayload
@@ -392,7 +397,7 @@ export const joinAllChatRooms = async (currentUser:IUser, socketId:string)=>{
 
 export const addNewSocketIdToUser = async (user:IUser, socketId:string)=>{
 
-  const updatedUserSocket: IUserSocket | null = await UserSocket.findOneAndUpdate(
+  await UserSocket.findOneAndUpdate(
     { user },
     { $set: { socketIds: [socketId] } },
     { new: true, upsert: true } // Options: new returns updated document, upsert creates new if not found
