@@ -1,5 +1,5 @@
 # base
-FROM node:17.9.0 AS base
+FROM node:22.0 AS base
 
 WORKDIR /usr/src/app
 
@@ -30,7 +30,7 @@ RUN npm run build
 
 # for production
 
-FROM node:17.9.0-alpine3.15
+FROM node:22.8-alpine3.20
 
 WORKDIR /usr/src/app
 
