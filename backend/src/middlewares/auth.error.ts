@@ -40,7 +40,7 @@ export const authorizedRequest = async(req:Request, res:Response, next:NextFunct
     }
 }
 
-export const globalErrorHandler = (err:Error, req:Request, res:Response)=>{
+export const globalErrorHandler = (err:Error, req:Request, res:Response,next: NextFunction)=>{
     console.log(err)
     if(err instanceof CustomErrorResponse){
         res.status(err.statusCode).send({

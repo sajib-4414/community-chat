@@ -9,6 +9,7 @@ RUN npm install
 
 COPY . .
 
+
 # # for lint
 # linting is showing some problem
 # FROM base as linter
@@ -33,11 +34,15 @@ FROM node:17.9.0-alpine3.15
 
 WORKDIR /usr/src/app
 
-COPY package*.json ./
+COPY ["package*.json", ".env", "./"]
 
 RUN npm install --only=production
 
 COPY --from=builder /usr/src/app/dist ./
+
+# Copy the .env file
+# docker by default ignores copying files with .
+
 
 EXPOSE 3001
 
