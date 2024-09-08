@@ -1,8 +1,8 @@
 name: Testing the code
 on: 
-  push:
-    branches:
-      - release
+  # push:
+  #   branches:
+  #     - release
   workflow_dispatch:
   
 jobs:
@@ -51,6 +51,31 @@ jobs:
           JWT_COOKIE_EXPIRE: ${{ secrets.JWT_COOKIE_EXPIRE }}
           CONNECTION_STRING: ${{ secrets.CONNECTION_STRING }}
           ALLOWED_FRONTEND: ${{ secrets.ALLOWED_FRONTEND }}
-      
 
-
+  build-and-push-backend:
+    needs: build-backend
+    runs-on: ubuntu-latest
+    environment: test
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN  }}
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        env:
+          DOCKERHUB_NAMESPACE: 'shamsul070'
+          IMAGE_NAME: 'chat-backend'
+        with:
+          images: ${{ env.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE_NAME }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
