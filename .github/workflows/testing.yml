@@ -1,8 +1,8 @@
 name: Testing the code
-on: workflow_dispatch
-  # push:
-  #   branches:
-  #     - release
+on: #workflow_dispatch
+  push:
+    branches:
+      - release
   # workflow_dispatch
   
 jobs:
