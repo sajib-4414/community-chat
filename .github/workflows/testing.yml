@@ -1,9 +1,9 @@
 name: Testing the code
-on: 
+on: workflow_dispatch
   # push:
   #   branches:
   #     - release
-  workflow_dispatch
+  # workflow_dispatch
   
 jobs:
   build-frontend:
