@@ -25,7 +25,8 @@ app.use(express.json({limit:"16kb"}));
 app.use(express.urlencoded({extended:true, limit:"16kb"}));
 
 //to serve images, static files
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use('/uploads', express.static(path.join(__dirname, './uploads')));
+
 
 //cookie parser
 app.use(cookieParser());

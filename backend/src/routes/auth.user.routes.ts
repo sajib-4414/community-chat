@@ -28,6 +28,9 @@ authRouter.route('/updatepassword')
 authRouter.route('/resetpassword')
 .get(authorizedRequest, resetPassword)
 
+
+
+
 const userRouter = express.Router()
 
 userRouter.route('/all')
