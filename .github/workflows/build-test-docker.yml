@@ -35,5 +35,5 @@ jobs:
               # Tear down Docker Compose environment
             - name: Stop and remove containers
               if: success() || failure()
-              run: docker-compose down
+              run: docker-compose -f docker-compose.base.yml down
             
