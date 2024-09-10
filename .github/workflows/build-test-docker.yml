@@ -30,7 +30,7 @@ jobs:
             #       sleep 5
             #     done
             - name: Run tests in Node.js container
-              run: docker-compose exec backend npm test
+              run: docker-compose -f docker-compose.base.yml exec backend npm run test
           
               # Tear down Docker Compose environment
             - name: Stop and remove containers
