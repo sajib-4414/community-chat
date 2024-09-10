@@ -11,8 +11,6 @@ services:
       - app-network
     depends_on:
       - backend
-    # volumes:
-    #   - ./frontend/nginx.conf:/etc/nginx/nginx.conf  # Custom Nginx config
     restart: always
 
   backend:
@@ -26,7 +24,6 @@ services:
     env_file:
       - .env.backend.docker
     volumes:
-      #- ./backend:/app  # Not mounting backend, as its a production deployment.
       - ./backend/uploads:/usr/src/app/uploads
     depends_on:
       redis:
