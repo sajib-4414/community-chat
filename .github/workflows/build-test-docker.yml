@@ -22,17 +22,18 @@ jobs:
               run: sudo apt-get install docker-compose -y
             - name: Start services with Docker Compose
               run: docker-compose -f ./docker-compose.base.yml up -d --build
-            - name: Wait for containers to be healthy
-              run: |
-                docker-compose ps
-                until [ "`docker inspect -f {{.State.Health.Status}} backend`" == "healthy" ]; do
-                  echo "Waiting for backend to be healthy..." 
-                  sleep 5
-                done
-                - name: Run tests in Node.js container
-                run: docker-compose exec backend npm test
+            # - name: Wait for containers to be healthy
+            #   run: |
+            #     docker-compose ps
+            #     until [ "`docker inspect -f {{.State.Health.Status}} backend`" == "healthy" ]; do
+            #       echo "Waiting for backend to be healthy..." 
+            #       sleep 5
+            #     done
+            - name: Run tests in Node.js container
+              run: docker-compose exec backend npm test
           
               # Tear down Docker Compose environment
             - name: Stop and remove containers
+              if: success() || failure()
               run: docker-compose down
             
