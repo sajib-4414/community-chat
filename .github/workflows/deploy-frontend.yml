@@ -3,32 +3,27 @@ on:
   push:
     branches:
       - release
+    paths:
+      - 'frontend/**'  # Trigger when any file in the frontend folder is changed
 jobs:
-    build-backend:
+    build-frontend:
         runs-on: ubuntu-latest
         steps:
             - name: Checkout code
               uses: actions/checkout@v4
             - name: Installing dependencies
               run: |
-                cd backend
+                cd frontend
                 npm ci
-            - name: Build backend
+            - name: Build frontend
               run: |
-                echo "switching to backend directory"
-                cd backend
+                echo "switching to frontend directory"
+                cd frontend
                 npm run build
-            - name: Set up Docker Compose
-              run: sudo apt-get install docker-compose -y
-            - name: Start services with Docker Compose
-              run: docker-compose -f ./docker-compose.base.yml up -d --build
-            - name: Run tests backend
-              run: docker-compose -f docker-compose.base.yml exec -T backend npm run test
-            - name: Stop and remove containers
-              if: success() || failure()
-              run: docker-compose -f docker-compose.base.yml down
-    build-and-push-backend:
-      needs: build-backend
+    
+    # this job runs only if the build frontend fullly passes
+    deploy-frontend:
+      needs: build-frontend
       runs-on: ubuntu-latest
       environment: test
       steps:
@@ -44,14 +39,13 @@ jobs:
           uses: docker/metadata-action@v5
           env:
             DOCKERHUB_NAMESPACE: 'shamsul070'
-            IMAGE_NAME: 'chat-backend'
+            IMAGE_NAME: 'chat-frontend'
           with:
             images: ${{ env.DOCKERHUB_NAMESPACE }}/${{ env.IMAGE_NAME }}
         - name: Build and push
           uses: docker/build-push-action@v6
           with:
-            context: backend
+            context: frontend
             push: ${{ github.event_name != 'pull_request' }}
             tags: ${{ steps.meta.outputs.tags }}
             labels: ${{ steps.meta.outputs.labels }}
-            

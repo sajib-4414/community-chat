@@ -24,7 +24,7 @@ export const Register = async(req:Request, res:Response)=>{
         options.secure = true
     }
     res.status(201).cookie('token',token, 
-        // options //have to figure out the options parameter
+        // options //have to figure out the options parameter.
     )
     .json({
         user:user,

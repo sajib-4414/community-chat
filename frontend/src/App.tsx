@@ -15,8 +15,6 @@ import { router } from './router';
 const AppWrapper = ()=>{
    {/* we are wrapping so that App component itself can use React redux store(dispatch command), fetch functionalities */}
   return(
-    
-   
   <Provider store={store}>
         <App />
   </Provider>
