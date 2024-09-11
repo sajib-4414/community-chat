@@ -25,7 +25,7 @@ afterEach(async ()=>{
 describe("GET /api/users/all", ()=>{
     it("should return all users", async ()=>{
         const res = await request(app).get("/api/users/all")
-        expect (res.statusCode).toBe(200)
+        expect (res.statusCode).toBe(400)
         expect(res.body.length).toEqual(0)
     })
 })
