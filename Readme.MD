@@ -47,20 +47,20 @@ Features to be added:
 ## Overview of the App
 <div style="text-align: center;">
 <h3>Home Page</h3>
-<img src="chathome1.png" alt="Profile Update" width="600">
+<img src="screenshots/chathome1.png" alt="Profile Update" width="600">
 
 ### Create a group chat
-<img src="photo3.png" alt="Group Chat" width="600">
+<img src="screenshots/photo3.png" alt="Group Chat" width="600">
 
-<img src="photo4.png" style="margin-left:auto; margin-right:auto" alt="Group Chat" width="400">
+<img src="screenshots/photo4.png" style="margin-left:auto; margin-right:auto" alt="Group Chat" width="400">
 
 ### Group Chat room and searching friends
-<img src="photo 6.png" alt="Group Chat" width="600">
+<img src="screenshots/photo 6.png" alt="Group Chat" width="600">
 
 ### Discovering users nearby and add as Friend
-<img src="chathome2.png" alt="Discovering users" width="600">
+<img src="screenshots/chathome2.png" alt="Discovering users" width="600">
 
 ### Your friends, friend requests, groups
-<img src="photo 7.png" alt="Friends and requests" width="600">
+<img src="screenshots/photo 7.png" alt="Friends and requests" width="600">
 
 </div>
