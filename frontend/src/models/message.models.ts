@@ -12,6 +12,7 @@ export interface Message<SenderT=string, RoomT=string> {
     messageType:MESSAGE_TYPES
 }
 
+
 export interface MessagePayLoadToServer{
     messageRoomType: ROOM_TYPE,
     targetUser?: User|null,//it will be empty for groupchats
