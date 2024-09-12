@@ -1,8 +1,8 @@
 import { io } from 'socket.io-client';
 import { LoggedInUser } from './models/user.models';
 import { SOCKET_CONNECTION_ERROR } from './utility/constants';
-
-const URI = "localhost:3001"
+const env = await import.meta.env;
+const URI = env.MODE === 'production'?`${window.location.origin}/backend`: "http://localhost:3001"
 const getHeaders = ()=>{
     const storedUserData = localStorage.getItem("user");
     let authToken;

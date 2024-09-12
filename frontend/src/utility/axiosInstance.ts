@@ -1,7 +1,7 @@
 import axios, { AxiosError } from "axios";
 import { router } from "../router";
 const env = await import.meta.env;
-const BASE_URL = env.VITE_APP_API_URL || 'http://localhost:3001/api'; // Default URL
+const BASE_URL = env.MODE === 'production'?`${window.location.origin}/api`: "http://localhost:3001/api"
 
 export const axiosInstance = axios.create({
     baseURL: BASE_URL,
