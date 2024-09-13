@@ -5,7 +5,7 @@ export const ErrorFallback = ()=>{
         <h1>Something went wrong</h1>
         <h2>we are really sorry</h2>
         <p>
-            Please refresh the page and try again.   
+            Please refresh the page and try again
         </p>
     </div>
     </div>)

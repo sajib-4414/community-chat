@@ -61,4 +61,4 @@ jobs:
               cd community-chat/
               git pull
               docker compose -f docker-compose.prod.yml pull nginx
-              docker compose -f docker-compose.prod.yml up --build nginx
+              docker compose -f docker-compose.prod.yml up -d --build nginx
