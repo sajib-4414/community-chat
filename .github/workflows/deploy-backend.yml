@@ -68,5 +68,6 @@ jobs:
             port: ${{ secrets.SSH_PORT }}
             script: |
               cd /community-chat
+              git pull
               docker-compose -f docker-compose.prod.yml pull backend
               docker-compose -f docker-compose.prod.yml up --build backend
