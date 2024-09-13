@@ -60,5 +60,5 @@ jobs:
             script: |
               cd community-chat/
               git pull
-              docker compose -f docker-compose.prod.yml pull nginx
-              docker compose -f docker-compose.prod.yml up --build nginx
+              sudo docker compose -f docker-compose.prod.yml pull nginx
+              sudo docker compose -f docker-compose.prod.yml up --build nginx
