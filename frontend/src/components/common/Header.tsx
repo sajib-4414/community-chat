@@ -7,7 +7,7 @@ import { axiosInstance } from "../../utility/axiosInstance";
 import { socket } from "../../socket";
 import { router } from "../../router";
 const env = await import.meta.env;
-const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
+const SERVER_URL = env.MODE === 'production'?`${window.location.origin}`: "http://localhost:3001"
 
 const Header:FC = ()=>{
     const loggedinUser:LoggedInUser|null = useAppSelector(

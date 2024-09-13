@@ -4,7 +4,7 @@ import Moment from "moment";
 import { Message, Room } from "../../models/message.models";
 import { MESSAGE_TYPES } from "../../utility/constants";
 const env = await import.meta.env;
-const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
+const SERVER_URL = env.MODE === 'production'?`${window.location.origin}`: "http://localhost:3001" //env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
 
 interface ChatRowProps {
   message: Message<User,Room>;

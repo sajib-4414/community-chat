@@ -3,7 +3,7 @@ import { RecentChatItem } from "../../models/message.models";
 import { ROOM_TYPE } from "../../utility/constants";
 import { getInitialsFromRoom, getInitialsFromUser } from "../../utility/stringherlper";
 const env = await import.meta.env;
-const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
+const SERVER_URL = env.MODE === 'production'?`${window.location.origin}`: "http://localhost:3001"
 export interface RowProps{
     imessage: RecentChatItem
     isCurrentlyChosen:boolean

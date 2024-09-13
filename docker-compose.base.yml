@@ -23,6 +23,8 @@ services:
       - app-network
     env_file:
       - .env.backend.docker
+    volumes:
+      - ./backend/uploads:/usr/src/app/uploads
     depends_on:
       redis:
         condition: service_healthy

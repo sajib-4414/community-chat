@@ -6,7 +6,8 @@ import { axiosInstance } from "../../utility/axiosInstance";
 import { getAuthHeader } from "../../utility/authenticationHelper";
 import { getInitialsFromUser } from "../../utility/stringherlper";
 const env = await import.meta.env;
-const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
+const SERVER_URL = env.MODE === 'production'?`${window.location.origin}`: "http://localhost:3001"
+
 
 export type FRResponse = "accept" | "deny"
 export const UserListItem = ({user,frCallback,showDeny=true}:{user:UserWithFriend,frCallback:any,showDeny?:boolean})=>{

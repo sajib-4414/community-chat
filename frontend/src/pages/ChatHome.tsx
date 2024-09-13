@@ -16,7 +16,8 @@ import { GroupChatModal } from "../components/Chat/GroupChatModal";
 import { SearchBar } from "../components/Chat/SearchBar";
 import { ChatFooterContainer } from "../components/Chat/ChatFooterContainer";
 const env = await import.meta.env;
-const SERVER_URL = env.VITE_APP_ROOT_URL || 'http://localhost:3001'; 
+const SERVER_URL = env.MODE === 'production'?`${window.location.origin}`: "http://localhost:3001"
+
 export  const ChatHome = ()=>{
     
     //All States
