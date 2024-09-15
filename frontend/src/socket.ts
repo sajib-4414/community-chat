@@ -27,7 +27,7 @@ const getHeaders = ()=>{
 const getIo = ()=>{
     const isUserAuthenticated:boolean = getHeaders().auth.token?true :false;
     const isProductionMode:boolean = env.MODE === 'production'
-    if(isProductionMode){
+    if(isProductionMode ){
         if(isUserAuthenticated){
             return io(URI, 
                 {
